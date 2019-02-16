@@ -3,7 +3,7 @@ header('Content-Type: text/html; charset=utf-8');
 ?>
     <head>
         <title>Китоби Муқаддас</title>
-		<link rel="shortcut icon" type="image/x-icon" href="book.png">
+		<link rel="shortcut icon" type="image/x-icon" href="/img/book.png">
         <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
         <style>

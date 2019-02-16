@@ -9,7 +9,7 @@
     <script src="main.js"></script>
 </head>
 <body>
-	<img src="logo.png" alt="logo" width="40%"/>
+	<img src="/img/logo.png" alt="logo" width="40%"/>
     <h1>In development</h1>
     <a href="test.php">to see sth click here</a>
 </body>
