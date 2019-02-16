@@ -14,8 +14,11 @@ RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
 
 # Protect following
 RewriteRule ^css/ - [L]
+RewriteRule ^/css/ - [L]
 RewriteRule ^img/ - [L]
+RewriteRule ^/img/ - [L]
 RewriteRule ^php/ - [L]
+RewriteRule ^/php/ - [L]
 RewriteRule ^/$ - [L]
 RewriteRule test.php - [L]
 
