@@ -25,4 +25,4 @@ RewriteRule ^/$ - [L]
 RewriteRule test.html - [L]
 
 # Rewrite all to /
-RewriteRule (.*) index.php?var=$1
+RewriteRule (.*) index.html?var=$1
