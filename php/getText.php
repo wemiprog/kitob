@@ -25,7 +25,7 @@ $result_array = array();
 $sql = "SELECT b.long_name as 'Buch', chapter as 'Kapitel', verse as 'Vers', text as 'Verstext'
         FROM verses as v 
         JOIN books as b on b.book_number = v.book_number
-        WHERE v.book_number = 500 AND chapter = 3 AND verse >= 1 AND verse <= 20;";
+        WHERE v.book_number = 500 AND chapter = 2 AND verse >= 1 AND verse <= 20;";
 $result = $mysqli->query($sql);
 
 if ($result->num_rows > 0) {
