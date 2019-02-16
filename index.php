@@ -11,6 +11,6 @@
 <body>
 	<img src="/img/logo.png" alt="logo" width="40%"/>
     <h1>In development</h1>
-    <a href="test.php">to see sth click here</a>
+    <a href="/test.php">to see sth click here</a>
 </body>
 </html>

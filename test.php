@@ -19,7 +19,7 @@ header('Content-Type: text/html; charset=utf-8');
         function getVotes() {
                 $.ajax({
                     method: "POST",
-                    url: "php/getText.php",
+                    url: "/php/getText.php",
                     //data: {'name': content,},
                 }).done(function (data) {
                     console.log(data);
