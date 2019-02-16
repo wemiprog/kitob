@@ -9,7 +9,7 @@
     <script src="main.js"></script>
 </head>
 <body>
-	<img src="https://a2fa0.webhosting.systems/smb/file-manager/show-image?currentDir=%2Fkitob&file=logo.png" alt="logo" width="40%"/>
+	<img src="logo.png" alt="logo" width="40%"/>
     <h1>In development</h1>
     <a href="test.php">to see sth click here</a>
 </body>
