@@ -17,10 +17,12 @@ RewriteRule ^css/ - [L]
 RewriteRule ^/css/ - [L]
 RewriteRule ^img/ - [L]
 RewriteRule ^/img/ - [L]
+RewriteRule ^js/ - [L]
+RewriteRule ^/js/ - [L]
 RewriteRule ^php/ - [L]
 RewriteRule ^/php/ - [L]
 RewriteRule ^/$ - [L]
-RewriteRule test.php - [L]
+RewriteRule test.html - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.php?var=$1
