@@ -1,7 +1,7 @@
 <?php
 /* Config */
 header('Content-Type: text/html; charset=utf-8');
-require 'database_kitob.php';
+require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
 $mysqli = new mysqli($host, $username, $password, $dbname);
 
 function utf8ize($d) {
