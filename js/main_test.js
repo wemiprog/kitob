@@ -3,7 +3,7 @@ var book, chapter, firstVerseNumber = false, lastVerseNumber, versesContent = ""
 function getVotes() {
     $.ajax({
         method: "POST",
-        url: "/php/getText.php",
+        url: "/php/getTestText.php",
         //data: {'name': content,},
     }).done(function (data) {
         console.log(data);
