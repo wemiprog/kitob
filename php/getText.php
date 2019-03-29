@@ -12,6 +12,8 @@ if ($kitobSqli->connect_errno) {
 
 /* Read POST-Values */
 // TODO: Read them
+$rq = json_decode($_POST['data'],$true);    // rq --> request
+printf($rq->book);
 
 /* Query database */
 $result_array = array();                    // Prepare array
@@ -34,6 +36,11 @@ if ($result->num_rows > 0) {
 /* working but not in use now
 echo json_encode($result_array);*/
 
+/* DEV-Try read post */
+// printf($_POST['data']);                  // read the post conten
+//$dataArray = json_decode($_POST['data'],$true);
+//printf($dataArray->book);
+
 /* DEV-Info */
-printf("zwar no ke text aber immerhin zeigts emojis 😂");
+printf("jo zwar no ke text aber immerhin zeigts emojis 😂");
 ?>
