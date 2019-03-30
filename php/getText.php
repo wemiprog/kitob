@@ -25,13 +25,13 @@ if ($kitobSqli->connect_errno) {
 
 /* Read POST-Values */
 $rq = json_decode($_POST['data'],$true);    // rq --> request
-printf($rq->book);
+// printf($rq->book);                       // DEV-Info
 /*** Read POST-Values  */
 
 /* Query database */
 $result_array = array();                    // Prepare array
 // TODO: replace fixed values with vars
-$sql  = "SELECT b.long_name as 'Buch', chapter as 'Kapitel', verse as 'Vers', text as 'Verstext'
+$sql  = "SELECT b.long_name as 'book', chapter as 'chapter', verse as 'verse', text as 'text'
          FROM verses as v
          JOIN books as b on b.book_number = v.book_number
          WHERE v.book_number = 
@@ -53,7 +53,6 @@ if ($result->num_rows > 0) {
 
 
 /* Return data to client via json */
-// working but not in use now
 echo json_encode($result_array);
 
 /* DEV-Try read post */
@@ -62,5 +61,5 @@ echo json_encode($result_array);
 //printf($dataArray->book);
 
 /* DEV-Info */
-printf("jo zwar no ke text aber immerhin zeigts emojis 😂");
+//printf("jo zwar no ke text aber immerhin zeigts emojis 😂");
 ?>
