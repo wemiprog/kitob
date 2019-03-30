@@ -11,4 +11,5 @@ In early developing🛠, only in the background a few working things
 
 ## Technologies
 Backend is coded in PHP, accessing MySQL-Databases
+
 Frontend is coded in HTML, functional in JS with jQuery, styled with SCSS.
