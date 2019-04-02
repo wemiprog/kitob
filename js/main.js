@@ -16,6 +16,7 @@ function readUrl() {
  * @param {string} reqPath - Requested path to split
  */
 function interpretReq(reqPath) {
+    reqBook = reqPath;
     getText(reqBook);
 }
 

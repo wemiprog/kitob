@@ -9,6 +9,7 @@
  * kitobSqli - connection to tgNT-db
  */
 
+ 
 /** Config */
 require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
 $kitobSqli = new mysqli($host, $username, $password, $dbname);
