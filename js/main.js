@@ -1,16 +1,32 @@
-// JS loaded as last doc, so no need to wait for onload
+/* Main file of kitob */
 
-/* Read URL-Reques and write to console */
-function reloadText() {
-    path = window.location.pathname; // get requested path
-    requestedPath = decodeURI(path).substr(1); // decode kyrillic and omit slash
-    console.log(requestedPath); // DEV-Info
-    document.getElementById("path").innerHTML = requestedPath; // and in html too
-    getText(requestedPath);
+/* Read URL-Reques --> interpretUrl() */
+function readUrl() {
+    // Get path from URL and decode kyrillic, omit slash
+    path = window.location.pathname;
+    requestedPath = decodeURI(path).substr(1);
+
+    // Send to splitter
+    interpretReq(requestedPath);
 }
 
-/* Request text from server */
-function getText(book, chapter = 1, verses = 1) {
+
+/**
+ * Split Request into parts-- > getText()
+ * @param {string} reqPath - Requested path to split
+ */
+function interpretReq(reqPath) {
+    getText(reqBook);
+}
+
+
+/**
+ * Get text from server-- > renderText()
+ * @param {string} book - Book, default matthew
+ * @param {number} chapter - Chapter, default 1
+ * @param {number} verses - Verses, default 0 -> whole chapter
+ */
+function getText(book = "мат", chapter = 1, verses = 0) {
     // TODO: allow multiple verses and none (whole chapter)
 
     var request = {
@@ -20,41 +36,36 @@ function getText(book, chapter = 1, verses = 1) {
     };
     requestString = JSON.stringify(request);
 
-    // make request to server via ajax (without reload)
+    // Send request to server via AJAX
     $.ajax({
-        method: "POST", // not visible in URL
-        url: "/php/getText.php", // standard processing file
-        //contentType: "application/json; charset=utf-8",     // set contentType
-        //breaks all: dataType: "json",                                   // use only json
-        data: "data=" + requestString // send request to server
+        method: "POST", // invisible in URL
+        url: "/php/getText.php",
+        data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        //console.log(data);            // DEV-Info
         renderText(data);
     });
 }
 
-/* Renders json-text to html */
+/* Renders text to html */
 function renderText(receivedText) {
-    // Define vars for have them available in whole function not only in sub'
-    // first and lastVerse are used for printing out them if needed
+    /* Prepare vars */
     var book, chapter, firstVerse = false,
         lastVerse = false,
         text = "";
     var jsonText = $.parseJSON(receivedText);
-    console.log(jsonText); // DEV-Info
 
-    // Iterate over json
+    /* Read 'n convert each verse */
     $.each(jsonText, function (key, value) {
         book = value['book'];
         chapter = value['chapter'];
         firstVerse ? lastVerse = value['verse'] : firstVerse = value['verse'];
         text = text + " <b>" + value['verse'] + "</b> " + value['text'];
     });
+    // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     $('h2.chapter').html(book + " " + chapter + ":" + verseNumbers);
     $('div.text').html(text);
 }
 
 /* Execute now */
-// TODO: don't request directly, first split apart book, chapter, ...
-reloadText();
+readUrl();  // chain-command, see top description of functions
