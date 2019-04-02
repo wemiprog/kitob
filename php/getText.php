@@ -9,7 +9,7 @@
  * kitobSqli - connection to tgNT-db
  */
 
- 
+
 /** Config */
 require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
 $kitobSqli = new mysqli($host, $username, $password, $dbname);
@@ -37,7 +37,7 @@ $sql  = "SELECT b.long_name as 'book', chapter as 'chapter', verse as 'verse', t
              WHERE long_name LIKE '%$req->book%'
              LIMIT 1) 
          AND chapter = $req->chapter
-         AND verse >= 1 AND verse <=20;";
+         AND verse >= 1 AND verse <=160;";
 $result = $kitobSqli->query($sql); // execute query
 
 

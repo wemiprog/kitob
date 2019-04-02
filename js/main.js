@@ -16,18 +16,51 @@ function readUrl() {
  * @param {string} reqPath - Requested path to split
  */
 function interpretReq(reqPath) {
-    reqBook = reqPath;
-    getText(reqBook);
+    // Extract book
+        // Get book number ex. 2corinthian
+    ex = /^(\d?)/g; // One number at beginning of string
+    bookNumber = ex.exec(reqPath)[0];
+    switch (bookNumber) {
+        case "1":
+            bookCount = 'якуми ';
+            break;
+        case "2":
+            bookCount = 'дуюми ';
+            break;
+        case "3":
+            bookCount = 'Сеюми ';
+            break;
+        default:
+            bookCount = '';
+            break;
+    }
+        // Get book name itself
+    ex = /([^1-9 ]+)/ // Every letter except number and " ", at least one
+    try { bookName = ex.exec(reqPath)[0];} catch {bookName = "";}
+        // Combine count and name
+    reqBook = bookCount + bookName;
+
+    // Get chapter
+    ex = /(.{1})([1-9]+)/ // a random letter followed by at least one number
+    try {
+        chapterString = ex.exec(reqPath)[0];
+        chapterSubstring = chapterString.substr(1);
+        chapter = parseInt(chapterSubstring);
+    } catch {
+        chapter = 1;
+    }
+
+    getText(reqBook, chapter);
 }
 
 
 /**
  * Get text from server-- > renderText()
- * @param {string} book - Book, default matthew
- * @param {number} chapter - Chapter, default 1
- * @param {number} verses - Verses, default 0 -> whole chapter
+ * @param {string} book - Book
+ * @param {number} chapter - Chapter
+ * @param {number} verses - Verses, 0 -> whole chapter
  */
-function getText(book = "мат", chapter = 1, verses = 0) {
+function getText(book, chapter, verses = 0) {
     // TODO: allow multiple verses and none (whole chapter)
 
     var request = {
