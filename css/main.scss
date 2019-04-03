@@ -1,0 +1,11 @@
+//https://engageinteractive.co.uk/blog/top-10-scss-mixins
+html, body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    color: green;
+    &:hover {
+        color: red;
+    }
+}
