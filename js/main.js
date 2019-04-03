@@ -35,7 +35,9 @@ function interpretReq(reqPath) {
             break;
     }
         // Get book name itself
-    ex = /([^1-9 ]+)/ // Every letter except number and " ", at least one
+        // Every letter except number and " ", at least one
+        // Then if wanted a space with following letters
+    ex = /([^1-9 ]+)( ?)([^1-9 ]*)/ 
     try { bookName = ex.exec(reqPath)[0];} catch {bookName = "";}
         // Combine count and name
     reqBook = bookCount + bookName;
