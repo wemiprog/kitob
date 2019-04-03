@@ -8,6 +8,7 @@ In early developing🛠, only in the background a few working things
  - Upload the whole repo to your root folder of the hosting
  - Get a translation as .SQL-file and make it a database
  - Hope it works 😜
+ - Better information will come one day (maybe)
 
 ## Technologies
 Backend is coded in PHP, accessing MySQL-Databases
