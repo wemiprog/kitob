@@ -25,24 +25,6 @@ if ($kitobSqli->connect_errno) {
 /* Read POST-Values */
 $req = json_decode($_POST['data'],$true);
 
-/* Check if only given chars in string */
-function str_contains_only($string,$gama){
-    $chars = mb_str_to_array($string);
-    $gama = mb_str_to_array($gama);
-    foreach($chars as $char) {
-        if(in_array($char, $gama)==false)return false;
-    }
-    return true;
-}
-function mb_str_to_array($string){
-   mb_internal_encoding("UTF-8"); // Important
-   $chars = array();
-   for ($i = 0; $i < mb_strlen($string); $i++ ) {
-	$chars[] = mb_substr($string, $i, 1);
-   }
-   return $chars;
-}
-
 /* Check input */
 // Check book
 $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ';
@@ -53,6 +35,7 @@ if(is_numeric($req->chapter)){$chapter = $req->chapter;} else {$chapter = 1;}
 // Check verses
 if(is_numeric($req->firstVerse)){$firstVerse = $req->firstVerse;} else {$firstVerse = 1;}
 if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse = 180;} // Psalm 119 contains 176 verses
+
 
 /* Query database */
 $result_array = array();
@@ -80,9 +63,25 @@ if ($result->num_rows > 0) {
 /* Return data to client via json */
 echo json_encode($result_array);
 
-
-/** Helper functions
- *
+/**
+ * HELPER FUNCTIONS
  */
 
+/* Check if only given chars in string */
+function str_contains_only($string,$gama){
+    $chars = mb_str_to_array($string);
+    $gama = mb_str_to_array($gama);
+    foreach($chars as $char) {
+        if(in_array($char, $gama)==false)return false;
+    }
+    return true;
+}
+function mb_str_to_array($string){
+   mb_internal_encoding("UTF-8"); // Important
+   $chars = array();
+   for ($i = 0; $i < mb_strlen($string); $i++ ) {
+	$chars[] = mb_substr($string, $i, 1);
+   }
+   return $chars;
+}
 ?>
