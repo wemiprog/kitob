@@ -14,3 +14,7 @@ html, body {
     text-align: justify;
     text-justify: inter-word;
 }
+
+h3 {
+    color: #004b04;
+}
