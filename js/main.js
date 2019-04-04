@@ -141,8 +141,12 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     $.each(jsonText, function (key, value) {
         book = value['book'];
         chapter = value['chapter'];
-        verse = value['verse']
+        verse = value['verse'];
+        header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
+        if(header){
+            text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>"
+        }
         if(verse >= markStart && verse <= markEnd && markBool) {
             text = text + "<span verse='"+ verse +"' class='verse mark'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
         } else {

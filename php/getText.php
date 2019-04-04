@@ -40,15 +40,17 @@ if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse 
 /* Query database */
 $result_array = array();
 // TODO: replace fixed values with vars
-$sql  = "SELECT b.long_name as 'book', chapter as 'chapter', verse as 'verse', text as 'text'
+$sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
          FROM verses as v
          JOIN books as b on b.book_number = v.book_number
+         LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
          WHERE v.book_number = 
             (SELECT book_number FROM `books` 
              WHERE long_name LIKE '%$book%'
              LIMIT 1) 
-         AND chapter = $chapter
-         AND verse >= $firstVerse AND verse <= $lastVerse;";
+         AND v.chapter = $chapter
+         AND v.verse >= $firstVerse AND v.verse <= $lastVerse
+         ORDER BY v.book_number, v.chapter, v.verse";
 $result = $kitobSqli->query($sql); // execute query
 
 

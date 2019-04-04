@@ -3,5 +3,14 @@ html, body {
 }
 
 .mark {
-    background-color: aliceblue;
+    background-color: rgba(0, 123, 8, 0.2);
+}
+
+.mark b {
+    color: #004b04
+}
+
+.text {
+    text-align: justify;
+    text-justify: inter-word;
 }
