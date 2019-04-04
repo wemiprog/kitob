@@ -59,10 +59,8 @@ $result = query($book, $chapter, $firstVerse, $lastVerse);
 
 
 /* SQLResult to Array */
-function createArray($result, $recursionCount, $recurse = true)
+function createArray($result)
 {
-    global $book, $chapter, $firstVerse, $lastVerse;
-    $rc = $recursionCount + 1;
     $fa = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // fails array
 
     $result_array = array();
@@ -72,17 +70,7 @@ function createArray($result, $recursionCount, $recurse = true)
         }
         return $result_array;
     } else {    // check for misspelling with recursion
-        for ($i=$rc; $i <= sizeof($fa); $i += 1) {  // go trough all letters
-            if(!$i % 2){ // each time two belong to each other
-                $testBook = str_replace($fa[$i], $fa[$i + 1], $book); // if this if will be disabled keep only this line
-                //printf("% 2", $testBook);
-            } else { // so test both directions
-                $testBook = str_replace($fa[$i + 1], $fa[$i], $book); 
-                //echo $testBook;
-                //echo "\n";
-            }
-            return createArray(query($testBook, $chapter, $firstVerse, $lastVerse), $i);
-        }
+        
     }
 }
 $result_array = createArray($result, -1);
