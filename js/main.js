@@ -1,5 +1,13 @@
 /* Main file of kitob */
 
+/* Global vars */
+var dontOverflow = 0;
+
+/* Reload text when user presses back or forward button in browser */
+window.onpopstate = function() {
+    readUrl();
+};
+
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
@@ -9,7 +17,6 @@ function readUrl() {
     // Send to splitter
     interpretReq(requestedPath);
 }
-
 
 /**
  * Split Request into parts-- > getText()
@@ -110,7 +117,14 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
         url: "/php/getText.php",
         data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        renderText(data, markBool, firstVerse, lastVerse);
+        if(data == "[]" && dontOverflow < 20){ // if no answer from server
+            dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
+            console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");            
+            getText(".","",true); // restart function empty to select default values
+        } else {
+            renderText(data, markBool, firstVerse, lastVerse);
+            dontOverflow = 0;
+        }
     });
 }
 
@@ -127,17 +141,18 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     $.each(jsonText, function (key, value) {
         book = value['book'];
         chapter = value['chapter'];
-        firstVerse ? lastVerse = value['verse'] : firstVerse = value['verse'];
-        if(value['verse'] >= markStart && value['verse'] <= markEnd && markBool) {
-            text = text + "<span class='mark'>" + " <b>" + value['verse'] + "</b> " + value['text'] + "</span>";
+        verse = value['verse']
+        firstVerse ? lastVerse = verse : firstVerse = verse;
+        if(verse >= markStart && verse <= markEnd && markBool) {
+            text = text + "<span verse='"+ verse +"' class='verse mark'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
         } else {
-            text = text + " <b>" + value['verse'] + "</b> " + value['text'];
+            text = text + "<span verse='" + verse + "' class='verse'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
         }
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     $('h2.chapter').html(book + " " + chapter + ":" + verseNumbers);
-    $('div.text').html(text);
+    $('.displayText div.text').html(text);
 }
 
 /* Execute now */
