@@ -25,19 +25,50 @@ if ($kitobSqli->connect_errno) {
 /* Read POST-Values */
 $req = json_decode($_POST['data'],$true);
 
+/* Check if only given chars in string */
+function str_contains_only($string,$gama){
+    $chars = mb_str_to_array($string);
+    $gama = mb_str_to_array($gama);
+    foreach($chars as $char) {
+        if(in_array($char, $gama)==false)return false;
+    }
+    return true;
+}
+function mb_str_to_array($string){
+   mb_internal_encoding("UTF-8"); // Important
+   $chars = array();
+   for ($i = 0; $i < mb_strlen($string); $i++ ) {
+	$chars[] = mb_substr($string, $i, 1);
+   }
+   return $chars;
+}
 
 /* Query database */
 $result_array = array();
+
+/* Check input */
+// Check book
+//setlocale(LC_ALL, 'ru_RU.UTF-8'); // ctype_alpha checks with locale, so set to tajik
+//if(ctype_alpha($req->book)){$book = $req->book;} else {$book = 'мат';}
+$allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ';
+if(str_contains_only($req->book, $allowed)) {$book = $req->book;} else {$book = 'мат';}
+//$book = $req->book;
+// Check chapter
+if(is_numeric($req->chapter)){$chapter = $req->chapter;} else {$chapter = 1;}
+// Check verses
+if(is_numeric($req->firstVerse)){$firstVerse = $req->firstVerse;} else {$firstVerse = 1;}
+if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse = 160;}
+
 // TODO: replace fixed values with vars
 $sql  = "SELECT b.long_name as 'book', chapter as 'chapter', verse as 'verse', text as 'text'
          FROM verses as v
          JOIN books as b on b.book_number = v.book_number
          WHERE v.book_number = 
             (SELECT book_number FROM `books` 
-             WHERE long_name LIKE '%$req->book%'
+             WHERE long_name LIKE '%$book%'
              LIMIT 1) 
-         AND chapter = $req->chapter
-         AND verse >= 1 AND verse <=160;";
+         AND chapter = $chapter
+         AND verse >= $firstVerse AND verse <= $lastVerse;";
 $result = $kitobSqli->query($sql); // execute query
 
 
@@ -51,4 +82,10 @@ if ($result->num_rows > 0) {
 
 /* Return data to client via json */
 echo json_encode($result_array);
+
+
+/** Helper functions
+ *
+ */
+
 ?>

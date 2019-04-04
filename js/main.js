@@ -43,7 +43,7 @@ function interpretReq(reqPath) {
     reqBook = bookCount + bookName;
 
     // Get chapter
-    ex = /(.{1})([1-9]+)/ // a random letter followed by at least one number
+    ex = /(.{1})([0-9]+)/ // a random letter followed by at least one number
     try {
         chapterString = ex.exec(reqPath)[0];
         chapterSubstring = chapterString.substr(1);
@@ -51,6 +51,9 @@ function interpretReq(reqPath) {
     } catch {
         chapter = 1;
     }
+
+    // Get verses
+
 
     getText(reqBook, chapter);
 }
@@ -88,6 +91,7 @@ function renderText(receivedText) {
     var book, chapter, firstVerse = false,
         lastVerse = false,
         text = "";
+        console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
 
     /* Read 'n convert each verse */
