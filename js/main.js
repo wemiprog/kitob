@@ -11,8 +11,8 @@ window.onpopstate = function() {
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
-    path = window.location.pathname;
-    requestedPath = decodeURI(path).substr(1);
+    var path = window.location.pathname;
+    var requestedPath = decodeURI(path).substr(1);
 
     // Send to splitter
     interpretReq(requestedPath);
@@ -25,57 +25,57 @@ function readUrl() {
 function interpretReq(reqPath) {
     // Extract book
         // Get book number ex. 2corinthian -> second cor...
-    ex = /^(\d?)/g; // One number at beginning of string
-    bookNumber = ex.exec(reqPath)[0];
+    var ex = /^(\d?)/g; // One number at beginning of string
+    var bookNumber = ex.exec(reqPath)[0];
     switch (bookNumber) {
         case "1":
-            bookCount = 'якуми ';
+            var bookCount = 'якуми ';
             break;
         case "2":
-            bookCount = 'дуюми ';
+            var bookCount = 'дуюми ';
             break;
         case "3":
-            bookCount = 'Сеюми ';
+            var bookCount = 'Сеюми ';
             break;
         default:
-            bookCount = '';
+            var bookCount = '';
             break;
     }
         // Get book name itself
         // Every letter except number and " ", at least one
         // Then if wanted a space with following letters
-    ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/ 
-    try { bookName = ex.exec(reqPath)[0];} catch {bookName = "";}
+    var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/ 
+    try { var bookName = ex.exec(reqPath)[0];} catch {var bookName = "";}
         // Combine count and name
-    reqBook = bookCount + bookName;
+    var reqBook = bookCount + bookName;
 
     // Get chapter
     ex = /(.{1})([0-9]+)/ // a random letter followed by at least one number
     try {
-        chapterRegex = ex.exec(reqPath)[0];
-        chapterString = chapterRegex.substr(1);
-        reqChapter = parseInt(chapterString);
+        var chapterRegex = ex.exec(reqPath)[0];
+        var chapterString = chapterRegex.substr(1);
+        var reqChapter = parseInt(chapterString);
     } catch {
-        reqChapter = 1;
+        var reqChapter = 1;
     }
 
     // Get verses
-    ex = /(:|,)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
-    markBool = false;               // says if there are verses to mark
+    ex = /(:|,|\.)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
+    var markBool = false;               // says if there are verses to mark
     try {        
-        verseRegex = ex.exec(reqPath)[0];
-        verseString = verseRegex.substr(1);
-        verseSplit = verseString.split("-",2); // if there are multiple verses 5-8 ex.
-        firstVerse = parseInt(verseSplit[0]);
+        var verseRegex = ex.exec(reqPath)[0];
+        var verseString = verseRegex.substr(1);
+        var verseSplit = verseString.split("-",2); // if there are multiple verses 5-8 ex.
+        var firstVerse = parseInt(verseSplit[0]);
         markBool = true;
         if(verseSplit.length > 1) {             // check if a second vers is given
-            lastVerse = parseInt(verseSplit[1]);
+            var lastVerse = parseInt(verseSplit[1]);
         } else {
-            lastVerse = firstVerse;
+            var lastVerse = firstVerse;
         }
     } catch {                                   // if there is no verse -> whole chapter
-        firstVerse = 0;
-        lastVerse = 180;
+        var firstVerse = 0;
+        var lastVerse = 180;
     }
 
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool);
@@ -109,7 +109,7 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
         }
     }
     
-    requestString = JSON.stringify(request);
+    var requestString = JSON.stringify(request);
 
     // Send request to server via AJAX
     $.ajax({
@@ -132,9 +132,10 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
 function renderText(receivedText, markBool, markStart, markEnd) {
     /* Prepare vars */
     var book, chapter, firstVerse = false,
-        lastVerse = false,
+        lastVerse = false, verse, header,
         text = "";
-    // DEV-Info console.log(receivedText);
+    // DEV-Info 
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
 
     /* Read 'n convert each verse */
@@ -157,6 +158,21 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     $('h2.chapter').html(book + " " + chapter + ":" + verseNumbers);
     $('.displayText div.text').html(text);
+}
+
+/* Get book data for verse chooser */
+function getBibleBooks() {
+
+}
+
+/* Get chapter and verses for verse chooser */
+function getVersesAndChapters() {
+
+}
+
+/* Fill chapter chooser with content */
+function renderVerseChooser() {
+
 }
 
 /* Execute now */

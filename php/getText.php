@@ -9,11 +9,11 @@
  * kitobSqli - connection to tgNT-db
  */
 
-
 /** Config */
 require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
 $kitobSqli = new mysqli($host, $username, $password, $dbname);
 
+/** Global vars */
 
 /* Check connection */
 if ($kitobSqli->connect_errno) {
@@ -38,28 +38,43 @@ if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse 
 
 
 /* Query database */
-$result_array = array();
-// TODO: replace fixed values with vars
-$sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
-         FROM verses as v
-         JOIN books as b on b.book_number = v.book_number
-         LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
-         WHERE v.book_number = 
-            (SELECT book_number FROM `books` 
-             WHERE long_name LIKE '%$book%'
-             LIMIT 1) 
-         AND v.chapter = $chapter
-         AND v.verse >= $firstVerse AND v.verse <= $lastVerse
-         ORDER BY v.book_number, v.chapter, v.verse";
-$result = $kitobSqli->query($sql); // execute query
+function query($book, $chapter, $firstVerse, $lastVerse) {
+    global $kitobSqli;
+    // TODO: replace fixed values with vars
+    $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
+            FROM verses as v
+            JOIN books as b on b.book_number = v.book_number
+            LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
+            WHERE v.book_number = 
+                (SELECT book_number FROM `books` 
+                WHERE long_name LIKE '%$book%'
+                LIMIT 1) 
+            AND v.chapter = $chapter
+            AND v.verse >= $firstVerse AND v.verse <= $lastVerse
+            ORDER BY v.book_number, v.chapter, v.verse";
+    $result = $kitobSqli->query($sql); // execute query
+    return $result;
+}
+$result = query($book, $chapter, $firstVerse, $lastVerse);
 
 
 /* SQLResult to Array */
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        array_push($result_array, $row);
+$recursionCount = 0;
+function createArray($result)
+{
+    global $recursionCount;
+    $result_array = array();
+    $fails_array = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч");
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            array_push($result_array, $row);
+        }
+        return $result_array;
+    } else {    // check for misspelling with recursion
+        // Try all possible spellings ...
     }
 }
+$result_array = createArray($result);
 
 
 /* Return data to client via json */
