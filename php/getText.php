@@ -27,7 +27,7 @@ $req = json_decode($_POST['data'],$true);
 
 /* Check input */
 // Check book
-$allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ';
+$allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ ';
 if(str_contains_only($req->book, $allowed)) {$book = $req->book;} else {$book = 'мат';}
 //$book = $req->book;
 // Check chapter

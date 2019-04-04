@@ -37,7 +37,7 @@ function interpretReq(reqPath) {
         // Get book name itself
         // Every letter except number and " ", at least one
         // Then if wanted a space with following letters
-    ex = /([^1-9 ]+)( ?)([^1-9 ]*)/ 
+    ex = /([^1-9 ]+)((( ?)([^1-9 ]+))?)/ 
     try { bookName = ex.exec(reqPath)[0];} catch {bookName = "";}
         // Combine count and name
     reqBook = bookCount + bookName;
@@ -53,9 +53,23 @@ function interpretReq(reqPath) {
     }
 
     // Get verses
-    firstVerse = 0;
-    lastVerse = 180;
-    markBool = false;
+    ex = /(:|,)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
+    markBool = false;               // says if there are verses to mark
+    try {        
+        verseRegex = ex.exec(reqPath)[0];
+        verseString = verseRegex.substr(1);
+        verseSplit = verseString.split("-",2); // if there are multiple verses 5-8 ex.
+        firstVerse = parseInt(verseSplit[0]);
+        markBool = true;
+        if(verseSplit.length > 1) {             // check if a second vers is given
+            lastVerse = parseInt(verseSplit[1]);
+        } else {
+            lastVerse = firstVerse;
+        }
+    } catch {                                   // if there is no verse -> whole chapter
+        firstVerse = 0;
+        lastVerse = 180;
+    }
 
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool);
 }
@@ -66,17 +80,28 @@ function interpretReq(reqPath) {
  * @param {string} book 
  * @param {number} chapter 
  * @param {number} firstVerse 
- * @param {number} lastVerse 
+ * @param {number} lastVerse
+ * @param {bool} markBool - verse selection to mark (true) or to request (false)
  */
 function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
 
-    // Request whole chapter, but mark selected verses
-    var request = {
-        book: book,
-        chapter: chapter,
-        firstVerse: 0,
-        lastVerse: 180
-    };
+    // Request whole chapter if marking enabled
+    if(markBool){
+        var request = {
+            book: book,
+            chapter: chapter,
+            firstVerse: 0,
+            lastVerse: 180
+        };
+    } else {
+        var request = {
+            book: book,
+            chapter: chapter,
+            firstVerse: firstVerse,
+            lastVerse: lastVerse,
+        }
+    }
+    
     requestString = JSON.stringify(request);
 
     // Send request to server via AJAX
@@ -95,7 +120,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     var book, chapter, firstVerse = false,
         lastVerse = false,
         text = "";
-        console.log(receivedText);
+    // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
 
     /* Read 'n convert each verse */
@@ -103,11 +128,10 @@ function renderText(receivedText, markBool, markStart, markEnd) {
         book = value['book'];
         chapter = value['chapter'];
         firstVerse ? lastVerse = value['verse'] : firstVerse = value['verse'];
-        text = text + " <b>" + value['verse'] + "</b> "; // Add verse number
         if(value['verse'] >= markStart && value['verse'] <= markEnd && markBool) {
-            text = text + "<span class='mark'>" + value['text'] + "</span>"; // Add text itself
+            text = text + "<span class='mark'>" + " <b>" + value['verse'] + "</b> " + value['text'] + "</span>";
         } else {
-            text = text + value['text']; // Add text itself
+            text = text + " <b>" + value['verse'] + "</b> " + value['text'];
         }
     });
     // If there is a last verse there will be more than one verse
