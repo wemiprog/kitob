@@ -17,7 +17,7 @@ function readUrl() {
  */
 function interpretReq(reqPath) {
     // Extract book
-        // Get book number ex. 2corinthian
+        // Get book number ex. 2corinthian -> second cor...
     ex = /^(\d?)/g; // One number at beginning of string
     bookNumber = ex.exec(reqPath)[0];
     switch (bookNumber) {
@@ -45,33 +45,37 @@ function interpretReq(reqPath) {
     // Get chapter
     ex = /(.{1})([0-9]+)/ // a random letter followed by at least one number
     try {
-        chapterString = ex.exec(reqPath)[0];
-        chapterSubstring = chapterString.substr(1);
-        chapter = parseInt(chapterSubstring);
+        chapterRegex = ex.exec(reqPath)[0];
+        chapterString = chapterRegex.substr(1);
+        reqChapter = parseInt(chapterString);
     } catch {
-        chapter = 1;
+        reqChapter = 1;
     }
 
     // Get verses
+    firstVerse = 0;
+    lastVerse = 180;
+    markBool = false;
 
-
-    getText(reqBook, chapter);
+    getText(reqBook, reqChapter, firstVerse, lastVerse, markBool);
 }
 
 
 /**
  * Get text from server-- > renderText()
- * @param {string} book - Book
- * @param {number} chapter - Chapter
- * @param {number} verses - Verses, 0 -> whole chapter
+ * @param {string} book 
+ * @param {number} chapter 
+ * @param {number} firstVerse 
+ * @param {number} lastVerse 
  */
-function getText(book, chapter, verses = 0) {
-    // TODO: allow multiple verses and none (whole chapter)
+function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
 
+    // Request whole chapter, but mark selected verses
     var request = {
         book: book,
         chapter: chapter,
-        verses: verses
+        firstVerse: 0,
+        lastVerse: 180
     };
     requestString = JSON.stringify(request);
 
@@ -81,12 +85,12 @@ function getText(book, chapter, verses = 0) {
         url: "/php/getText.php",
         data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        renderText(data);
+        renderText(data, markBool, firstVerse, lastVerse);
     });
 }
 
 /* Renders text to html */
-function renderText(receivedText) {
+function renderText(receivedText, markBool, markStart, markEnd) {
     /* Prepare vars */
     var book, chapter, firstVerse = false,
         lastVerse = false,
@@ -99,7 +103,12 @@ function renderText(receivedText) {
         book = value['book'];
         chapter = value['chapter'];
         firstVerse ? lastVerse = value['verse'] : firstVerse = value['verse'];
-        text = text + " <b>" + value['verse'] + "</b> " + value['text'];
+        text = text + " <b>" + value['verse'] + "</b> "; // Add verse number
+        if(value['verse'] >= markStart && value['verse'] <= markEnd && markBool) {
+            text = text + "<span class='mark'>" + value['text'] + "</span>"; // Add text itself
+        } else {
+            text = text + value['text']; // Add text itself
+        }
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
