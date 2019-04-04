@@ -43,13 +43,8 @@ function mb_str_to_array($string){
    return $chars;
 }
 
-/* Query database */
-$result_array = array();
-
 /* Check input */
 // Check book
-//setlocale(LC_ALL, 'ru_RU.UTF-8'); // ctype_alpha checks with locale, so set to tajik
-//if(ctype_alpha($req->book)){$book = $req->book;} else {$book = 'мат';}
 $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ';
 if(str_contains_only($req->book, $allowed)) {$book = $req->book;} else {$book = 'мат';}
 //$book = $req->book;
@@ -57,8 +52,10 @@ if(str_contains_only($req->book, $allowed)) {$book = $req->book;} else {$book = 
 if(is_numeric($req->chapter)){$chapter = $req->chapter;} else {$chapter = 1;}
 // Check verses
 if(is_numeric($req->firstVerse)){$firstVerse = $req->firstVerse;} else {$firstVerse = 1;}
-if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse = 160;}
+if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse = 180;} // Psalm 119 contains 176 verses
 
+/* Query database */
+$result_array = array();
 // TODO: replace fixed values with vars
 $sql  = "SELECT b.long_name as 'book', chapter as 'chapter', verse as 'verse', text as 'text'
          FROM verses as v
