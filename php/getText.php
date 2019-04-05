@@ -71,49 +71,35 @@ function createArray($result, $dontRecurse = 0, $booki)
             array_push($result_array, $row);
         }
         return $result_array;
-    } elseif ( 6 > $dontRecurse) {    // check for misspelling with recursion
-        $bookHelper = $booki;
-        for ($i=0; $i < 16; $i += 2) {
-            $booki = $bookHelper;
-            //echo "in for: $booki\n";
-
-            //echo "sizeof(explode(\" \",$booki))>1";
-            if(sizeof(explode(" ",$booki))>1){
-                $bookCount = explode(" ", $booki)[0];
-                $booki = explode(" ", $booki)[1];
+    } elseif ( 10 > $dontRecurse) {     // check for MISSPELLING with recursion, max recursiondeep 10
+        $bookHelper = $booki;           // Helper to fix var in for loop
+        for ($i=0; $i < 16; $i += 2) {  // Iterate over all pairs in $fa
+            $booki = $bookHelper;       // fix broken var
+            if(sizeof(explode(" ",$booki))>1){  // if a space is in request, split up, to ensure
+                $bookCount = explode(" ", $booki)[0] . " "; // that "first" or "second" won't be checked
+                $booki = explode(" ", $booki)[1]; // book It self
             } else {
                 $bookCount = "";
             }
-            $faione = $fa[$i + 1];
-            $fastBook = $bookCount . " " . $booki;
-            if($bookCount == "") $fastBook = $booki;
-            //echo "fb $fastBook\n";
-            if(strpos($booki, $fa[$i + 1]) === false) {
-                //echo "createArray(query($fastBook, $chapter, $firstVerse, $lastVerse),100, $fastBook);\n";
-                $answer = createArray(query($fastBook, $chapter, $firstVerse, $lastVerse),100, $booki);
-                //echo "i: $i\nfaione: $faione\ntempBook: $booki\ndontRecurse: $dontRecurse\n\n";
-                continue;
+            $fastBook = $bookCount . $booki; // used for the speedUp method below
+            if(strpos($booki, $fa[$i + 1]) === false) { // if there won't be a change ...
+                $answer = createArray(query($fastBook, $chapter, $firstVerse, $lastVerse),100, $fastBook);
+                continue; // ... , request this and then go on instead of recurse
             }
-            $tempBook = str_replace($fa[$i + 1], $fa[$i], $booki);
-            $tempBook = $bookCount . " " . $tempBook;
-            //echo "tb $tempBook\n";
-            //echo "i: $i\ntempBook: $tempBook\ndontRecurse: $dontRecurse\n\n";
+            $tempBook = str_replace($fa[$i + 1], $fa[$i], $booki); // exchange the current pair
+            $tempBook = $bookCount . $tempBook;                    // add book count again
             $answer = createArray(query($tempBook, $chapter, $firstVerse, $lastVerse), $dontRecurse + 1, $tempBook);
-            //echo "arec\n$tempBook\ndont: $dontRecurse\n";
-            if ($answer != "problem") {
-                //echo "noproblem";
+            if ($answer != "problem") { // if there is a real response -> break  out of for and give value back
                 break;
             }
         }
-        //$answer = createArray($result, true);
-        //echo $answer;
         return $answer;
     }
-    //echo "ausserhalb\n";
-    return "problem";
+    return "problem"; // If there isn't an answer or a recurse -> Make problems
 }
 $result_array = createArray($result, 0, $book);
-if ($result_array == "problem") {
+
+if ($result_array == "problem") { // if no book is found -> request matthew 1
     $result_array = createArray(query("мат", 1,1,180), true, $book);
 }
 
