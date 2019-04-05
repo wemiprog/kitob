@@ -2,20 +2,37 @@
 
 /* Events to catch */
 $(document).on({
-    ajaxSend: function () { $('.book-load').show(); },
-    ajaxStart: function () { $('.book-load').show(); },
-    ajaxStop: function () { $('.book-load').hide(); },
-    ajaxError: function () { $('.book-load').hide(); },
+    ajaxSend: function () {
+        $('.book-load').show();
+    },
+    ajaxStart: function () {
+        $('.book-load').show();
+    },
+    ajaxStop: function () {
+        $('.book-load').hide();
+    },
+    ajaxError: function () {
+        $('.book-load').hide();
+    },
 });
 
 /* Global vars */
 var dontOverflow = 0;
 
 /* Reload text when user presses back or forward button in browser */
-window.onpopstate = function() {
+window.onpopstate = function () {
     readUrl();
 };
 
+/* Read User Input */
+function checkIfSend(e) {
+    if (e.keyCode == 13) {
+        e.preventDefault();
+        var requestField = $(e.target)[0].innerHTML;
+        interpretReq(requestField);
+    }
+}
+$('h2.chapter').on('keypress', checkIfSend);
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
@@ -32,7 +49,7 @@ function readUrl() {
  */
 function interpretReq(reqPath) {
     // Extract book
-        // Get book number ex. 2corinthian -> second cor...
+    // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
     var bookNumber = ex.exec(reqPath)[0];
     switch (bookNumber) {
@@ -49,12 +66,16 @@ function interpretReq(reqPath) {
             var bookCount = '';
             break;
     }
-        // Get book name itself
-        // Every letter except number and " ", at least one
-        // Then if wanted a space with following letters
-    var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/ 
-    try { var bookName = ex.exec(reqPath)[0];} catch {var bookName = "";}
-        // Combine count and name
+    // Get book name itself
+    // Every letter except number and " ", at least one
+    // Then if wanted a space with following letters
+    var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+    try {
+        var bookName = ex.exec(reqPath)[0];
+    } catch {
+        var bookName = "";
+    }
+    // Combine count and name
     var reqBook = bookCount + bookName;
 
     // Get chapter
@@ -69,19 +90,19 @@ function interpretReq(reqPath) {
 
     // Get verses
     ex = /(:|,|\.)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
-    var markBool = false;               // says if there are verses to mark
-    try {        
+    var markBool = false; // says if there are verses to mark
+    try {
         var verseRegex = ex.exec(reqPath)[0];
         var verseString = verseRegex.substr(1);
-        var verseSplit = verseString.split("-",2); // if there are multiple verses 5-8 ex.
+        var verseSplit = verseString.split("-", 2); // if there are multiple verses 5-8 ex.
         var firstVerse = parseInt(verseSplit[0]);
         markBool = true;
-        if(verseSplit.length > 1) {             // check if a second vers is given
+        if (verseSplit.length > 1) { // check if a second vers is given
             var lastVerse = parseInt(verseSplit[1]);
         } else {
             var lastVerse = firstVerse;
         }
-    } catch {                                   // if there is no verse -> whole chapter
+    } catch { // if there is no verse -> whole chapter
         var firstVerse = 0;
         var lastVerse = 180;
     }
@@ -101,7 +122,7 @@ function interpretReq(reqPath) {
 function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
 
     // Request whole chapter if marking enabled
-    if(markBool){
+    if (markBool) {
         var request = {
             book: book,
             chapter: chapter,
@@ -116,7 +137,7 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
             lastVerse: lastVerse,
         }
     }
-    
+
     var requestString = JSON.stringify(request);
 
     // Send request to server via AJAX
@@ -125,16 +146,17 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
         url: "/php/getText.php",
         data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        if(data == "[]" && dontOverflow < 20){ // if no answer from server
+        if (data == "[]" && dontOverflow < 20) { // if no answer from server
             dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");            
-            getText(".","",true); // restart function empty to select default values
+            console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");
+            getText(".", "", true); // restart function empty to select default values
         } else {
             renderText(data, markBool, firstVerse, lastVerse);
             dontOverflow = 0;
         }
     });
 }
+
 function waitMessage() {
     $('.book-load').show();
 }
@@ -143,12 +165,12 @@ function waitMessage() {
 function renderText(receivedText, markBool, markStart, markEnd) {
     /* Prepare vars */
     var book, chapter, firstVerse = false,
-        lastVerse = false, verse, header,
+        lastVerse = false,
+        verse, header,
         text = "";
-    // DEV-Info    
-    console.log(receivedText);
+    // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
-    
+
     /* Read 'n convert each verse */
     $.each(jsonText, function (key, value) {
         book = value['book'];
@@ -156,18 +178,18 @@ function renderText(receivedText, markBool, markStart, markEnd) {
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
-        if(header){
+        if (header) {
             text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>"
         }
-        if(verse >= markStart && verse <= markEnd && markBool) {
-            text = text + "<span verse='"+ verse +"' class='verse mark'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
+        if (verse >= markStart && verse <= markEnd && markBool) {
+            text = text + "<span verse='" + verse + "' class='verse mark'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
         } else {
             text = text + "<span verse='" + verse + "' class='verse'>" + " <b>" + verse + " </b>" + value['text'] + "</span>";
         }
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    $('h2.chapter').html(book + " " + chapter + ":" + verseNumbers);
+    $('h2.chapter').html(book + " " + chapter);
     $('.displayText div.text').html(text);
 }
 
@@ -187,4 +209,4 @@ function renderVerseChooser() {
 }
 
 /* Execute now */
-readUrl();  // chain-command, see top description of functions
+readUrl(); // chain-command, see top description of functions
