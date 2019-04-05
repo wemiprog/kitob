@@ -10,7 +10,13 @@
  */
 
 /** Config */
-require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
+//require '/home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/database_kitob.php';
+// find home dir
+$user = posix_getpwuid(posix_getuid());
+$homedir = $user['dir'];
+$configTgNT = $homedir . '/config/database_kitob.php';
+// Get and use config
+require $configTgNT;
 $kitobSqli = new mysqli($host, $username, $password, $dbname);
 
 /** Global vars */

@@ -1,0 +1,22 @@
+/* Compile in vscode with yutent.scss-to-css */
+html,
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.mark {
+    background-color: rgba(0, 123, 8, 0.2);
+
+    b {
+        color: #004b04
+    }
+}
+
+.text {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+h3 {
+    color: #004b04;
+}
