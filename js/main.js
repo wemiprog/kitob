@@ -134,7 +134,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     var book, chapter, firstVerse = false,
         lastVerse = false, verse, header,
         text = "";
-    // DEV-Info console.log(receivedText);
+    // DEV-Info    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
 
     /* Read 'n convert each verse */

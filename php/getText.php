@@ -59,7 +59,7 @@ $result = query($book, $chapter, $firstVerse, $lastVerse);
 
 
 /* SQLResult to Array */
-function createArray($result, $dontRecurse = false)
+function createArray($result, $dontRecurse = 0, $booki)
 {
     global $book, $chapter, $firstVerse, $lastVerse;
     $fa = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // fails array
@@ -70,11 +70,12 @@ function createArray($result, $dontRecurse = false)
             array_push($result_array, $row);
         }
         return $result_array;
-    } elseif (!$dontRecurse) {    // check for misspelling with recursion
+    } elseif ( 4 > $dontRecurse) {    // check for misspelling with recursion
         //echo "elseif\n";
         for ($i=0; $i < 16; $i += 2) { 
-            $tempBook = str_replace($fa[$i + 1], $fa[$i], $book);
-            $answer = createArray(query($tempBook, $chapter, $firstVerse, $lastVerse), true);
+            $tempBook = str_replace($fa[$i + 1], $fa[$i], $booki);
+            //echo "i: $i\ntempBook: $tempBook\ndontRecurse: $dontRecurse\n\n";
+            $answer = createArray(query($tempBook, $chapter, $firstVerse, $lastVerse), $dontRecurse + 1, $tempBook);
             if ($answer != "problem") {
                 //echo "noproblem";
                 break;
@@ -87,9 +88,9 @@ function createArray($result, $dontRecurse = false)
     //echo "ausserhalb\n";
     return "problem";
 }
-$result_array = createArray($result);
+$result_array = createArray($result, 0, $book);
 if ($result_array == "problem") {
-    $result_array = createArray(query("мат", 1,1,180), true);
+    //$result_array = createArray(query("мат", 1,1,180), true);
 }
 
 /* Return data to client via json */
