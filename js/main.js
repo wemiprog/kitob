@@ -29,6 +29,7 @@ function checkIfSend(e) {
     if (e.keyCode == 13) {
         e.preventDefault();
         var requestField = $(e.target)[0].innerHTML;
+        window.history.pushState("", "", "/" + requestField);
         interpretReq(requestField);
     }
 }
@@ -48,6 +49,7 @@ function readUrl() {
  * @param {string} reqPath - Requested path to split
  */
 function interpretReq(reqPath) {
+    reqPath = reqPath.toLowerCase();
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
@@ -106,7 +108,6 @@ function interpretReq(reqPath) {
         var firstVerse = 0;
         var lastVerse = 180;
     }
-
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool);
 }
 
