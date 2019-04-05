@@ -44,7 +44,7 @@ if(is_numeric($req->lastVerse)){$lastVerse = $req->lastVerse;} else {$lastVerse 
 
 
 /* Query database */
-function query($book, $chapter, $firstVerse, $lastVerse) {
+function query($book, $chapter, $firstVerse, $lastVerse, $recurseChapter = true) {
     global $kitobSqli;
     // TODO: replace fixed values with vars
     $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
@@ -59,6 +59,9 @@ function query($book, $chapter, $firstVerse, $lastVerse) {
             AND v.verse >= $firstVerse AND v.verse <= $lastVerse
             ORDER BY v.book_number, v.chapter, v.verse";
     $result = $kitobSqli->query($sql); // execute query
+    if(!($result->num_rows > 0) && $recurseChapter) {
+        $result = query($book, 1, $firstVerse, $lastVerse, false);
+    }
     return $result;
 }
 $result = query($book, $chapter, $firstVerse, $lastVerse);
