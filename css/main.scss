@@ -20,6 +20,7 @@ img#logo {
         color: #004b04
     }
 }
+
 .info.book-load {
     display: none;
     width: 50px;
@@ -27,18 +28,28 @@ img#logo {
     position: fixed;
     bottom: 100px;
     margin: 0 45%;
+
     img {
         position: relative;
         width: 50px;
         height: 50px;
     }
 }
+
 header {
-    border-bottom: 1px solid rgb(0,123,8);
-    background-color: rgba(0,123,8, 0.1);
+    border-bottom: 1px solid rgb(0, 123, 8);
+    position: sticky;
+    background-color: white;
+    top: 0;
+
+    .color-green-bg {
+        background-color: rgba(0, 123, 8, 0.1);
+
+    }
 }
 
-header .content, .displayText {
+header .content,
+.displayText {
     max-width: 700px;
     margin: 0 auto;
 }
@@ -66,10 +77,12 @@ h3 {
     #logo {
         display: none;
     }
+
     header h2 {
         width: inherit;
         max-width: 100%;
     }
+
     .text {
         padding: 0 10px;
     }
