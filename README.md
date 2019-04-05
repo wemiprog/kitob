@@ -3,6 +3,7 @@ Kitob - a simple onlinebibel
 
 ## Current state
 In early developing🛠
+ - An alpha version is online✨
 
 ## Set up on server
  - Upload the whole repo to your root folder of the hosting
