@@ -61,6 +61,7 @@ $result = query($book, $chapter, $firstVerse, $lastVerse);
 /* SQLResult to Array */
 function createArray($result, $dontRecurse = 0, $booki)
 {
+    //echo "boki: $booki\n";
     global $book, $chapter, $firstVerse, $lastVerse;
     $fa = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // fails array
     $result_array = array();
@@ -70,12 +71,35 @@ function createArray($result, $dontRecurse = 0, $booki)
             array_push($result_array, $row);
         }
         return $result_array;
-    } elseif ( 4 > $dontRecurse) {    // check for misspelling with recursion
-        //echo "elseif\n";
-        for ($i=0; $i < 16; $i += 2) { 
+    } elseif ( 6 > $dontRecurse) {    // check for misspelling with recursion
+        $bookHelper = $booki;
+        for ($i=0; $i < 16; $i += 2) {
+            $booki = $bookHelper;
+            //echo "in for: $booki\n";
+
+            //echo "sizeof(explode(\" \",$booki))>1";
+            if(sizeof(explode(" ",$booki))>1){
+                $bookCount = explode(" ", $booki)[0];
+                $booki = explode(" ", $booki)[1];
+            } else {
+                $bookCount = "";
+            }
+            $faione = $fa[$i + 1];
+            $fastBook = $bookCount . " " . $booki;
+            if($bookCount == "") $fastBook = $booki;
+            //echo "fb $fastBook\n";
+            if(strpos($booki, $fa[$i + 1]) === false) {
+                //echo "createArray(query($fastBook, $chapter, $firstVerse, $lastVerse),100, $fastBook);\n";
+                $answer = createArray(query($fastBook, $chapter, $firstVerse, $lastVerse),100, $booki);
+                //echo "i: $i\nfaione: $faione\ntempBook: $booki\ndontRecurse: $dontRecurse\n\n";
+                continue;
+            }
             $tempBook = str_replace($fa[$i + 1], $fa[$i], $booki);
+            $tempBook = $bookCount . " " . $tempBook;
+            //echo "tb $tempBook\n";
             //echo "i: $i\ntempBook: $tempBook\ndontRecurse: $dontRecurse\n\n";
             $answer = createArray(query($tempBook, $chapter, $firstVerse, $lastVerse), $dontRecurse + 1, $tempBook);
+            //echo "arec\n$tempBook\ndont: $dontRecurse\n";
             if ($answer != "problem") {
                 //echo "noproblem";
                 break;
@@ -90,7 +114,7 @@ function createArray($result, $dontRecurse = 0, $booki)
 }
 $result_array = createArray($result, 0, $book);
 if ($result_array == "problem") {
-    //$result_array = createArray(query("мат", 1,1,180), true);
+    $result_array = createArray(query("мат", 1,1,180), true, $book);
 }
 
 /* Return data to client via json */

@@ -1,5 +1,13 @@
 /* Main file of kitob */
 
+/* Events to catch */
+$(document).on({
+    ajaxSend: function () { $('.book-load').show(); },
+    ajaxStart: function () { $('.book-load').show(); },
+    ajaxStop: function () { $('.book-load').hide(); },
+    ajaxError: function () { $('.book-load').hide(); },
+});
+
 /* Global vars */
 var dontOverflow = 0;
 
@@ -127,6 +135,9 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
         }
     });
 }
+function waitMessage() {
+    $('.book-load').show();
+}
 
 /* Renders text to html */
 function renderText(receivedText, markBool, markStart, markEnd) {
@@ -134,9 +145,10 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     var book, chapter, firstVerse = false,
         lastVerse = false, verse, header,
         text = "";
-    // DEV-Info    console.log(receivedText);
+    // DEV-Info    
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
-
+    
     /* Read 'n convert each verse */
     $.each(jsonText, function (key, value) {
         book = value['book'];
