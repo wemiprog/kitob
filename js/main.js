@@ -190,6 +190,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     // Set browser url
+    console.log(book);
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
     window.history.pushState("", book, "/" + shortPath);
@@ -223,6 +224,7 @@ readUrl(); // chain-command, see top description of functions
 /* Helpers */
 function shortenBook(book, separator) {
     var bookArray = book.split(' ');
+    var bookName = bookArray[1];
     switch (bookArray[0]) {
         case 'Якуми':
             var bookCount = '1';
@@ -233,11 +235,16 @@ function shortenBook(book, separator) {
         case 'Сеюми':
             var bookCount = '3';
             break;
-        default:
+        case 'Инчили':
             var bookCount = '';
             separator = '';
             break;
+        default:
+            var bookCount = '';
+            separator = '';
+            bookName = bookArray[0];
+            break;
     }
-    shortVersion = bookCount + separator + bookArray[1];
+    shortVersion = bookCount + separator + bookName;
     return shortVersion;
 }
