@@ -182,9 +182,9 @@ function renderText(receivedText, markBool, markStart, markEnd) {
             text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>"
         }
         if (verse >= markStart && verse <= markEnd && markBool) {
-            text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + "</span> ";
+            text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
         } else {
-            text = text + "<span verse='" + verse + "' class='verse'>" + "<b>" + verse + " </b>" + value['text'] + "</span> ";
+            text = text + "<span verse='" + verse + "' class='verse'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
         }
     });
     // If there is a last verse there will be more than one verse
