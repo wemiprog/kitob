@@ -189,7 +189,14 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    $('h2.chapter').html(book + " " + chapter);
+    // Set browser url
+    shortBook = shortenBook(book, "");
+    shortPath = shortBook + chapter;
+    window.history.pushState("", book, "/" + shortPath);
+    designBook = shortenBook(book, ". ");
+    designPath = designBook + " " + chapter;
+    document.title = designPath + ' - Китоби Муқаддас';
+    $('h2.chapter').html(designPath);
     $('.displayText div.text').html(text);
 }
 
@@ -210,3 +217,27 @@ function renderVerseChooser() {
 
 /* Execute now */
 readUrl(); // chain-command, see top description of functions
+
+
+
+/* Helpers */
+function shortenBook(book, separator) {
+    var bookArray = book.split(' ');
+    switch (bookArray[0]) {
+        case 'Якуми':
+            var bookCount = '1';
+            break;
+        case 'Дуюми':
+            var bookCount = '2';
+            break;
+        case 'Сеюми':
+            var bookCount = '3';
+            break;
+        default:
+            var bookCount = '';
+            separator = '';
+            break;
+    }
+    shortVersion = bookCount + separator + bookArray[1];
+    return shortVersion;
+}
