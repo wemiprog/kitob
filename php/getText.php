@@ -93,7 +93,7 @@ function createArray($result, $dontRecurse = 0, $booki)
                 break;
             }
         }
-        return $answer;
+        return $answer; // Go back in recursion
     }
     return "problem"; // If there isn't an answer or a recurse -> Make problems
 }
