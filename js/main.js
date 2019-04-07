@@ -200,6 +200,8 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     document.title = designPath + ' - Китоби Муқаддас';
     $('h2.chapter').html(designPath);
     $('.displayText div.text').html(text);
+
+    setTimeout(scrollToVerse,10);
 }
 
 /* Get book data for verse chooser */
@@ -248,4 +250,10 @@ function shortenBook(book, separator) {
     }
     shortVersion = bookCount + separator + bookName;
     return shortVersion;
+}
+
+function scrollToVerse() {
+    $('body, html').animate({
+        scrollTop: $(".mark").offset().top - $("header").height()
+    }, 800);
 }
