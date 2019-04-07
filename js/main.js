@@ -91,11 +91,11 @@ function interpretReq(reqPath) {
     }
 
     // Get verses
-    ex = /(:|,|\.)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
+    ex = /(:|,|\.)( ?)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
     var markBool = false; // says if there are verses to mark
     try {
         var verseRegex = ex.exec(reqPath)[0];
-        var verseString = verseRegex.substr(1);
+        var verseString = verseRegex.substr(1);        
         var verseSplit = verseString.split("-", 2); // if there are multiple verses 5-8 ex.
         var firstVerse = parseInt(verseSplit[0]);
         markBool = true;
@@ -253,7 +253,11 @@ function shortenBook(book, separator) {
 }
 
 function scrollToVerse() {
-    $('body, html').animate({
-        scrollTop: $(".mark").offset().top - $("header").height()
-    }, 800);
+    try {
+        $('body, html').animate({
+            scrollTop: $(".mark").offset().top - $("header").height()
+        }, 800);
+    } catch {
+        //
+    }
 }
