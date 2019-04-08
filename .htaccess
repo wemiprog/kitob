@@ -23,6 +23,7 @@ RewriteRule ^php/ - [L]
 RewriteRule ^/php/ - [L]
 RewriteRule ^/$ - [L]
 RewriteRule test.html - [L]
+RewriteRule deploy.php - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.html?var=$1
