@@ -71,7 +71,8 @@ function interpretReq(reqPath) {
     // Get book name itself
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
-    var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+    //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+    var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
     } catch {
@@ -261,3 +262,4 @@ function scrollToVerse() {
         //
     }
 }
+
