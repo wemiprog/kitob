@@ -29,7 +29,7 @@ function checkIfSend(e) {
     if (e.keyCode == 13) {
         e.preventDefault();
         var requestField = $(e.target)[0].innerHTML;
-        window.history.pushState("", "", "/" + requestField);
+        //window.history.pushState("", "", "/" + requestField);
         interpretReq(requestField);
     }
 }
