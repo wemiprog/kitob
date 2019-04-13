@@ -26,14 +26,20 @@ window.onpopstate = function () {
 
 /* Read User Input */
 function checkIfSend(e) {
-    if (e.keyCode == 13) {
+    /*if (e.keyCode == 13) {
         e.preventDefault();
-        var requestField = $(e.target)[0].innerHTML;
+        //var requestField = $(e.target)[0].innerHTML;
+        var requestField = $(e.target).val();
         //window.history.pushState("", "", "/" + requestField);
+        interpretReq(requestField);
+    } else*/
+    if (e.type == "submit") {
+        var requestField = $(e.target).find('#reference').val();
         interpretReq(requestField);
     }
 }
-$('h2.chapter').on('keypress', checkIfSend);
+//$('h2.chapter').on('keypress', checkIfSend);
+//$('#reference').on('keypress', checkIfSend); // not needed because of use of form
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
@@ -199,7 +205,8 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     designBook = shortenBook(book, ". ");
     designPath = designBook + " " + chapter;
     document.title = designPath + ' - Китоби Муқаддас';
-    $('h2.chapter').html(designPath);
+    // $('h2.chapter').html(designPath);
+    $('#reference').val(designPath);
     $('.displayText div.text').html(text);
 
     setTimeout(scrollToVerse,10);
