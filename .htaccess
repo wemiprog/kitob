@@ -27,3 +27,11 @@ RewriteRule deploy.php - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.html?var=$1
+
+# Because of licenses passwd when on development
+<If "req('Host') = 'kitob.dolorsitamet.ch'">
+    Authtype Basic
+    AuthName "user and password"
+    AuthUserFile /home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/.htpasswd
+    Require valid-user
+</If>
