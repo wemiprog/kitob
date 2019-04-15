@@ -35,6 +35,7 @@ function checkIfSend(e) {
     } else*/
     if (e.type == "submit") {
         var requestField = $(e.target).find('#reference').val();
+        $(e.target).find('#reference').blur();
         interpretReq(requestField);
     }
 }
