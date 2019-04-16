@@ -1,5 +1,21 @@
 /* Restart for bootstrap support */
 nav {
+    img {
+        @media (max-width: 250px) {
+            display: none;
+        }
+    }
+
+    form {
+        @media (max-width: 767.98px) {
+            max-width: 60%;
+        }
+
+        @media (max-width: 250px) {
+            max-width: 80;
+        }
+    }
+
     input#reference {
         width: auto;
         background-color: rgba($color: #ffffff, $alpha: 0.3);
@@ -11,13 +27,13 @@ nav {
         }
 
         @media (max-width: 767.98px) {
-            max-width: 180px;
+            max-width: 100%;
         }
-
     }
 
     .navbar-toggler {
         border: none;
+
         &:focus {
             border: none;
             box-shadow: none;
@@ -25,13 +41,12 @@ nav {
     }
 }
 
-
 body:not(.user-is-tabbing) button:focus,
 body:not(.user-is-tabbing) select:focus,
 body:not(.user-is-tabbing) input:focus,
 body:not(.user-is-tabbing) textarea:focus {
     outline: none !important;
-    -webkit-appearance:none !important;
+    -webkit-appearance: none !important;
     border-color: none;
     box-shadow: none;
 }
