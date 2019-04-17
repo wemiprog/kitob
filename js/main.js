@@ -208,7 +208,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     document.title = designPath + ' - Китоби Муқаддас';
     // $('h2.chapter').html(designPath);
     $('#reference').val(designPath);
-    $('.displayText div.text').html(text);
+    $('div.text').html(text);
 
     setTimeout(scrollToVerse,10);
 }
