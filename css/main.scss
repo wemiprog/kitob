@@ -1,102 +1,107 @@
-/* Compile in vscode with yutent.scss-to-css */
-html,
-body {
-    font-family: 'Open Sans', sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-img#logo {
-    float: right;
-    max-width: 50%;
-    max-height: 40px;
-    padding-top: 10px;
-}
-img#bookLogo {
-    float: right;
-    max-width: 10%;
-    max-height: 40px;
-    padding-top: 10px;
-    margin-right: 10px;
-    margin-left: 10px;
-    display: block;
-}
-
-.mark {
-    background-color: rgba(0, 123, 8, 0.2);
-
-    b {
-        color: #004b04
-    }
-}
-
-.info.book-load {
-    display: none;
-    width: 50px;
-    height: 50px;
-    position: fixed;
-    bottom: 100px;
-    margin: 0 45%;
-
+/* Restart for bootstrap support */
+nav {
     img {
-        position: relative;
-        width: 50px;
-        height: 50px;
+        @media (max-width: 250px) {
+            display: none;
+        }
+
+        &#logo {
+            padding-left: 10px;
+            margin-top: 2px;
+            display: none;
+            @media (min-width:992px){
+                display: inherit;
+            }
+        }
+    }
+
+    form {
+        @media (max-width: 767.98px) {
+            max-width: 60%;
+        }
+
+        @media (max-width: 250px) {
+            max-width: 80;
+        }
+
+        @media (min-width: 992px){
+            padding-left: 4px;
+        }
+    }
+
+    input#reference {
+        width: auto;
+        background-color: rgba($color: #ffffff, $alpha: 0.3);
+        font-weight: 600;
+        font-variant: small-caps;
+        border: none;
+
+        &:focus {
+            background-color: white;
+        }
+
+        @media (max-width: 767.98px) {
+            max-width: 100%;
+        }
+
+        @media (min-width: 576px){
+            font-size: 1.5rem;
+        }
+    }
+
+    .navbar-toggler {
+        border: none;
+
+        &:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+        @media (min-width: 576px) {
+            display: block!important;
+            position: absolute;
+            right: 16px;
+        }
+    }
+
+    .navbar-collapse:not(.show) a {
+        @media (min-width: 576px) {
+            display: none!important;
+        }
     }
 }
 
-header {
-    border-bottom: 1px solid rgb(0, 123, 8);
-    position: sticky;
-    background-color: white;
-    top: 0;
-
-    .color-green-bg {
-        background-color: rgba(0, 123, 8, 0.1);
-
-    }
-}
-
-header .content,
-.displayText {
-    max-width: 700px;
-    margin: 0 auto;
-    padding-bottom: 10px;
-}
-
-.text {
-    text-align: justify;
-    text-justify: inter-word;
-}
-
-header h2 {
-    font-size: 1.8em;
-    width: 50%;
-    padding: 10px 0;
-    margin: 0;
-    padding-left: 10px;
-}
-
-h3 {
-    color: #004b04;
-    margin: 10px 0 3px;
-    padding: 0;
-}
-
-@media only screen and (max-width: 768px) {
-    #logo {
-        display: none;
-    }
-    #bookLogo {
-        display: block;
-    }
-
-    header h2 {
-        width: inherit;
-        max-width: 75%;
-    }
-
+main {
     .text {
-        padding: 0 10px;
+        h3 {
+            color: #007b08;
+            font-size: 1.2em;
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        b {
+            font-weight: 600;
+        }
+
+        .mark {
+            background-color: #e5f2e6;
+            padding: .1rem;
+        }
     }
+}
+
+/* Removes blue thing around inputs except for keyboard users*/
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) textarea:focus {
+    outline: none !important;
+    -webkit-appearance: none !important;
+    border-color: none;
+    box-shadow: none;
+}
+
+.rounded-sm {
+    border-radius: 0.1rem !important;
 }

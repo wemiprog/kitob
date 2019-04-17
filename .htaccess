@@ -24,6 +24,22 @@ RewriteRule ^/php/ - [L]
 RewriteRule ^/$ - [L]
 RewriteRule test.html - [L]
 RewriteRule deploy.php - [L]
+RewriteRule manifest.json - [L]
+RewriteRule android-chrome-192x192.png - [L]
+RewriteRule android-chrome-512x512.png - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.html?var=$1
+
+# Because of licenses passwd when on development
+<If "req('Host') = 'kitob.dolorsitamet.ch'">
+    Authtype Basic
+    AuthName "user and password"
+    AuthUserFile /home/clients/92e9e5e26ae5a3ee2b8fa144aba996d4/config/.htpasswd
+    Require valid-user
+</If>
+
+<FilesMatch "(manifest\.json)|(android-chrome-192x192\.png)|(android-chrome-512x512\.png)">
+    Allow from all
+    Satisfy any
+</FilesMatch>
