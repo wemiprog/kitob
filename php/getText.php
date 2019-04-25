@@ -9,12 +9,16 @@
  * kitobSqli - connection to tgNT-db
  */
 
+// EXECUTION FUNCTIONS
+
 function startUp()
 {
     // Get config dir and set global var
     $user = posix_getpwuid(posix_getuid());
     $homedir = $user['dir'];
     $GLOBALS['configdir'] = $homedir . '/config/';
+
+    $GLOBALS['defaultbook'] = 'мат';
 }
 
 function createDBCon($translation)
@@ -47,41 +51,97 @@ function createDBCon($translation)
     return $return;
 }
 
+function giveRequest()
+{
+    global $true;
+    $re = new stdClass();
+
+    $input = json_decode($_POST['data'], $true);
+
+    // Security check and default value setting
+    $re->bookNr = giveBookNr($input->book); // 0 means "start search"
+    $re->book = checkIt($input->book, "tgString"); // TODO: Remove this line
+    $re->search = checkIt($input->search, "richString");
+    $re->chapter = checkIt($input->chapter, "number");
+    $re->firstVerse = checkIt($input->firstVerse, "number");
+    $re->lastVerse = checkIt($input->lastVerse, "number", true);
+
+    return $re;
+}
+
+// ADVANCED HELPER FUNCTIONS
+function checkIt($value, $type, $max = false)
+{
+    switch ($type) {
+        case "richString":
+            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890 ';
+            if (str_contains_only($value, $allowed)) {
+                $return = $value;
+            } else {
+                $return = "Unallowed character, try another query or go to matthew 1";
+            }
+            break;
+        case "tgString":
+            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ ';
+            if (str_contains_only($value, $allowed)) {
+                $return = $value;
+            } else {
+                $return = $GLOBALS['defaultbook'];
+            }
+            break;
+        case "number":
+            if (is_numeric($value)) {
+                $return = $value;
+            } else {
+                $return = 1;
+                if ($max) {
+                    $return = 180;
+                }
+            }
+            break;
+    }
+    return $return;
+}
+
+function giveBookNr($bookStr)
+{
+    # TODO:
+    # 1- Query the db for the book
+    # 2- Recursive query for typos
+}
+
+// SIMPLE HELPER FUNCTIONS
+function str_contains_only($string, $gama)
+{
+    $chars = mb_str_to_array($string);
+    $gama = mb_str_to_array($gama);
+    foreach ($chars as $char) {
+        if (in_array($char, $gama) == false) return false;
+    }
+    return true;
+}
+function mb_str_to_array($string)
+{
+    mb_internal_encoding("UTF-8"); // Important
+    $chars = array();
+    for ($i = 0; $i < mb_strlen($string); $i++) {
+        $chars[] = mb_substr($string, $i, 1);
+    }
+    return $chars;
+}
+
 // START EXECUTION
 startUp();
 $kitobSqli = createDBCon("kmn");
+$req = giveRequest();
+
 
 //OLD CODE START 
 
-/* Read POST-Values */
-$req = json_decode($_POST['data'], $true);
-
-/* Check input */
-// Check book
-$allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ ';
-if (str_contains_only($req->book, $allowed)) {
-    $book = $req->book;
-} else {
-    $book = 'мат';
-}
-//$book = $req->book;
-// Check chapter
-if (is_numeric($req->chapter)) {
-    $chapter = $req->chapter;
-} else {
-    $chapter = 1;
-}
-// Check verses
-if (is_numeric($req->firstVerse)) {
-    $firstVerse = $req->firstVerse;
-} else {
-    $firstVerse = 1;
-}
-if (is_numeric($req->lastVerse)) {
-    $lastVerse = $req->lastVerse;
-} else {
-    $lastVerse = 180;
-} // Psalm 119 contains 176 verses
+$book = $req->book;
+$chapter = $req->chapter;
+$firstVerse = $req->firstVerse;
+$lastVerse = $req->lastVerse;
 
 
 /* Query database */
@@ -162,21 +222,3 @@ echo json_encode($result_array);
  */
 
 /* Check if only given chars in string */
-function str_contains_only($string, $gama)
-{
-    $chars = mb_str_to_array($string);
-    $gama = mb_str_to_array($gama);
-    foreach ($chars as $char) {
-        if (in_array($char, $gama) == false) return false;
-    }
-    return true;
-}
-function mb_str_to_array($string)
-{
-    mb_internal_encoding("UTF-8"); // Important
-    $chars = array();
-    for ($i = 0; $i < mb_strlen($string); $i++) {
-        $chars[] = mb_substr($string, $i, 1);
-    }
-    return $chars;
-}
