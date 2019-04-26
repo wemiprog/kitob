@@ -1,12 +1,10 @@
 <?php
 /**
- * TextSender phpfile
- * 
- * Receives $_POST['data'] with a JSON
- * Sends a JSON with bible text, separated in verse objects
- * 
- * req - request
- * kitobSqli - connection to tgNT-db
+ * File is of 4 parts
+ *  - EXECTION FUNCTIONS, mostly visible in main execution
+ *  - ADVANCED HELPER, do complicated things
+ *  - HELPER FUNCTIONS, convert and compare and similar
+ *  - EXECUTION ITSELF
  */
 
 // EXECUTION FUNCTIONS
@@ -43,7 +41,6 @@ function createDBCon($translation)
 
     // Test connection
     if ($kitobSqli->connect_errno) {
-        //DEV-Info printf("Connect failed: %s\n", $kitobSqli->connect_error);
         exit();
     }
 
@@ -131,47 +128,45 @@ function giveBookNr($input, $con, $dontRecurse = 0)
                 WHERE long_name LIKE '%$input%'
                 LIMIT 1";
     $result = $con->query($sql);
-    if ($result->num_rows == 0 && $dontRecurse < 5) {
-        //DEV-Info printf($input . "fail: " . $result->fetch_all()[0][0]. "\n");
+    if ($result->num_rows == 0 && $dontRecurse < 8) { // Correct up to 8 typos
         $typos = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // typo correction array
         $modBook = $input;
         $helper = $modBook;
         for ($i = 0; $i < 16; $i += 2) {
             $modBook = $helper;
-            //DEV-Info printf("$i: search:" . $typos[$i + 1] . " re:". $typos[$i] . "($dontRecurse)\n");
 
             if (sizeof(explode(" ", $modBook)) > 1) {  // if a space is in request, split up, to ensure
-                $countBook = explode(" ", $modBook)[0] . " "; // that "first" or "second" won't be checked
-                $plainBook = explode(" ", $modBook)[1]; // book It self
+                $countBook = explode(" ", $modBook)[0] . " "; // that "first" or "second" won't be corrected
+                $plainBook = explode(" ", $modBook)[1];
             } else {
                 $bookCount = "";
                 $plainBook = $modBook;
             }
 
+            // Don't correct non-exisiting letters :)
             if (strpos($plainBook, $typos[$i + 1]) === false) {
                 continue;
             }
-            // IF CHANGES AVAILABLE
+
             $plainEditBook = str_replace($typos[$i + 1], $typos[$i], $plainBook);
             $modBook = $bookCount . $plainEditBook;
             $bookNr = giveBookNr($modBook, $con, $dontRecurse + 1);
-            if ($bookNr != 0) {
+            if ($bookNr != 0) { // If successfully found book don't search longer
                 break;
             }
         }
     } else if ($result->num_rows > 0) {
         $bookNr = $result->fetch_all()[0][0];
     } else {
-        return 0;
+        return 0; // 0 -> Search the input instead
     }
-    //DEV-Info printf("\nreturn, input: $input, booknr: $bookNr\n");
     return $bookNr;
 }
 
 function getVerses($req, $recurseChapter = true)
 {
     global $kitobSqli;
-    $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
+    $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header', v.book_number as 'bookNr'
             FROM verses as v
             JOIN books as b on b.book_number = v.book_number
             LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
@@ -179,8 +174,8 @@ function getVerses($req, $recurseChapter = true)
             AND v.chapter = " . $req->chapter . "
             AND v.verse >= " . $req->firstVerse . " AND v.verse <= " . $req->lastVerse . "
             ORDER BY v.book_number, v.chapter, v.verse";
-    $result = $kitobSqli->query($sql); // execute query
-    if (!($result->num_rows > 0) && $recurseChapter) {
+    $result = $kitobSqli->query($sql);
+    if (!($result->num_rows > 0) && $recurseChapter) { // If chapter doesn't contain verses, choose first one
         $req->chapter = 1;
         $result = getVerses($req, false);
     }
@@ -199,7 +194,7 @@ function str_contains_only($string, $gama)
 }
 function mb_str_to_array($string)
 {
-    mb_internal_encoding("UTF-8"); // Important
+    mb_internal_encoding("UTF-8");
     $chars = array();
     for ($i = 0; $i < mb_strlen($string); $i++) {
         $chars[] = mb_substr($string, $i, 1);
@@ -216,7 +211,7 @@ function createArrayFromSQL($myql_answer)
 }
 
 // START EXECUTION
-startUp();
-$req = giveRequest();
-$answer = giveAnswer($req);
-echo json_encode($answer);
+startUp();                  // Define global vars
+$req = giveRequest();       // Read input (and calculate missing informations)
+$answer = giveAnswer($req); // Ask the db for the request information
+echo json_encode($answer);  // Return data as json to client
