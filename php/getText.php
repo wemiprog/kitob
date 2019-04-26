@@ -72,6 +72,16 @@ function giveRequest()
     return $re;
 }
 
+function giveAnswer($input) {
+    if ($input->bookNr == 0) {
+        $input->bookNr = 1; // TODO, call search function instead, add else
+    }
+    $mysql_answer = getVerses($input);
+
+    $array = createArrayFromSQL($mysql_answer);
+    return $array;
+}
+
 // ADVANCED HELPER FUNCTIONS
 function checkIt($value, $type, $max = false)
 {
@@ -163,6 +173,25 @@ function giveBookNr($input, $con, $dontRecurse = 0)
     return $bookNr;
 }
 
+function getVerses($req, $recurseChapter = true) {
+    $kitobSqli = createDBCon($req->translation);
+    $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
+            FROM verses as v
+            JOIN books as b on b.book_number = v.book_number
+            LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
+            WHERE v.book_number = ".$req->bookNr."
+            AND v.chapter = ".$req->chapter."
+            AND v.verse >= ".$req->firstVerse." AND v.verse <= ".$req->lastVerse."
+            ORDER BY v.book_number, v.chapter, v.verse";
+    $result = $kitobSqli->query($sql); // execute query
+    if (!($result->num_rows > 0) && $recurseChapter) {
+        $req->chapter = 1;
+        $result = getVerses($req, false);
+    }
+    $kitobSqli->close();
+    return $result;
+}
+
 // SIMPLE HELPER FUNCTIONS
 function str_contains_only($string, $gama)
 {
@@ -182,95 +211,18 @@ function mb_str_to_array($string)
     }
     return $chars;
 }
+function createArrayFromSQL($myql_answer) {
+    $result_array = array();
+    if ($myql_answer->num_rows > 0) {
+        while ($row = $myql_answer->fetch_assoc()) {
+            array_push($result_array, $row);
+        }
+        return $result_array;
+    }
+}
 
 // START EXECUTION
 startUp();
 $req = giveRequest();
-
-
-//OLD CODE START 
-
-$book = $req->bookNr;
-$chapter = $req->chapter;
-$firstVerse = $req->firstVerse;
-$lastVerse = $req->lastVerse;
-
-
-/* Query database */
-function query($book, $chapter, $firstVerse, $lastVerse, $recurseChapter = true)
-{
-    global $req; // TODO: remove this workaround
-    $kitobSqli = createDBCon($req->translation);
-    // TODO: replace fixed values with vars
-    $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
-            FROM verses as v
-            JOIN books as b on b.book_number = v.book_number
-            LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
-            WHERE v.book_number = $book
-            AND v.chapter = $chapter
-            AND v.verse >= $firstVerse AND v.verse <= $lastVerse
-            ORDER BY v.book_number, v.chapter, v.verse";
-    $result = $kitobSqli->query($sql); // execute query
-    if (!($result->num_rows > 0) && $recurseChapter) {
-        $result = query($book, 1, $firstVerse, $lastVerse, false);
-    }
-
-    $kitobSqli->close();
-    return $result;
-}
-$result = query($book, $chapter, $firstVerse, $lastVerse);
-
-
-/* SQLResult to Array */
-function createArray($result, $dontRecurse = 0, $booki)
-{
-    //echo "boki: $booki\n";
-    global $book, $chapter, $firstVerse, $lastVerse;
-    $fa = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // fails array
-    $result_array = array();
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            array_push($result_array, $row);
-        }
-        return $result_array;
-    } /*elseif (10 > $dontRecurse) {     // check for MISSPELLING with recursion, max recursiondeep 10
-        $bookHelper = $booki;           // Helper to fix var in for loop
-        for ($i = 0; $i < 16; $i += 2) {  // Iterate over all pairs in $fa
-            $booki = $bookHelper;       // fix broken var
-            if (sizeof(explode(" ", $booki)) > 1) {  // if a space is in request, split up, to ensure
-                $bookCount = explode(" ", $booki)[0] . " "; // that "first" or "second" won't be checked
-                $booki = explode(" ", $booki)[1]; // book It self
-            } else {
-                $bookCount = "";
-            }
-            $fastBook = $bookCount . $booki; // used for the speedUp method below
-            if (strpos($booki, $fa[$i + 1]) === false) { // if there won't be a change ...
-                $answer = createArray(query($fastBook, $chapter, $firstVerse, $lastVerse), 100, $fastBook);
-                continue; // ... , request this and then go on instead of recurse
-            }
-            $tempBook = str_replace($fa[$i + 1], $fa[$i], $booki); // exchange the current pair
-            $tempBook = $bookCount . $tempBook;                    // add book count again
-            $answer = createArray(query($tempBook, $chapter, $firstVerse, $lastVerse), $dontRecurse + 1, $tempBook);
-            if ($answer != "problem") { // if there is a real response -> break  out of for and give value back
-                break;
-            }
-        }
-        return $answer; // Go back in recursion
-    }*/
-    return "problem"; // If there isn't an answer or a recurse -> Make problems
-}
-$result_array = createArray($result, 0, $book);
-
-if ($result_array == "problem") { // if no book is found -> request matthew 1
-    $result_array = createArray(query("мат", 1, 1, 180), true, $book);
-}
-
-/* Return data to client via json */
-echo json_encode($result_array);
-
-/**
- * HELPER FUNCTIONS
- */
-
-/* Check if only given chars in string */
+$answer = giveAnswer($req);
+echo json_encode($answer);
