@@ -177,8 +177,10 @@ function renderText(receivedText, markBool, markStart, markEnd) {
         lastVerse = false,
         verse, header,
         text = "";
-    // DEV-Info console.log(receivedText);
+    // DEV-Info 
+    //console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
+    if(jsonText == "problem"){alert("Book doesn't exist, choose another");}
 
     /* Read 'n convert each verse */
     $.each(jsonText, function (key, value) {
