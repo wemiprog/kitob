@@ -55,24 +55,25 @@ function giveRequest()
 {
     global $true;
     $re = new stdClass();
-    
+
     $input = json_decode($_POST['data'], $true);
-    
+
     // Security check and default value setting
     $re->translation = checkIt($input->translation, "trString");
     $re->book = checkIt($input->book, "tgString");
     $con = createDBCon($re->translation);
     $re->bookNr = giveBookNr($re->book, $con); // 0 means "start search"
-    $con->close();
     $re->search = checkIt($input->search, "richString");
     $re->chapter = checkIt($input->chapter, "number");
     $re->firstVerse = checkIt($input->firstVerse, "number");
     $re->lastVerse = checkIt($input->lastVerse, "number", true);
 
+    $GLOBALS['kitobSqli'] = $con;
     return $re;
 }
 
-function giveAnswer($input) {
+function giveAnswer($input)
+{
     if ($input->bookNr == 0) {
         $input->bookNr = 1; // TODO, call search function instead, add else
     }
@@ -126,17 +127,11 @@ function checkIt($value, $type, $max = false)
 
 function giveBookNr($input, $con, $dontRecurse = 0)
 {
-    # TODO:
-    # 1- Query the db for the book
-    # 2- Recursive query for typos
-    # 3- Return 1 if no result, TODO: Return 0 to enable search
-    #
-    # if (mysql_num_rows($result)==0) { PERFORM ACTION }
     $sql = "SELECT book_number FROM `books` 
                 WHERE long_name LIKE '%$input%'
                 LIMIT 1";
     $result = $con->query($sql);
-    if ($result->num_rows==0 && $dontRecurse < 5) {
+    if ($result->num_rows == 0 && $dontRecurse < 5) {
         //DEV-Info printf($input . "fail: " . $result->fetch_all()[0][0]. "\n");
         $typos = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // typo correction array
         $modBook = $input;
@@ -153,14 +148,14 @@ function giveBookNr($input, $con, $dontRecurse = 0)
                 $plainBook = $modBook;
             }
 
-            if (strpos($plainBook, $typos[$i+1]) === false) {
+            if (strpos($plainBook, $typos[$i + 1]) === false) {
                 continue;
             }
             // IF CHANGES AVAILABLE
             $plainEditBook = str_replace($typos[$i + 1], $typos[$i], $plainBook);
             $modBook = $bookCount . $plainEditBook;
             $bookNr = giveBookNr($modBook, $con, $dontRecurse + 1);
-            if($bookNr != 0) {
+            if ($bookNr != 0) {
                 break;
             }
         }
@@ -173,22 +168,22 @@ function giveBookNr($input, $con, $dontRecurse = 0)
     return $bookNr;
 }
 
-function getVerses($req, $recurseChapter = true) {
-    $kitobSqli = createDBCon($req->translation);
+function getVerses($req, $recurseChapter = true)
+{
+    global $kitobSqli;
     $sql  = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text', s.text as 'header'
             FROM verses as v
             JOIN books as b on b.book_number = v.book_number
             LEFT JOIN stories as s on s.book_number = v.book_number and s.chapter = v.chapter and s.verse = v.verse
-            WHERE v.book_number = ".$req->bookNr."
-            AND v.chapter = ".$req->chapter."
-            AND v.verse >= ".$req->firstVerse." AND v.verse <= ".$req->lastVerse."
+            WHERE v.book_number = " . $req->bookNr . "
+            AND v.chapter = " . $req->chapter . "
+            AND v.verse >= " . $req->firstVerse . " AND v.verse <= " . $req->lastVerse . "
             ORDER BY v.book_number, v.chapter, v.verse";
     $result = $kitobSqli->query($sql); // execute query
     if (!($result->num_rows > 0) && $recurseChapter) {
         $req->chapter = 1;
         $result = getVerses($req, false);
     }
-    $kitobSqli->close();
     return $result;
 }
 
@@ -211,14 +206,13 @@ function mb_str_to_array($string)
     }
     return $chars;
 }
-function createArrayFromSQL($myql_answer) {
+function createArrayFromSQL($myql_answer)
+{
     $result_array = array();
-    if ($myql_answer->num_rows > 0) {
-        while ($row = $myql_answer->fetch_assoc()) {
-            array_push($result_array, $row);
-        }
-        return $result_array;
+    while ($row = $myql_answer->fetch_assoc()) {
+        array_push($result_array, $row);
     }
+    return $result_array;
 }
 
 // START EXECUTION
