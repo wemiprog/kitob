@@ -116,7 +116,7 @@ function interpretReq(reqPath) {
         var firstVerse = 0;
         var lastVerse = 180;
     }
-    getText(reqBook, reqChapter, firstVerse, lastVerse, markBool);
+    getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
 }
 
 
@@ -128,7 +128,7 @@ function interpretReq(reqPath) {
  * @param {number} lastVerse
  * @param {bool} markBool - verse selection to mark (true) or to request (false)
  */
-function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
+function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, wholeQuest) {
 
     // Request whole chapter if marking enabled
     if (markBool) {
@@ -136,7 +136,8 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
             book: book,
             chapter: chapter,
             firstVerse: 0,
-            lastVerse: 180
+            lastVerse: 180,
+            search: wholeQuest,
         };
     } else {
         var request = {
@@ -144,6 +145,7 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool) {
             chapter: chapter,
             firstVerse: firstVerse,
             lastVerse: lastVerse,
+            search: wholeQuest,
         }
     }
 
@@ -178,7 +180,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
         verse, header,
         text = "";
     // DEV-Info 
-    //console.log(receivedText);
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if(jsonText == "problem"){alert("Book doesn't exist, choose another");}
 

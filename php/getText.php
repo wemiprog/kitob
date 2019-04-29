@@ -72,9 +72,10 @@ function giveRequest()
 function giveAnswer($input)
 {
     if ($input->bookNr == 0) {
-        $input->bookNr = 1; // TODO, call search function instead, add else
+        $mysql_answer = getSearchResults($input);
+    } else {
+        $mysql_answer = getVerses($input);
     }
-    $mysql_answer = getVerses($input);
 
     $array = createArrayFromSQL($mysql_answer);
     return $array;
@@ -89,7 +90,7 @@ function checkIt($value, $type, $max = false)
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
-                $return = "Unallowed character, try another query or go to matthew 1";
+                $return = false;
             }
             break;
         case "trString":
@@ -179,6 +180,13 @@ function getVerses($req, $recurseChapter = true)
         $req->chapter = 1;
         $result = getVerses($req, false);
     }
+    return $result;
+}
+
+function getSearchResults($req) {
+    global $kitobSqli;
+    $sql = "";
+    $result = $kitobSqli->query($sql);
     return $result;
 }
 
