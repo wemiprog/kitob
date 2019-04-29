@@ -267,8 +267,9 @@ function shortenBook(book, separator) {
 
 function scrollToVerse() {
     try {
+        var position = $(".mark").offset().top - $("nav").outerHeight() - 8;
         $('body, html').animate({
-            scrollTop: $(".mark").offset().top - $("header").height()
+            scrollTop: position
         }, 800);
     } catch {
         //
