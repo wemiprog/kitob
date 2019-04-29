@@ -1,4 +1,5 @@
 /* Main file of kitob */
+var searchQuest = "";
 
 /* Events to catch */
 $(document).on({
@@ -56,6 +57,7 @@ function readUrl() {
  * @param {string} reqPath - Requested path to split
  */
 function interpretReq(reqPath) {
+    searchQuest = reqPath;
     reqPath = reqPath.toLowerCase();
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
@@ -103,7 +105,7 @@ function interpretReq(reqPath) {
     var markBool = false; // says if there are verses to mark
     try {
         var verseRegex = ex.exec(reqPath)[0];
-        var verseString = verseRegex.substr(1);        
+        var verseString = verseRegex.substr(1);
         var verseSplit = verseString.split("-", 2); // if there are multiple verses 5-8 ex.
         var firstVerse = parseInt(verseSplit[0]);
         markBool = true;
@@ -174,25 +176,37 @@ function waitMessage() {
 
 /* Renders text to html */
 function renderText(receivedText, markBool, markStart, markEnd) {
+    // DEV-Info 
+    console.log(receivedText);
+    var jsonText = $.parseJSON(receivedText);
+    if (jsonText == "problem") {
+        alert("Book doesn't exist, choose another");
+    }
+    if ("bookNr" in jsonText[0]) {
+        renderVerses(jsonText, markBool, markStart, markEnd);
+    } else {
+        renderSearch(jsonText);
+    }
+
+    setTimeout(scrollToVerse, 10);
+}
+
+function renderVerses(input, markBool, markStart, markEnd) {
     /* Prepare vars */
     var book, chapter, firstVerse = false,
         lastVerse = false,
         verse, header,
         text = "";
-    // DEV-Info 
-    console.log(receivedText);
-    var jsonText = $.parseJSON(receivedText);
-    if(jsonText == "problem"){alert("Book doesn't exist, choose another");}
 
     /* Read 'n convert each verse */
-    $.each(jsonText, function (key, value) {
+    $.each(input, function (key, value) {
         book = value['book'];
         chapter = value['chapter'];
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
         if (header) {
-            text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>"
+            text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>";
         }
         if (verse >= markStart && verse <= markEnd && markBool) {
             text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
@@ -213,8 +227,26 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     // $('h2.chapter').html(designPath);
     $('#reference').val(designPath);
     $('div.text').html(text);
+}
 
-    setTimeout(scrollToVerse,10);
+function renderSearch(input) {
+    var i = 0,
+        text = "";
+
+    $.each(input, function (key, value) {
+        i++;
+        // Search result location
+        text += "<div forResult='" + i + "' class='subtitle'><h3>" + shortenBook(value['book'],"") + " " + value['chapter'] + ":" + value['verse'] + "</h3></div>";
+
+        // Show verse text
+        text += "<span result='" + i + "' class='verse'><b>" + value['verse'] + " </b>" + value['text'] + " </span>";
+    });
+    console.log(searchQuest);
+    window.history.pushState("", searchQuest, "/" + searchQuest);
+    document.title = searchQuest + ' - Китоби Муқаддас';
+
+    $('#reference').val(searchQuest);
+    $('div.text').html(text);
 }
 
 /* Get book data for verse chooser */
@@ -284,4 +316,3 @@ function handleFirstTab(e) {
     }
 }
 window.addEventListener('keydown', handleFirstTab);
-
