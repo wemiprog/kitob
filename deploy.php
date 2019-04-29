@@ -46,6 +46,7 @@ foreach ($allowed_ips as $allow) {
         break;
     }
 }
+$allowed = true;
 
 if (!$allowed) {
 	header('HTTP/1.1 403 Forbidden');
