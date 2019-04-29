@@ -90,7 +90,7 @@ function checkIt($value, $type, $max = false)
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
-                $return = false;
+                $return = "FAIL";
             }
             break;
         case "trString":
@@ -185,7 +185,21 @@ function getVerses($req, $recurseChapter = true)
 
 function getSearchResults($req) {
     global $kitobSqli;
-    $sql = "";
+    $array = explode(" ", $req->search);
+    $var1 = $array[0];
+    $sql = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
+            FROM verses as v
+            JOIN books as b on b.book_number = v.book_number
+            WHERE v.text LIKE \"%". $var1 ."%\"";
+    
+    // Multiple search words
+    if (sizeof($array) > 1) {
+        for ($i = 1; $i <= sizeof($array);$i ++){
+            $sql .= "AND v.text LIKE \"%". $array[$i] ."%\"";
+        }
+    }
+    $sql .= "ORDER BY v.book_number, v.chapter, v.verse
+            LIMIT 1000";
     $result = $kitobSqli->query($sql);
     return $result;
 }
