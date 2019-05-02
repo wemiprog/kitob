@@ -184,11 +184,12 @@ function renderText(receivedText, markBool, markStart, markEnd) {
     }
     if ("bookNr" in jsonText[0]) {
         renderVerses(jsonText, markBool, markStart, markEnd);
+        setTimeout(scrollToVerse, 10);
     } else {
         renderSearch(jsonText);
+        setTimeout(scrollToTop,10);
     }
 
-    setTimeout(scrollToVerse, 10);
 }
 
 function renderVerses(input, markBool, markStart, markEnd) {
@@ -307,6 +308,16 @@ function shortenBook(book, separator) {
 function scrollToVerse() {
     try {
         var position = $(".mark").offset().top - $("nav").outerHeight() - 8;
+        $('body, html').animate({
+            scrollTop: position
+        }, 800);
+    } catch {
+        //
+    }
+}
+function scrollToTop() {
+    try {
+        var position = 0;
         $('body, html').animate({
             scrollTop: position
         }, 800);
