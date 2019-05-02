@@ -76,26 +76,32 @@ function interpretReq(reqPath) {
         default:
             var bookCount = '';
             break;
-    }
-    // Get book name itself
-    // Every letter except number and " ", at least one
-    // Then if wanted a space with following letters
-    //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+        }
+        // Get book name itself
+        // Every letter except number and " ", at least one
+        // Then if wanted a space with following letters
+        //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+        noChapter = false;
+        backupSearch="";
     var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
+        noChapter = true;
+        backupSearch = searchQuest;
     } catch {
-        var bookName = "";
+        var bookName = "матто";
+        noChapter= false;
     }
     // Combine count and name
     var reqBook = bookCount + bookName;
-
+    
     // Get chapter
     ex = /(.{1})([0-9]+)/ // a random letter followed by at least one number
     try {
         var chapterRegex = ex.exec(reqPath)[0];
         var chapterString = chapterRegex.substr(1);
         var reqChapter = parseInt(chapterString);
+        noChapter = false;
     } catch {
         var reqChapter = 1;
     }
@@ -199,6 +205,11 @@ function renderVerses(input, markBool, markStart, markEnd) {
         verse, header,
         text = "";
 
+    // Make book search possible
+    if (noChapter){
+        text += "<p><a href=\"javascript:forceSearch()\">Ҷустуҷӯ</a></p>"
+    }
+
     /* Read 'n convert each verse */
     $.each(input, function (key, value) {
         book = value['book'];
@@ -255,6 +266,10 @@ function renderSearch(input) {
 
     $('#reference').val(searchQuest);
     $('div.text').html(text);
+}
+
+function forceSearch() {
+    getText('фҷва', 0, 1, 180, false, backupSearch);
 }
 
 /* Get book data for verse chooser */
