@@ -238,8 +238,15 @@ function renderSearch(input) {
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'><h3>" + shortenBook(value['book'],"") + " " + value['chapter'] + ":" + value['verse'] + "</h3></div>";
 
+        // mark result
+        var verseText = value['text'];
+        var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var searchArray = searchText.split(" ");
+        var re = new RegExp('('+searchArray.join('|')+')', 'ig');
+        verseText = verseText.replace(re, `<span class='mark'>$&</span>`);
+
         // Show verse text
-        text += "<span result='" + i + "' class='verse'><b>" + value['verse'] + " </b>" + value['text'] + " </span>";
+        text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
     console.log(searchQuest);
     window.history.pushState("", searchQuest, "/" + searchQuest);
