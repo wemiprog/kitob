@@ -191,8 +191,7 @@ function waitMessage() {
 
 /* Renders text to html */
 function renderText(receivedText, markBool, markStart, markEnd) {
-    // DEV-Info 
-    console.log(receivedText);
+    // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
@@ -216,7 +215,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
 
     // Make book search possible
     if (noChapter) {
-        text += "<p><a href=\"javascript:forceSearch()\">Ҷустуҷӯи: " + backupSearch + "</a></p>"
+        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>"
     }
 
     /* Read 'n convert each verse */
