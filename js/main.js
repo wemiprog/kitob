@@ -1,5 +1,5 @@
 /* Main file of kitob */
-var searchQuest = "";
+var searchQuest = "", notResetUrl = false;
 
 /* Events to catch */
 $(document).on({
@@ -124,6 +124,12 @@ function interpretReq(reqPath) {
         var firstVerse = 0;
         var lastVerse = 180;
     }
+
+    // Block URL reset
+    notResetUrl = false;
+    if(reqPath.slice(-1) == "-"){
+        notResetUrl = true;
+    }
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
 }
 
@@ -207,7 +213,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
 
     // Make book search possible
     if (noChapter){
-        text += "<p><a href=\"javascript:forceSearch()\">Ҷустуҷӯ</a></p>"
+        text += "<p><a href=\"javascript:forceSearch()\">Ҷустуҷӯи: " + backupSearch + "</a></p>"
     }
 
     /* Read 'n convert each verse */
@@ -232,7 +238,9 @@ function renderVerses(input, markBool, markStart, markEnd) {
     console.log(book);
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
-    window.history.pushState("", book, "/" + shortPath);
+    if (!notResetUrl){
+        window.history.pushState("", book, "/" + shortPath);
+    }
     designBook = shortenBook(book, ". ");
     designPath = designBook + " " + chapter;
     document.title = designPath + ' - Китоби Муқаддас';
@@ -247,8 +255,18 @@ function renderSearch(input) {
 
     $.each(input, function (key, value) {
         i++;
+        // Create link to verse 
+        href = "/";
+        href += shortenBook(value['book'], "");
+        href += value['chapter'];
+        href += ":" + value['verse'] + "-";
+
         // Search result location
-        text += "<div forResult='" + i + "' class='subtitle'><h3>" + shortenBook(value['book'],"") + " " + value['chapter'] + ":" + value['verse'] + "</h3></div>";
+        text += "<div forResult='" + i + "' class='subtitle'>\
+        <a href=\""+ href + "\">\
+        <h3>" + shortenBook(value['book'],"") + " " + value['chapter'] + ":" + value['verse'] + "</h3>\
+        </a>\
+        </div>";
 
         // mark result
         var verseText = value['text'];
@@ -264,6 +282,8 @@ function renderSearch(input) {
     window.history.pushState("", searchQuest, "/" + searchQuest);
     document.title = searchQuest + ' - Китоби Муқаддас';
 
+    // Add result count
+    text = "<div class='count'>\"" + searchQuest + "\" <b>" + i + "</b> маротиба ёфт</div>" + text;
     $('#reference').val(searchQuest);
     $('div.text').html(text);
 }
