@@ -72,9 +72,10 @@ function giveRequest()
 function giveAnswer($input)
 {
     if ($input->bookNr == 0) {
-        $input->bookNr = 1; // TODO, call search function instead, add else
+        $mysql_answer = getSearchResults($input);
+    } else {
+        $mysql_answer = getVerses($input);
     }
-    $mysql_answer = getVerses($input);
 
     $array = createArrayFromSQL($mysql_answer);
     return $array;
@@ -89,7 +90,7 @@ function checkIt($value, $type, $max = false)
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
-                $return = "Unallowed character, try another query or go to matthew 1";
+                $return = "FAIL";
             }
             break;
         case "trString":
@@ -179,6 +180,27 @@ function getVerses($req, $recurseChapter = true)
         $req->chapter = 1;
         $result = getVerses($req, false);
     }
+    return $result;
+}
+
+function getSearchResults($req) {
+    global $kitobSqli;
+    $array = explode(" ", $req->search);
+    $var1 = $array[0];
+    $sql = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
+            FROM verses as v
+            JOIN books as b on b.book_number = v.book_number
+            WHERE v.text LIKE \"%". $var1 ."%\"";
+    
+    // Multiple search words
+    if (sizeof($array) > 1) {
+        for ($i = 1; $i <= sizeof($array);$i ++){
+            $sql .= "AND v.text LIKE \"%". $array[$i] ."%\"";
+        }
+    }
+    $sql .= "ORDER BY v.book_number, v.chapter, v.verse
+            LIMIT 15000";
+    $result = $kitobSqli->query($sql);
     return $result;
 }
 
