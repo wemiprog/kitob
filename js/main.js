@@ -6,9 +6,11 @@ var searchQuest = "",
 $(document).on({
     ajaxSend: function () {
         $('.book-load').show();
+        $('div.text').html("");
     },
     ajaxStart: function () {
         $('.book-load').show();
+        $('div.text').html("");
     },
     ajaxStop: function () {
         $('.book-load').hide();
@@ -186,6 +188,8 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
 }
 
 function waitMessage() {
+    $('div.text').html("");
+    console.log("hi");
     $('.book-load').show();
 }
 
