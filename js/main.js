@@ -19,6 +19,11 @@ $(document).on({
         $('.book-load').hide();
     },
 });
+$('.form-control').on('input', function () {
+    if (this.value.match(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g)) {
+        this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
+    }
+});
 
 /* Global vars */
 var dontOverflow = 0;
