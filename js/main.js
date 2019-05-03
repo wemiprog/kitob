@@ -1,5 +1,6 @@
 /* Main file of kitob */
-var searchQuest = "", notResetUrl = false;
+var searchQuest = "",
+    notResetUrl = false;
 
 /* Events to catch */
 $(document).on({
@@ -76,13 +77,13 @@ function interpretReq(reqPath) {
         default:
             var bookCount = '';
             break;
-        }
-        // Get book name itself
-        // Every letter except number and " ", at least one
-        // Then if wanted a space with following letters
-        //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
-        noChapter = false;
-        backupSearch="";
+    }
+    // Get book name itself
+    // Every letter except number and " ", at least one
+    // Then if wanted a space with following letters
+    //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
+    noChapter = false;
+    backupSearch = "";
     var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
@@ -90,11 +91,11 @@ function interpretReq(reqPath) {
         backupSearch = searchQuest;
     } catch {
         var bookName = "матто";
-        noChapter= false;
+        noChapter = false;
     }
     // Combine count and name
     var reqBook = bookCount + bookName;
-    
+
     // Get chapter
     ex = /(.{1})([0-9]+)/ // a random letter followed by at least one number
     try {
@@ -127,7 +128,7 @@ function interpretReq(reqPath) {
 
     // Block URL reset
     notResetUrl = false;
-    if(reqPath.slice(-1) == "-"){
+    if (reqPath.slice(-1) == "-") {
         notResetUrl = true;
     }
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
@@ -199,7 +200,7 @@ function renderText(receivedText, markBool, markStart, markEnd) {
         setTimeout(scrollToVerse, 10);
     } else {
         renderSearch(jsonText);
-        setTimeout(scrollToTop,10);
+        setTimeout(scrollToTop, 10);
     }
 
 }
@@ -212,7 +213,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
         text = "";
 
     // Make book search possible
-    if (noChapter){
+    if (noChapter) {
         text += "<p><a href=\"javascript:forceSearch()\">Ҷустуҷӯи: " + backupSearch + "</a></p>"
     }
 
@@ -238,7 +239,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
     console.log(book);
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
-    if (!notResetUrl){
+    if (!notResetUrl) {
         window.history.pushState("", book, "/" + shortPath);
     }
     designBook = shortenBook(book, ". ");
@@ -263,8 +264,8 @@ function renderSearch(input) {
 
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <a href=\""+ href + "\">\
-        <h3>" + shortenBook(value['book'],"") + " " + value['chapter'] + ":" + value['verse'] + "</h3>\
+        <a href=\"" + href + "\">\
+        <h3>" + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "</h3>\
         </a>\
         </div>";
 
@@ -272,7 +273,7 @@ function renderSearch(input) {
         var verseText = value['text'];
         var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         var searchArray = searchText.split(" ");
-        var re = new RegExp('('+searchArray.join('|')+')', 'ig');
+        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
         verseText = verseText.replace(re, `<span class='mark'>$&</span>`);
 
         // Show verse text
@@ -283,9 +284,15 @@ function renderSearch(input) {
     document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
-    text = "<div class='count'>\"" + searchQuest + "\" <b>" + i + "</b> маротиба ёфт</div>" + text;
+    text = "<div class='count'>" + i + " оят ёфт</div>" + text; //352 оят, 355 маротиба
     $('#reference').val(searchQuest);
     $('div.text').html(text);
+    if (searchQuest.split(" ").length == 1) {
+        var words = $('.container').html().split('"mark"').length;
+        counterText = $('div.count').html();
+        counterText = words + " маротиба, " + counterText;
+        $('div.count').html(counterText);
+    }
 }
 
 function forceSearch() {
@@ -350,6 +357,7 @@ function scrollToVerse() {
         //
     }
 }
+
 function scrollToTop() {
     try {
         var position = 0;
