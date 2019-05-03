@@ -267,14 +267,13 @@ function renderSearch(input) {
     $.each(input, function (key, value) {
         i++;
         // Create link to verse 
-        href = "/";
-        href += shortenBook(value['book'], "");
+        href = shortenBook(value['book'], "");
         href += value['chapter'];
-        href += ":" + value['verse'] + "-";
-
+        href += ":" + value['verse'];
+        
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a href = \"" + href + "\" style=\"color: inherit;\">\
+        <h3><a href = 'javascript:interpretReq(\"" + href + "\")\' style=\"color: inherit;\">\
         " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
