@@ -174,8 +174,10 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
     }).done(function (data) {
         if (data == "[]" && dontOverflow < 20) { // if no answer from server
             dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");
-            getText(".", "", true); // restart function empty to select default values
+            // console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");
+            //getText(".", "", true); // restart function empty to select default values
+            $('#reference').val(searchQuest);
+            $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         } else {
             renderText(data, markBool, firstVerse, lastVerse);
             dontOverflow = 0;
@@ -264,9 +266,9 @@ function renderSearch(input) {
 
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <a href=\"" + href + "\">\
-        <h3>" + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "</h3>\
-        </a>\
+        <h3><a href = \"" + href + "\" style=\"color: inherit;\">\
+        " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
+        </a></h3>\
         </div>";
 
         // mark result
@@ -284,14 +286,14 @@ function renderSearch(input) {
     document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
-    text = "<div class='count'>" + i + " оят ёфт</div>" + text; //352 оят, 355 маротиба
+    text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
     $('#reference').val(searchQuest);
     $('div.text').html(text);
     if (searchQuest.split(" ").length == 1) {
         var words = $('.container').html().split('"mark"').length;
-        counterText = $('div.count').html();
+        counterText = $('div.count i').html();
         counterText = words + " маротиба, " + counterText;
-        $('div.count').html(counterText);
+        $('div.count i').html(counterText);
     }
 }
 

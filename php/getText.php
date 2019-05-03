@@ -199,7 +199,7 @@ function getSearchResults($req) {
         }
     }
     $sql .= "ORDER BY v.book_number, v.chapter, v.verse
-            LIMIT 1000";
+            LIMIT 15000";
     $result = $kitobSqli->query($sql);
     return $result;
 }
