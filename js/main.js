@@ -310,12 +310,26 @@ function forceSearch() {
 
 /* Get book data for verse chooser */
 function getChapters(translation = "") {
-    
+    $.ajax({
+        method: "POST", // invisible in URL
+        url: "/php/getChapters.php",
+        data: "translation=" + translation
+    }).done(function (data) {
+        try {
+            answer = $.parseJSON(data);
+            successfulReceived = true;
+        } catch (error) {
+            successfulReceived = false;
+        }
+        if(successfulReceived) {
+            renderChapterChooser(answer);
+        }
+    });
 }
 
 /* Fill chapter chooser with content */
-function renderVerseChooser() {
-
+function renderChapterChooser(chapterArray) {
+    console.log(chapterArray);
 }
 
 /* Execute now */
