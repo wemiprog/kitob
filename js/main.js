@@ -58,8 +58,8 @@ function readUrl() {
  * @param {string} reqPath - Requested path to split
  */
 function interpretReq(reqPath) {
-    searchQuest = reqPath;
-    reqPath = reqPath.toLowerCase();
+    searchQuest = reqPath.trim();
+    reqPath = reqPath.toLowerCase().trim();
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
