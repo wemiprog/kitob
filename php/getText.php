@@ -40,7 +40,7 @@ function createDBCon($translation)
     $return = new mysqli($host, $username, $password, $dbname);
 
     // Test connection
-    if ($kitobSqli->connect_errno) {
+    if ($return->connect_errno) {
         exit();
     }
 

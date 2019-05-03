@@ -309,13 +309,8 @@ function forceSearch() {
 }
 
 /* Get book data for verse chooser */
-function getBibleBooks() {
-
-}
-
-/* Get chapter and verses for verse chooser */
-function getVersesAndChapters() {
-
+function getChapters(translation = "") {
+    
 }
 
 /* Fill chapter chooser with content */
