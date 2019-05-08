@@ -21,6 +21,14 @@ $(document).on({
         $('.book-load').hide();
     },
 });
+$('#menuToggler').on({
+    click: function () {
+        $('#collapseMenu').toggleClass("show");
+    },
+    touch: function () {
+        $('#collapseMenu').toggleClass("show");
+    }
+})
 $('.form-control').on('input', function () {
     if (this.value.match(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g)) {
         this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');

@@ -52,13 +52,10 @@
                 <span class="oi oi-arrow-thick-right" aria-hidden="true"></span>
             </button>
         </form>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapsed"
+        <button class="navbar-toggler" type="button" id="menuToggler"
             aria-controls="navbarCollapsed" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapsed">
-            <a>дар коркард</a>
-        </div>
     </nav>
     <!--div class="collapse navbar-collapse" id="navbarCollapsed">
         <! --Ad more nav items (translations, book / chapter selection, access to settings ...-->
@@ -76,13 +73,17 @@
             <a class="col-2">дар сохтмон</a>
             <a class="col-2">дар сохтмон</a>
             </div-->
+    
     <div class="info book-load">
         <img src="img/loading-ball.gif" alt='Мо Китоби интихобшударо меорем ...'>
     </div>
 
     <main id="main">
         <div class="container">
-            <div class="text mt-3 mt-sm-3 mb-3"></div>
+            <div class="collapse-menu menu" id="collapseMenu"><!--book selector-->
+                <a>дар коркард</a>
+            </div>
+            <div class="text pt-3 pt-sm-3 pb-3"></div>
         </div>
 
     </main>

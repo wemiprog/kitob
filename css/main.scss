@@ -87,6 +87,27 @@ nav {
 }
 
 main {
+    .container {
+        position: relative;
+    }
+
+    .menu {
+        z-index: 10;
+        position: absolute;
+        min-height: 300px;
+        border: #e5f2e6 solid 2px;
+        border-top: none;
+        border-bottom-width: 7px;
+        background: white;
+        width: 100%;
+        left: 0;
+        padding: 10px;
+
+        &.collapse-menu:not(.show) {
+            display: none;
+        }
+    }
+
     .text {
         h3 {
             color: #007b08;
