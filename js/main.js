@@ -4,13 +4,15 @@ var searchQuest = "",
 
 /* Events to catch */
 $(document).on({
-    ajaxSend: function () {
-        $('.book-load').show();
-        $('div.text').html("");
+    ajaxSend: function (event, request, settings) {
+        if (settings.url == "/php/getText.php") {
+            $('.book-load').show();
+            $('div.text').html("");
+        }
     },
     ajaxStart: function () {
-        $('.book-load').show();
-        $('div.text').html("");
+        //$('.book-load').show();
+        //$('div.text').html("");
     },
     ajaxStop: function () {
         $('.book-load').hide();
@@ -270,7 +272,7 @@ function renderSearch(input) {
         href = shortenBook(value['book'], "");
         href += value['chapter'];
         href += ":" + value['verse'];
-        
+
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
         <h3><a href = 'javascript:interpretReq(\"" + href + "\")\' style=\"color: inherit;\">\
@@ -321,7 +323,7 @@ function getChapters(translation = "") {
         } catch (error) {
             successfulReceived = false;
         }
-        if(successfulReceived) {
+        if (successfulReceived) {
             renderChapterChooser(answer);
         }
     });
