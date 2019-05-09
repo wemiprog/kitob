@@ -335,13 +335,13 @@ function getChapters(translation = "") {
             successfulReceived = false;
         }
         if (successfulReceived) {
-            renderChapterChooser(answer);
+            renderBookChooser(answer);
         }
     });
 }
 
 /* Fill chapter chooser with content */
-function renderChapterChooser(chapterArray) {
+function renderBookChooser(chapterArray) {
     console.log(chapterArray);
     template = '<a class = "col-4 col-sm-3 btn btn-book book-ev"> Инчили Матто </a>';
     var i = 0,
@@ -349,7 +349,7 @@ function renderChapterChooser(chapterArray) {
 
     $.each(chapterArray, function (key, value) {
         i++;
-        bookLine = '<a class="col-4 col-sm-3 btn btn-book ';
+        bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
         // color attribute
         switch (value['color']) {
             case "#ff6600":

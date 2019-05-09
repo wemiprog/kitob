@@ -131,7 +131,7 @@ main {
                 display: none;
             }
 
-            @media (max-width: 630px) and (min-width: 576px) {
+            @media (max-width: 630px) {
                 .short {
                     display: inline;
                 }
@@ -139,14 +139,14 @@ main {
                     display: none;
                 }
             }
-            @media (max-width: 480px) {
+            /*@media (max-width: 480px) {
                 .short {
                     display: inline;
                 }
                 .long {
                     display: none;
                 }
-            }
+            }*/
 
             &:hover {
                 color: #212529;
