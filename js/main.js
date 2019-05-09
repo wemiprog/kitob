@@ -34,6 +34,24 @@ $('.form-control').on('input', function () {
         this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
     }
 });
+// Menu handler - bookChooser
+$('.menu .book-list').on({
+    click: function (e) {
+        if ($(e.target).hasClass("btn-book")) {
+            interpretReq($(e.target).attr("target"));
+        } else if ( $(e.target).parent().hasClass("btn-book") ){
+            interpretReq($(e.target).parent().attr("target"));
+            console.log($(e.target).parent().attr("target"));
+        }
+    },
+    touch: function (e) {
+        if ($(e.target).hasClass("btn-book")) {
+            interpretReq($(e.target).attr("target"));
+        } else if ($(e.target).parent().hasClass("btn-book")) {
+            interpretReq($(e.target).parent().attr("target"));
+        }
+    }
+})
 
 /* Global vars */
 var dontOverflow = 0;
@@ -372,7 +390,7 @@ function renderBookChooser(chapterArray) {
                 break;
         }
         bookLine += '"';
-        bookLine += ' href=\'javascript:interpretReq(\"' + shortenBook(value['longBook'], "") + '1\")\'>';
+        bookLine += ' target=\'' + shortenBook(value['longBook'], "") + '1\'>';
         bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
         bookLine += '<span class="short">' + value['shortBook'] + '</span>';
         //bookLine += value['longBook'];
