@@ -35,20 +35,31 @@ $('.form-control').on('input', function () {
     }
 });
 // Menu handler - bookChooser
-$('.menu .book-list').on({
+$('.menu .book-list, .menu .chapter-list').on({
     click: function (e) {
-        if ($(e.target).hasClass("btn-book")) {
-            interpretReq($(e.target).attr("target"));
-        } else if ( $(e.target).parent().hasClass("btn-book") ){
-            interpretReq($(e.target).parent().attr("target"));
-            console.log($(e.target).parent().attr("target"));
+        var tg = $(e.target);
+        var pr = tg.parent();
+        if (tg.hasClass("btn-book")) {
+            handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+        } else if (pr.hasClass("btn-book")) {
+            handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+        } else if (tg.hasClass("btn-chapter")) {
+            handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
+        } else if (pr.hasClass("btn-chapter")) {
+            handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
         }
     },
     touch: function (e) {
-        if ($(e.target).hasClass("btn-book")) {
-            interpretReq($(e.target).attr("target"));
-        } else if ($(e.target).parent().hasClass("btn-book")) {
-            interpretReq($(e.target).parent().attr("target"));
+        var tg = $(e.target);
+        var pr = tg.parent();
+        if (tg.hasClass("btn-book")) {
+            handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+        } else if (pr.hasClass("btn-book")) {
+            handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+        } else if (tg.hasClass("btn-chapter")) {
+            handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
+        } else if (pr.hasClass("btn-chapter")) {
+            handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
         }
     }
 })
@@ -169,7 +180,6 @@ function interpretReq(reqPath) {
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
 
     getChapters();
-    $('#collapseMenu').removeClass("show");
 }
 
 
@@ -339,29 +349,35 @@ function forceSearch() {
     getText('фҷва', 0, 1, 180, false, backupSearch);
 }
 
+// save chapters -> one request per translation
+chaptersAvailable = [];
 /* Get book data for verse chooser */
-function getChapters(translation = "") {
-    $.ajax({
-        method: "POST", // invisible in URL
-        url: "/php/getChapters.php",
-        data: "translation=" + translation
-    }).done(function (data) {
-        try {
-            answer = $.parseJSON(data);
-            successfulReceived = true;
-        } catch (error) {
-            successfulReceived = false;
-        }
-        if (successfulReceived) {
-            renderBookChooser(answer);
-        }
-    });
+function getChapters(translation = "kmn") {
+    if (chaptersAvailable[translation]) {
+        renderBookChooser(chaptersAvailable[translation]);
+    } else {
+        $.ajax({
+            method: "POST", // invisible in URL
+            url: "/php/getChapters.php",
+            data: "translation=" + translation
+        }).done(function (data) {
+            try {
+                answer = $.parseJSON(data);
+                successfulReceived = true;
+            } catch (error) {
+                successfulReceived = false;
+            }
+            if (successfulReceived) {
+                chaptersAvailable[translation] = answer;
+                renderBookChooser(chaptersAvailable[translation]);
+            }
+        });
+    }
 }
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
     console.log(chapterArray);
-    template = '<a class = "col-4 col-sm-3 btn btn-book book-ev"> Инчили Матто </a>';
     var i = 0,
         bookButtons = "";
 
@@ -390,7 +406,9 @@ function renderBookChooser(chapterArray) {
                 break;
         }
         bookLine += '"';
-        bookLine += ' target=\'' + shortenBook(value['longBook'], "") + '1\'>';
+        bookLine += ' count=\'' + value['chapterCount'] + '\' ';
+        bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
+        bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
         bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
         bookLine += '<span class="short">' + value['shortBook'] + '</span>';
         //bookLine += value['longBook'];
@@ -399,8 +417,28 @@ function renderBookChooser(chapterArray) {
         bookButtons += bookLine;
     });
     $('#collapseMenu .book-list').html(bookButtons);
+    $('#collapseMenu .chapter-list').html("");
 }
 
+function handleBook(bookName, bookNr, count) {
+    chapterButtons = "";
+    for (let i = 1; i <= count; i++) {
+        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter"';
+        chapterLine += ' chapter="' + i + '"';
+        chapterLine += ' bookNr="' + bookNr + '"';
+        chapterLine += '>' + i + '</a>';
+        chapterButtons += chapterLine;
+    }
+    $('#collapseMenu .book-list').html("");
+    $('#collapseMenu .chapter-list').html(chapterButtons);
+}
+
+function handleChapter(bookNr, chapter) {
+    console.log(bookNr);
+    getText(bookNr, chapter, 0, 180, false, "");
+    $('#collapseMenu').removeClass("show");
+    getChapters();
+}
 
 /* Execute now */
 readUrl(); // chain-command, see top description of functions

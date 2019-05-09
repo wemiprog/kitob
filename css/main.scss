@@ -112,7 +112,7 @@ main {
         padding: 10px;
         max-width: 650px;
         margin: 0 auto;
-        height: 100%;
+        max-height: 100%;
         overflow-y: auto;
 
         @media (min-width: 992px) {
@@ -123,7 +123,7 @@ main {
             max-width: none;
         }
 
-        .btn-book {
+        .btn-book, .btn-chapter {
             color: #212529;
             background-color: #f8f9fa;
             border-color: #ffffff;
@@ -139,18 +139,11 @@ main {
                 .short {
                     display: inline;
                 }
+
                 .long {
                     display: none;
                 }
             }
-            /*@media (max-width: 480px) {
-                .short {
-                    display: inline;
-                }
-                .long {
-                    display: none;
-                }
-            }*/
 
             &:hover {
                 color: #212529;
@@ -170,6 +163,7 @@ main {
                 border-color: #d3d9df
             }
         }
+        
     }
 
     .text {

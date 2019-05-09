@@ -102,7 +102,7 @@ function checkIt($value, $type, $max = false)
             }
             break;
         case "tgString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ ';
+            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ1234567890 ';
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
@@ -125,6 +125,9 @@ function checkIt($value, $type, $max = false)
 
 function giveBookNr($input, $con, $dontRecurse = 0)
 {
+    if(is_numeric($input)){
+        return $input;
+    }
     $sql = "SELECT book_number FROM `books` 
                 WHERE long_name LIKE '%$input%'
                 LIMIT 1";
