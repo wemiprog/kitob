@@ -149,6 +149,9 @@ function interpretReq(reqPath) {
         notResetUrl = true;
     }
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
+
+    getChapters();
+    $('#collapseMenu').removeClass("show");
 }
 
 
@@ -340,7 +343,46 @@ function getChapters(translation = "") {
 /* Fill chapter chooser with content */
 function renderChapterChooser(chapterArray) {
     console.log(chapterArray);
+    template = '<a class = "col-4 col-sm-3 btn btn-book book-ev"> Инчили Матто </a>';
+    var i = 0,
+        bookButtons = "";
+
+    $.each(chapterArray, function (key, value) {
+        i++;
+        bookLine = '<a class="col-4 col-sm-3 btn btn-book ';
+        // color attribute
+        switch (value['color']) {
+            case "#ff6600":
+                bookLine += 'book-gp'; // gospel
+                break;
+            case "#00ffff":
+                bookLine += 'book-hi'; // history
+                break;
+            case "#ffff00":
+                bookLine += 'book-pa'; // paulus
+                break;
+            case "#00ff00":
+                bookLine += 'book-le'; // letters
+                break;
+            case "#ff7c80":
+                bookLine += 'book-re'; // revelation
+                break;
+            default:
+                bookLine += 'book-other';
+                break;
+        }
+        bookLine += '"';
+        bookLine += ' href=\'javascript:interpretReq(\"' + shortenBook(value['longBook'], "") + '1\")\'>';
+        bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
+        bookLine += '<span class="short">' + value['shortBook'] + '</span>';
+        //bookLine += value['longBook'];
+        bookLine += '</a>';
+
+        bookButtons += bookLine;
+    });
+    $('#collapseMenu .book-list').html(bookButtons);
 }
+
 
 /* Execute now */
 readUrl(); // chain-command, see top description of functions
