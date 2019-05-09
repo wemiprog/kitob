@@ -90,7 +90,6 @@ nav {
 main {
     .container {
         position: relative;
-        max-width: none;
     }
 
     .menu-container {
@@ -118,6 +117,10 @@ main {
 
         @media (min-width: 992px) {
             min-height: 500px;
+        }
+
+        .container {
+            max-width: none;
         }
 
         .btn-book {
