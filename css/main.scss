@@ -106,7 +106,6 @@ main {
     }
 
     .menu {
-        min-height: 100%;
         border: #e5f2e6 solid 2px;
         border-top: none;
         border-bottom-width: 7px;
@@ -114,6 +113,8 @@ main {
         padding: 10px;
         max-width: 650px;
         margin: 0 auto;
+        height: 100%;
+        overflow-y: auto;
 
         @media (min-width: 992px) {
             min-height: 500px;
@@ -131,7 +132,7 @@ main {
                 display: none;
             }
 
-            @media (max-width: 630px) {
+            @media (max-width: 640px) {
                 .short {
                     display: inline;
                 }
