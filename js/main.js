@@ -200,7 +200,8 @@ function waitMessage() {
 
 /* Renders text to html */
 function renderText(receivedText, markBool, markStart, markEnd) {
-    // DEV-Info console.log(receivedText);
+    // DEV-Info 
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");

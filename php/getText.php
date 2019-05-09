@@ -135,12 +135,12 @@ function giveBookNr($input, $con, $dontRecurse = 0)
         $helper = $modBook;
         for ($i = 0; $i < 16; $i += 2) {
             $modBook = $helper;
-
+            
             if (sizeof(explode(" ", $modBook)) > 1) {  // if a space is in request, split up, to ensure
                 $countBook = explode(" ", $modBook)[0] . " "; // that "first" or "second" won't be corrected
                 $plainBook = explode(" ", $modBook)[1];
             } else {
-                $bookCount = "";
+                $countBook = "";
                 $plainBook = $modBook;
             }
 
@@ -150,7 +150,8 @@ function giveBookNr($input, $con, $dontRecurse = 0)
             }
 
             $plainEditBook = str_replace($typos[$i + 1], $typos[$i], $plainBook);
-            $modBook = $bookCount . $plainEditBook;
+            $modBook = $countBook . $plainEditBook;
+            //if($modBook == "қ") {$modBook = "якуми қ";}
             $bookNr = giveBookNr($modBook, $con, $dontRecurse + 1);
             if ($bookNr != 0) { // If successfully found book don't search longer
                 break;
