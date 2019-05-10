@@ -43,30 +43,10 @@ $('.form-control').on('input', function () {
 // Menu handler - bookChooser
 $('.menu .book-list, .menu .chapter-list').on({
     click: function (e) {
-        var tg = $(e.target);
-        var pr = tg.parent();
-        if (tg.hasClass("btn-book")) {
-            handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
-        } else if (pr.hasClass("btn-book")) {
-            handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
-        } else if (tg.hasClass("btn-chapter")) {
-            handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
-        } else if (pr.hasClass("btn-chapter")) {
-            handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
-        }
+        handleMenu(e);
     },
     touch: function (e) {
-        var tg = $(e.target);
-        var pr = tg.parent();
-        if (tg.hasClass("btn-book")) {
-            handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
-        } else if (pr.hasClass("btn-book")) {
-            handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
-        } else if (tg.hasClass("btn-chapter")) {
-            handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
-        } else if (pr.hasClass("btn-chapter")) {
-            handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
-        }
+        handleMenu(e);
     }
 })
 
@@ -421,6 +401,20 @@ function renderBookChooser(chapterArray) {
     }
     $('#collapseMenu .book-list').html(bookButtons);
     $('#collapseMenu .chapter-list').html("");
+}
+
+function handleMenu(e) {
+    var tg = $(e.target);
+    var pr = tg.parent();
+    if (tg.hasClass("btn-book")) {
+        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+    } else if (pr.hasClass("btn-book")) {
+        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+    } else if (tg.hasClass("btn-chapter")) {
+        handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
+    } else if (pr.hasClass("btn-chapter")) {
+        handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
+    }
 }
 
 function handleBook(bookName, bookNr, count) {
