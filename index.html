@@ -12,32 +12,15 @@
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet"
         href="//cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css?19-05-10v1">
     <link rel="shortcut icon" type="image/x-icon" href="img/book.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/manifest.json">
-    <!--link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"-->
 </head>
 
 <body>
-    <!--OLD HTML V1-->
-    <!--header>
-        <div class="color-green-bg">
-            <div class="content">
-                <img id="bookLogo" src="/img/book.png" alt="bookLogo">
-                <img id="logo" src="/img/logo.png" alt="logo"/>
-                <h2 class="chapter" contenteditable="true"></h2>
-            </div>
-        </div>
-    </header>
-    <h1 hidden>Китоби Муқаддас</h1>
-    <div class="displayText">
-        <div class="text"></div>
-    </div-->
-    <!-- END OLD HTML V1-->
-    <!-- NEW HTML-->
     <nav class="navbar navbar-expand-sm navbar-light sticky-top" style="background-color: #e5f2e6">
         <img src="img/book.png" width="30px" height="30px">
         <img id="logo" height="35px" src="img/logo.png" alt="logo" style="
@@ -52,65 +35,42 @@
                 <span class="oi oi-arrow-thick-right" aria-hidden="true"></span>
             </button>
         </form>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapsed"
-            aria-controls="navbarCollapsed" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" id="menuToggler" aria-controls="navbarCollapsed"
+            aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapsed">
-            <a>дар коркард</a>
-        </div>
     </nav>
-    <!--div class="collapse navbar-collapse" id="navbarCollapsed">
-        <! --Ad more nav items (translations, book / chapter selection, access to settings ...-->
-    <!-- https://getbootstrap.com/docs/4.0/components/navbar/ >
-            <select name="test" id="test" class="col-2">
-                <option value="asdf">jklö</option>
-                <option value="jklö">asdf</option>
-            </select>
-            <div class="w-100"></div>
-            <a class="col-2">дар сохтмон</a>
-            <a class="col-2">дар сохтмон</a>
-            <div class="w-100"></div>
-            <a class="col-2">дар сохтмон</a>
-            <a class="col-2">дар сохтмон</a>
-            <a class="col-2">дар сохтмон</a>
-            <a class="col-2">дар сохтмон</a>
-            </div-->
+
     <div class="info book-load">
         <img src="img/loading-ball.gif" alt='Мо Китоби интихобшударо меорем ...'>
     </div>
 
     <main id="main">
         <div class="container">
-            <div class="text mt-3 mt-sm-3 mb-3"></div>
+            <div class="collapse-menu menu-container" id="collapseMenu">
+                <!--book selector-->
+                <div class="menu">
+                    <div class="container">
+                        <div class="row book-list">
+                        </div>
+                        <div class="row chapter-list"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text pt-3 pt-sm-3 pb-3"></div>
         </div>
 
     </main>
     <!-- END NEW HTML -->
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?19-05-10v1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-    <!-- Matomo -->
-<script type="text/javascript">
-  var _paq = window._paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//matomo.isoimaseh.com/";
-    _paq.push(['setTrackerUrl', u+'matomo.php']);
-    _paq.push(['setSiteId', '1']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<!-- End Matomo Code -->
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
 </body>
 
 </html>

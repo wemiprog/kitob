@@ -9,7 +9,8 @@ nav {
             padding-left: 10px;
             margin-top: 2px;
             display: none;
-            @media (min-width:992px){
+
+            @media (min-width: 992px) {
                 display: inherit;
             }
         }
@@ -24,7 +25,7 @@ nav {
             max-width: 80;
         }
 
-        @media (min-width: 992px){
+        @media (min-width: 992px) {
             padding-left: 4px;
         }
     }
@@ -44,7 +45,7 @@ nav {
             max-width: 100%;
         }
 
-        @media (min-width: 576px){
+        @media (min-width: 576px) {
             font-size: 1.5rem;
         }
     }
@@ -58,7 +59,7 @@ nav {
         }
 
         @media (min-width: 576px) {
-            display: block!important;
+            display: block !important;
             position: absolute;
             right: 16px;
         }
@@ -66,7 +67,7 @@ nav {
 
     .navbar-collapse:not(.show) a {
         @media (min-width: 576px) {
-            display: none!important;
+            display: none !important;
         }
     }
 }
@@ -87,6 +88,104 @@ nav {
 }
 
 main {
+    .container {
+        position: relative;
+    }
+
+    .menu-container {
+        z-index: 10;
+        position: fixed;
+        width: 100%;
+        left: 0;
+        height: calc(100% - 66px);
+
+        &.collapse-menu:not(.show) {
+            display: none;
+        }
+    }
+
+    .menu {
+        border: #e5f2e6 solid 2px;
+        border-top: none;
+        border-bottom-width: 7px;
+        background: white;
+        padding: 10px;
+        max-width: 650px;
+        margin: 0 auto;
+        min-height: 100%;
+        max-height: 100%;
+        overflow-y: auto;
+
+        @media (min-width: 992px) {
+            min-height: 500px;
+        }
+
+        .container {
+            max-width: none;
+        }
+
+        .btn-book, .btn-chapter {
+            color: #212529;
+            background-color: #f8f9fa;
+            border-color: #ffffff;
+            height: 50px;
+            line-height: 33px;
+            vertical-align: middle;
+
+            .short {
+                display: none;
+            }
+
+            @media (max-width: 640px) {
+                .short {
+                    display: inline;
+                }
+
+                .long {
+                    display: none;
+                }
+            }
+
+            &:hover {
+                color: #212529;
+                background-color: #e2e6ea;
+                border-color: #dae0e5
+            }
+
+            &.focus,
+            &:focus {
+                box-shadow: 0 0 0 .2rem rgba(216, 217, 219, .5);
+            }
+
+            &.active,
+            &:active {
+                color: #212529;
+                background-color: #dae0e5;
+                border-color: #d3d9df
+            }
+
+            
+        }
+        .book-gp {
+            background-color: #e7f7e1;
+        }
+        .book-hi {
+            background-color: #e9f4e4;
+        }
+        .book-pa {
+            background-color: #ebf5e9;
+        }
+        .book-le {
+            background-color: #f0f9f4;
+        }
+        .book-re {
+            background-color: #eaf5df;
+        }
+        .btn-chapter {
+            background-color: #f0f9f4;
+        }
+    }
+
     .text {
         h3 {
             color: #007b08;
@@ -101,11 +200,12 @@ main {
 
         .mark {
             background-color: #e5f2e6;
-            padding: .1rem;
-        } 
+            padding: 0.1rem;
+        }
+
         mark {
             background-color: #e5f2e6;
-            padding: .1rem;
+            padding: 0.1rem;
         }
     }
 }

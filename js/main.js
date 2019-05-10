@@ -1,16 +1,24 @@
 /* Main file of kitob */
 var searchQuest = "",
     notResetUrl = false;
+// save chapters -> one request per translation
+chaptersAvailable = [];
+booksRendered = [], chaptersRendered = [];
+// save translations
+currentTl = "kmn";
+secondTl = "";
 
 /* Events to catch */
 $(document).on({
-    ajaxSend: function () {
-        $('.book-load').show();
-        $('div.text').html("");
+    ajaxSend: function (event, request, settings) {
+        if (settings.url == "/php/getText.php") {
+            $('.book-load').show();
+            $('div.text').html("");
+        }
     },
     ajaxStart: function () {
-        $('.book-load').show();
-        $('div.text').html("");
+        //$('.book-load').show();
+        //$('div.text').html("");
     },
     ajaxStop: function () {
         $('.book-load').hide();
@@ -19,11 +27,28 @@ $(document).on({
         $('.book-load').hide();
     },
 });
+$('#menuToggler').on({
+    click: function () {
+        $('#collapseMenu').toggleClass("show");
+    },
+    touch: function () {
+        $('#collapseMenu').toggleClass("show");
+    }
+})
 $('.form-control').on('input', function () {
     if (this.value.match(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g)) {
         this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
     }
 });
+// Menu handler - bookChooser
+$('.menu .book-list, .menu .chapter-list').on({
+    click: function (e) {
+        handleMenu(e);
+    },
+    touch: function (e) {
+        handleMenu(e);
+    }
+})
 
 /* Global vars */
 var dontOverflow = 0;
@@ -139,6 +164,8 @@ function interpretReq(reqPath) {
         notResetUrl = true;
     }
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
+
+    getChapters();
 }
 
 
@@ -181,8 +208,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
     }).done(function (data) {
         if (data == "[]" && dontOverflow < 20) { // if no answer from server
             dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            // console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");
-            //getText(".", "", true); // restart function empty to select default values
             $('#reference').val(searchQuest);
             $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         } else {
@@ -194,7 +219,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
 
 function waitMessage() {
     $('div.text').html("");
-    console.log("hi");
     $('.book-load').show();
 }
 
@@ -246,7 +270,6 @@ function renderVerses(input, markBool, markStart, markEnd) {
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     // Set browser url
-    console.log(book);
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
     if (!notResetUrl) {
@@ -267,14 +290,13 @@ function renderSearch(input) {
     $.each(input, function (key, value) {
         i++;
         // Create link to verse 
-        href = "/";
-        href += shortenBook(value['book'], "");
+        href = shortenBook(value['book'], "");
         href += value['chapter'];
-        href += ":" + value['verse'] + "-";
+        href += ":" + value['verse'];
 
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a href = \"" + href + "\" style=\"color: inherit;\">\
+        <h3><a href = 'javascript:interpretReq(\"" + href + "\")\' style=\"color: inherit;\">\
         " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
@@ -289,7 +311,6 @@ function renderSearch(input) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    console.log(searchQuest);
     window.history.pushState("", searchQuest, "/" + searchQuest);
     document.title = searchQuest + ' - Китоби Муқаддас';
 
@@ -309,19 +330,114 @@ function forceSearch() {
     getText('фҷва', 0, 1, 180, false, backupSearch);
 }
 
+
 /* Get book data for verse chooser */
-function getBibleBooks() {
-
-}
-
-/* Get chapter and verses for verse chooser */
-function getVersesAndChapters() {
-
+function getChapters() {
+    if (chaptersAvailable[currentTl]) {
+        renderBookChooser(chaptersAvailable[currentTl]);
+    } else {
+        $.ajax({
+            method: "POST", // invisible in URL
+            url: "/php/getChapters.php",
+            data: "translation=" + currentTl
+        }).done(function (data) {
+            try {
+                answer = $.parseJSON(data);
+                successfulReceived = true;
+            } catch (error) {
+                successfulReceived = false;
+            }
+            if (successfulReceived) {
+                chaptersAvailable[currentTl] = answer;
+                renderBookChooser(chaptersAvailable[currentTl]);
+            }
+        });
+    }
 }
 
 /* Fill chapter chooser with content */
-function renderVerseChooser() {
+function renderBookChooser(chapterArray) {
+    var i = 0,
+        bookButtons = "";
+    if(booksRendered[currentTl]){
+        bookButtons = booksRendered[currentTl];
+    } else {
+        $.each(chapterArray, function (key, value) {
+            i++;
+            bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
+            // color attribute
+            switch (value['color']) {
+                case "#ff6600":
+                    bookLine += 'book-gp'; // gospel
+                    break;
+                case "#00ffff":
+                    bookLine += 'book-hi'; // history
+                    break;
+                case "#ffff00":
+                    bookLine += 'book-pa'; // paulus
+                    break;
+                case "#00ff00":
+                    bookLine += 'book-le'; // letters
+                    break;
+                case "#ff7c80":
+                    bookLine += 'book-re'; // revelation
+                    break;
+                default:
+                    bookLine += 'book-other';
+                    break;
+            }
+            bookLine += '"';
+            bookLine += ' count=\'' + value['chapterCount'] + '\' ';
+            bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
+            bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
+            bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
+            bookLine += '<span class="short">' + value['shortBook'] + '</span>';
+            //bookLine += value['longBook'];
+            bookLine += '</a>';
+    
+            bookButtons += bookLine;
+        });
+        booksRendered[currentTl] = bookButtons;
+    }
+    $('#collapseMenu .book-list').html(bookButtons);
+    $('#collapseMenu .chapter-list').html("");
+}
 
+function handleMenu(e) {
+    var tg = $(e.target);
+    var pr = tg.parent();
+    if (tg.hasClass("btn-book")) {
+        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+    } else if (pr.hasClass("btn-book")) {
+        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+    } else if (tg.hasClass("btn-chapter")) {
+        handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
+    } else if (pr.hasClass("btn-chapter")) {
+        handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
+    }
+}
+
+function handleBook(bookName, bookNr, count) {
+    if (count == 1) {
+        handleChapter(bookNr, count);
+        return;
+    }
+    chapterButtons = "";
+    for (let i = 1; i <= count; i++) {
+        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter"';
+        chapterLine += ' chapter="' + i + '"';
+        chapterLine += ' bookNr="' + bookNr + '"';
+        chapterLine += '>' + i + '</a>';
+        chapterButtons += chapterLine;
+    }
+    $('#collapseMenu .book-list').html("");
+    $('#collapseMenu .chapter-list').html(chapterButtons);
+}
+
+function handleChapter(bookNr, chapter) {
+    getText(bookNr, chapter, 0, 180, false, "");
+    $('#collapseMenu').removeClass("show");
+    getChapters();
 }
 
 /* Execute now */
