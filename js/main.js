@@ -398,7 +398,8 @@ function renderBookChooser(chapterArray) {
             bookLine += '"';
             bookLine += ' count=\'' + value['chapterCount'] + '\' ';
             bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
-            bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
+            bookLine += ' shortBook=\'' + value['shortBook'] + '\' ';
+            bookLine += ' book=\'' + shortenBook(value['longBook'], ". ") + '\'>';
             bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
             bookLine += '<span class="short">' + value['shortBook'] + '</span>';
             bookLine += '</a>';
@@ -415,10 +416,13 @@ function handleMenu(e) {
     noChapter = false;
     var tg = $(e.target);
     var pr = tg.parent();
-    if (tg.hasClass("btn-book")) {
-        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
+    if(tg.hasClass("toBook") || pr.hasClass("toBook")){
+        toBookSelection();
+    }
+    else if (tg.hasClass("btn-book")) {
+        handleBook(tg.attr("book"), tg.attr("shortBook"),tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
     } else if (pr.hasClass("btn-book")) {
-        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
+        handleBook(pr.attr("book"), pr.attr("shortBook"),pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
     } else if (tg.hasClass("btn-chapter")) {
         handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
     } else if (pr.hasClass("btn-chapter")) {
@@ -426,12 +430,16 @@ function handleMenu(e) {
     }
 }
 
-function handleBook(bookName, bookNr, count, current = false) {
+function handleBook(bookName, bookShort, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
         return;
     }
-    chapterButtons = '<a class="col-12 btn btn-chapter" chapter="1" bookNr="' + bookNr + '">' + bookName + "</a>";
+    chapterButtons = '<a class="col-3 col-sm-2 btn btn-chapter toBook">←</a>';
+    chapterButtons += '<a class="col btn btn-chapter" chapter="1" bookNr="' + bookNr + '">'
+    chapterButtons += '<span class="long">' +bookName + '</span>'; 
+    chapterButtons += '<span class="short">' + bookShort + "</span></a>";
+    chapterButtons += '<div class="w-100"></div>';
     for (let i = 1; i <= count; i++) {
         chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter';
         if (current && i == currentChapter) {
@@ -450,6 +458,10 @@ function handleBook(bookName, bookNr, count, current = false) {
 function handleChapter(bookNr, chapter) {
     getText(bookNr, chapter, 0, 180, false, "");
     $('#collapseMenu').removeClass("show");
+    getChapters();
+}
+
+function toBookSelection() {
     getChapters();
 }
 
