@@ -66,21 +66,13 @@ window.onpopstate = function () {
 
 /* Read User Input */
 function checkIfSend(e) {
-    /*if (e.keyCode == 13) {
-        e.preventDefault();
-        //var requestField = $(e.target)[0].innerHTML;
-        var requestField = $(e.target).val();
-        //window.history.pushState("", "", "/" + requestField);
-        interpretReq(requestField);
-    } else*/
     if (e.type == "submit") {
         var requestField = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
         interpretReq(requestField);
     }
 }
-//$('h2.chapter').on('keypress', checkIfSend);
-//$('#reference').on('keypress', checkIfSend); // not needed because of use of form
+
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
@@ -289,7 +281,6 @@ function renderVerses(input, markBool, markStart, markEnd) {
     // set currents
     currentBook = bookNr;
     currentChapter = chapter;
-    // $('h2.chapter').html(designPath);
     $('#reference').val(designPath);
     $('div.text').html(text);
 }
@@ -410,7 +401,6 @@ function renderBookChooser(chapterArray) {
             bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
             bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
             bookLine += '<span class="short">' + value['shortBook'] + '</span>';
-            //bookLine += value['longBook'];
             bookLine += '</a>';
 
             bookButtons += bookLine;
