@@ -7,6 +7,8 @@ booksRendered = [], chaptersRendered = [];
 // save translations
 currentTl = "kmn";
 secondTl = "";
+currentBook = "0";
+currentChapter = "0";
 
 /* Events to catch */
 $(document).on({
@@ -29,9 +31,13 @@ $(document).on({
 });
 $('#menuToggler').on({
     click: function () {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
     },
     touch: function () {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
     }
 })
@@ -60,21 +66,13 @@ window.onpopstate = function () {
 
 /* Read User Input */
 function checkIfSend(e) {
-    /*if (e.keyCode == 13) {
-        e.preventDefault();
-        //var requestField = $(e.target)[0].innerHTML;
-        var requestField = $(e.target).val();
-        //window.history.pushState("", "", "/" + requestField);
-        interpretReq(requestField);
-    } else*/
     if (e.type == "submit") {
         var requestField = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
         interpretReq(requestField);
     }
 }
-//$('h2.chapter').on('keypress', checkIfSend);
-//$('#reference').on('keypress', checkIfSend); // not needed because of use of form
+
 /* Read URL-Reques --> interpretUrl() */
 function readUrl() {
     // Get path from URL and decode kyrillic, omit slash
@@ -248,12 +246,13 @@ function renderVerses(input, markBool, markStart, markEnd) {
 
     // Make book search possible
     if (noChapter) {
-        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>"
+        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
     }
 
     /* Read 'n convert each verse */
     $.each(input, function (key, value) {
         book = value['book'];
+        bookNr = value['bookNr'];
         chapter = value['chapter'];
         verse = value['verse'];
         header = value['header'];
@@ -278,7 +277,10 @@ function renderVerses(input, markBool, markStart, markEnd) {
     designBook = shortenBook(book, ". ");
     designPath = designBook + " " + chapter;
     document.title = designPath + ' - Китоби Муқаддас';
-    // $('h2.chapter').html(designPath);
+
+    // set currents
+    currentBook = bookNr;
+    currentChapter = chapter;
     $('#reference').val(designPath);
     $('div.text').html(text);
 }
@@ -286,6 +288,14 @@ function renderVerses(input, markBool, markStart, markEnd) {
 function renderSearch(input) {
     var i = 0,
         text = "";
+            var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var searchArray = searchText.split(" ");
+        if(searchArray.length == 1) {
+            searchArray[1] = searchArray[0].replace(/у/ig, "ӯ");
+            searchArray[2] = searchArray[0].replace(/ӯ/ig, "у");
+        }
+        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
+
 
     $.each(input, function (key, value) {
         i++;
@@ -303,9 +313,6 @@ function renderSearch(input) {
 
         // mark result
         var verseText = value['text'];
-        var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        var searchArray = searchText.split(" ");
-        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
         verseText = verseText.replace(re, `<span class='mark'>$&</span>`);
 
         // Show verse text
@@ -324,6 +331,8 @@ function renderSearch(input) {
         counterText = words + " маротиба, " + counterText;
         $('div.count i').html(counterText);
     }
+    currentBook = "0";
+    currentChapter = "0";
 }
 
 function forceSearch() {
@@ -359,7 +368,7 @@ function getChapters() {
 function renderBookChooser(chapterArray) {
     var i = 0,
         bookButtons = "";
-    if(booksRendered[currentTl]){
+    if (booksRendered[currentTl]) {
         bookButtons = booksRendered[currentTl];
     } else {
         $.each(chapterArray, function (key, value) {
@@ -389,12 +398,12 @@ function renderBookChooser(chapterArray) {
             bookLine += '"';
             bookLine += ' count=\'' + value['chapterCount'] + '\' ';
             bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
-            bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
+            bookLine += ' shortBook=\'' + value['shortBook'] + '\' ';
+            bookLine += ' book=\'' + shortenBook(value['longBook'], ". ") + '\'>';
             bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
             bookLine += '<span class="short">' + value['shortBook'] + '</span>';
-            //bookLine += value['longBook'];
             bookLine += '</a>';
-    
+
             bookButtons += bookLine;
         });
         booksRendered[currentTl] = bookButtons;
@@ -404,12 +413,16 @@ function renderBookChooser(chapterArray) {
 }
 
 function handleMenu(e) {
+    noChapter = false;
     var tg = $(e.target);
     var pr = tg.parent();
-    if (tg.hasClass("btn-book")) {
-        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+    if(tg.hasClass("toBook") || pr.hasClass("toBook")){
+        toBookSelection();
+    }
+    else if (tg.hasClass("btn-book")) {
+        handleBook(tg.attr("book"), tg.attr("shortBook"),tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
     } else if (pr.hasClass("btn-book")) {
-        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+        handleBook(pr.attr("book"), pr.attr("shortBook"),pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
     } else if (tg.hasClass("btn-chapter")) {
         handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
     } else if (pr.hasClass("btn-chapter")) {
@@ -417,14 +430,22 @@ function handleMenu(e) {
     }
 }
 
-function handleBook(bookName, bookNr, count) {
+function handleBook(bookName, bookShort, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
         return;
     }
-    chapterButtons = "";
+    chapterButtons = '<a class="col-3 col-sm-2 btn btn-chapter toBook"><i class="fas fa-arrow-left" style=" font-size: 13px;"></i></a>';
+    chapterButtons += '<a class="col btn btn-chapter" chapter="1" bookNr="' + bookNr + '">'
+    chapterButtons += '<span class="long">' +bookName + '</span>'; 
+    chapterButtons += '<span class="short">' + bookShort + "</span></a>";
+    chapterButtons += '<div class="w-100"></div>';
     for (let i = 1; i <= count; i++) {
-        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter"';
+        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter';
+        if (current && i == currentChapter) {
+            chapterLine += ' current';
+        }
+        chapterLine += '"';
         chapterLine += ' chapter="' + i + '"';
         chapterLine += ' bookNr="' + bookNr + '"';
         chapterLine += '>' + i + '</a>';
@@ -438,6 +459,12 @@ function handleChapter(bookNr, chapter) {
     getText(bookNr, chapter, 0, 180, false, "");
     $('#collapseMenu').removeClass("show");
     getChapters();
+}
+
+function toBookSelection() {
+    getChapters();
+    $('#collapseMenu .btn-book').removeClass('current');
+    $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
 }
 
 /* Execute now */

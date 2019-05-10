@@ -136,16 +136,6 @@ main {
                 display: none;
             }
 
-            @media (max-width: 640px) {
-                .short {
-                    display: inline;
-                }
-
-                .long {
-                    display: none;
-                }
-            }
-
             &:hover {
                 color: #212529;
                 background-color: #e2e6ea;
@@ -181,8 +171,33 @@ main {
         .book-re {
             background-color: #eaf5df;
         }
+        .btn-book {
+            @media (max-width: 640px) {
+                .short {
+                    display: inline;
+                }
+
+                .long {
+                    display: none;
+                }
+            }
+        }
         .btn-chapter {
             background-color: #f0f9f4;
+            @media (max-width: 310px) {
+                .short {
+                    display: inline;
+                }
+
+                .long {
+                    display: none;
+                }
+            }
+        }
+        .current {
+            //background-color: #007b08;
+            color: #007b08;
+            font-weight: 700;
         }
     }
 
