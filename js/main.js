@@ -1,6 +1,12 @@
 /* Main file of kitob */
 var searchQuest = "",
     notResetUrl = false;
+// save chapters -> one request per translation
+chaptersAvailable = [];
+booksRendered = [], chaptersRendered = [];
+// save translations
+currentTl = "kmn";
+secondTl = "";
 
 /* Events to catch */
 $(document).on({
@@ -222,8 +228,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
     }).done(function (data) {
         if (data == "[]" && dontOverflow < 20) { // if no answer from server
             dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            // console.log("No text received. Maybe book doesn't esxist? Redirect to matthew");
-            //getText(".", "", true); // restart function empty to select default values
             $('#reference').val(searchQuest);
             $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         } else {
@@ -235,7 +239,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
 
 function waitMessage() {
     $('div.text').html("");
-    console.log("hi");
     $('.book-load').show();
 }
 
@@ -287,7 +290,6 @@ function renderVerses(input, markBool, markStart, markEnd) {
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     // Set browser url
-    console.log(book);
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
     if (!notResetUrl) {
@@ -329,7 +331,6 @@ function renderSearch(input) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    console.log(searchQuest);
     window.history.pushState("", searchQuest, "/" + searchQuest);
     document.title = searchQuest + ' - Китоби Муқаддас';
 
@@ -349,17 +350,16 @@ function forceSearch() {
     getText('фҷва', 0, 1, 180, false, backupSearch);
 }
 
-// save chapters -> one request per translation
-chaptersAvailable = [];
+
 /* Get book data for verse chooser */
-function getChapters(translation = "kmn") {
-    if (chaptersAvailable[translation]) {
-        renderBookChooser(chaptersAvailable[translation]);
+function getChapters() {
+    if (chaptersAvailable[currentTl]) {
+        renderBookChooser(chaptersAvailable[currentTl]);
     } else {
         $.ajax({
             method: "POST", // invisible in URL
             url: "/php/getChapters.php",
-            data: "translation=" + translation
+            data: "translation=" + currentTl
         }).done(function (data) {
             try {
                 answer = $.parseJSON(data);
@@ -368,8 +368,8 @@ function getChapters(translation = "kmn") {
                 successfulReceived = false;
             }
             if (successfulReceived) {
-                chaptersAvailable[translation] = answer;
-                renderBookChooser(chaptersAvailable[translation]);
+                chaptersAvailable[currentTl] = answer;
+                renderBookChooser(chaptersAvailable[currentTl]);
             }
         });
     }
@@ -377,45 +377,48 @@ function getChapters(translation = "kmn") {
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
-    console.log(chapterArray);
     var i = 0,
         bookButtons = "";
-
-    $.each(chapterArray, function (key, value) {
-        i++;
-        bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
-        // color attribute
-        switch (value['color']) {
-            case "#ff6600":
-                bookLine += 'book-gp'; // gospel
-                break;
-            case "#00ffff":
-                bookLine += 'book-hi'; // history
-                break;
-            case "#ffff00":
-                bookLine += 'book-pa'; // paulus
-                break;
-            case "#00ff00":
-                bookLine += 'book-le'; // letters
-                break;
-            case "#ff7c80":
-                bookLine += 'book-re'; // revelation
-                break;
-            default:
-                bookLine += 'book-other';
-                break;
-        }
-        bookLine += '"';
-        bookLine += ' count=\'' + value['chapterCount'] + '\' ';
-        bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
-        bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
-        bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
-        bookLine += '<span class="short">' + value['shortBook'] + '</span>';
-        //bookLine += value['longBook'];
-        bookLine += '</a>';
-
-        bookButtons += bookLine;
-    });
+    if(booksRendered[currentTl]){
+        bookButtons = booksRendered[currentTl];
+    } else {
+        $.each(chapterArray, function (key, value) {
+            i++;
+            bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
+            // color attribute
+            switch (value['color']) {
+                case "#ff6600":
+                    bookLine += 'book-gp'; // gospel
+                    break;
+                case "#00ffff":
+                    bookLine += 'book-hi'; // history
+                    break;
+                case "#ffff00":
+                    bookLine += 'book-pa'; // paulus
+                    break;
+                case "#00ff00":
+                    bookLine += 'book-le'; // letters
+                    break;
+                case "#ff7c80":
+                    bookLine += 'book-re'; // revelation
+                    break;
+                default:
+                    bookLine += 'book-other';
+                    break;
+            }
+            bookLine += '"';
+            bookLine += ' count=\'' + value['chapterCount'] + '\' ';
+            bookLine += ' bookNr=\'' + value['bookNumber'] + '\' ';
+            bookLine += ' book=\'' + shortenBook(value['longBook'], "") + '\'>';
+            bookLine += '<span class="long">' + shortenBook(value['longBook'], ". ") + '</span>';
+            bookLine += '<span class="short">' + value['shortBook'] + '</span>';
+            //bookLine += value['longBook'];
+            bookLine += '</a>';
+    
+            bookButtons += bookLine;
+        });
+        booksRendered[currentTl] = bookButtons;
+    }
     $('#collapseMenu .book-list').html(bookButtons);
     $('#collapseMenu .chapter-list').html("");
 }
@@ -434,7 +437,6 @@ function handleBook(bookName, bookNr, count) {
 }
 
 function handleChapter(bookNr, chapter) {
-    console.log(bookNr);
     getText(bookNr, chapter, 0, 180, false, "");
     $('#collapseMenu').removeClass("show");
     getChapters();
