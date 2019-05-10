@@ -463,6 +463,8 @@ function handleChapter(bookNr, chapter) {
 
 function toBookSelection() {
     getChapters();
+    $('#collapseMenu .btn-book').removeClass('current');
+    $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
 }
 
 /* Execute now */
