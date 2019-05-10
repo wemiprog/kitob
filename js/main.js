@@ -435,7 +435,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         handleChapter(bookNr, count);
         return;
     }
-    chapterButtons = '<a class="col-3 col-sm-2 btn btn-chapter toBook"><span class="oi oi-arrow-left" style="font-size: 12px;"></span></a>';
+    chapterButtons = '<a class="col-3 col-sm-2 btn btn-chapter toBook"><i class="fas fa-arrow-left" style=" font-size: 13px;"></i></a>';
     chapterButtons += '<a class="col btn btn-chapter" chapter="1" bookNr="' + bookNr + '">'
     chapterButtons += '<span class="long">' +bookName + '</span>'; 
     chapterButtons += '<span class="short">' + bookShort + "</span></a>";
