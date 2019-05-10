@@ -424,6 +424,10 @@ function renderBookChooser(chapterArray) {
 }
 
 function handleBook(bookName, bookNr, count) {
+    if (count == 1) {
+        handleChapter(bookNr, count);
+        return;
+    }
     chapterButtons = "";
     for (let i = 1; i <= count; i++) {
         chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter"';
