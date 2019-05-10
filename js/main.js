@@ -254,7 +254,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
 
     // Make book search possible
     if (noChapter) {
-        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>"
+        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
     }
 
     /* Read 'n convert each verse */
@@ -297,6 +297,14 @@ function renderVerses(input, markBool, markStart, markEnd) {
 function renderSearch(input) {
     var i = 0,
         text = "";
+            var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var searchArray = searchText.split(" ");
+        if(searchArray.length == 1) {
+            searchArray[1] = searchArray[0].replace(/у/ig, "ӯ");
+            searchArray[2] = searchArray[0].replace(/ӯ/ig, "у");
+        }
+        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
+
 
     $.each(input, function (key, value) {
         i++;
@@ -314,9 +322,6 @@ function renderSearch(input) {
 
         // mark result
         var verseText = value['text'];
-        var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        var searchArray = searchText.split(" ");
-        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
         verseText = verseText.replace(re, `<span class='mark'>$&</span>`);
 
         // Show verse text
@@ -417,6 +422,7 @@ function renderBookChooser(chapterArray) {
 }
 
 function handleMenu(e) {
+    noChapter = false;
     var tg = $(e.target);
     var pr = tg.parent();
     if (tg.hasClass("btn-book")) {
