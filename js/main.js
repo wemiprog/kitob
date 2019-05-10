@@ -435,7 +435,7 @@ function handleBook(bookName, bookNr, count, current = false) {
         handleChapter(bookNr, count);
         return;
     }
-    chapterButtons = "";
+    chapterButtons = '<a class="col-12 btn btn-chapter" chapter="1" bookNr="' + bookNr + '">' + bookName + "</a>";
     for (let i = 1; i <= count; i++) {
         chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter';
         if (current && i == currentChapter) {
