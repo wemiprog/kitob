@@ -7,6 +7,8 @@ booksRendered = [], chaptersRendered = [];
 // save translations
 currentTl = "kmn";
 secondTl = "";
+currentBook = "0";
+currentChapter = "0";
 
 /* Events to catch */
 $(document).on({
@@ -29,9 +31,13 @@ $(document).on({
 });
 $('#menuToggler').on({
     click: function () {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
     },
     touch: function () {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
     }
 })
@@ -254,6 +260,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
     /* Read 'n convert each verse */
     $.each(input, function (key, value) {
         book = value['book'];
+        bookNr = value['bookNr'];
         chapter = value['chapter'];
         verse = value['verse'];
         header = value['header'];
@@ -278,6 +285,10 @@ function renderVerses(input, markBool, markStart, markEnd) {
     designBook = shortenBook(book, ". ");
     designPath = designBook + " " + chapter;
     document.title = designPath + ' - Китоби Муқаддас';
+
+    // set currents
+    currentBook = bookNr;
+    currentChapter = chapter;
     // $('h2.chapter').html(designPath);
     $('#reference').val(designPath);
     $('div.text').html(text);
@@ -324,6 +335,8 @@ function renderSearch(input) {
         counterText = words + " маротиба, " + counterText;
         $('div.count i').html(counterText);
     }
+    currentBook = "0";
+    currentChapter = "0";
 }
 
 function forceSearch() {
@@ -359,7 +372,7 @@ function getChapters() {
 function renderBookChooser(chapterArray) {
     var i = 0,
         bookButtons = "";
-    if(booksRendered[currentTl]){
+    if (booksRendered[currentTl]) {
         bookButtons = booksRendered[currentTl];
     } else {
         $.each(chapterArray, function (key, value) {
@@ -394,7 +407,7 @@ function renderBookChooser(chapterArray) {
             bookLine += '<span class="short">' + value['shortBook'] + '</span>';
             //bookLine += value['longBook'];
             bookLine += '</a>';
-    
+
             bookButtons += bookLine;
         });
         booksRendered[currentTl] = bookButtons;
@@ -407,9 +420,9 @@ function handleMenu(e) {
     var tg = $(e.target);
     var pr = tg.parent();
     if (tg.hasClass("btn-book")) {
-        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"));
+        handleBook(tg.attr("book"), tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
     } else if (pr.hasClass("btn-book")) {
-        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"));
+        handleBook(pr.attr("book"), pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
     } else if (tg.hasClass("btn-chapter")) {
         handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
     } else if (pr.hasClass("btn-chapter")) {
@@ -417,14 +430,18 @@ function handleMenu(e) {
     }
 }
 
-function handleBook(bookName, bookNr, count) {
+function handleBook(bookName, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
         return;
     }
     chapterButtons = "";
     for (let i = 1; i <= count; i++) {
-        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter"';
+        chapterLine = '<a class="col-3 col-sm-2 btn btn-chapter';
+        if (current && i == currentChapter) {
+            chapterLine += ' current';
+        }
+        chapterLine += '"';
         chapterLine += ' chapter="' + i + '"';
         chapterLine += ' bookNr="' + bookNr + '"';
         chapterLine += '>' + i + '</a>';
