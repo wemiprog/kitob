@@ -610,3 +610,21 @@ function handleFirstTab(e) {
     }
 }
 window.addEventListener('keydown', handleFirstTab);
+
+$(window).on("load", function () {
+    var watchObj = document.getElementsByClassName("text")[0];
+    delete Hammer.defaults.cssProps.userSelect;
+    hammerText = new Hammer(watchObj, {
+        inputClass: Hammer.TouchInput
+    });
+    hammerText .get('swipe').set({
+        threshold: 120
+    });
+    hammerText.on('swipe', function (e){
+        if(e.direction == 2) {
+            changeChapter();
+        } else if (e.direction == 4) {
+            changeChapter(false);
+        }
+    });
+});
