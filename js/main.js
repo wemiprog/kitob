@@ -46,6 +46,14 @@ $('.form-control').on('input', function () {
         this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
     }
 });
+$('.change-chapter').on({
+    click: function (e) {
+        handleNePr(e);
+    },
+    touch: function (e) {
+        handleNePr(e);
+    }
+})
 // Menu handler - bookChooser
 $('.menu .book-list, .menu .chapter-list').on({
     click: function (e) {
@@ -429,6 +437,20 @@ function handleMenu(e) {
     }
 }
 
+function handleNePr (e) {
+    var tg = $(e.target);
+    var pr = tg.parent();
+    if (tg.hasClass("next")){
+        changeChapter();
+    } else if (tg.hasClass("prev")) {
+        changeChapter(false);
+    } else if (pr.hasClass("next")) {
+        changeChapter();
+    } else if (pr.hasClass("prev")) {
+        changeChapter(false);
+    }
+}
+
 function handleBook(bookName, bookShort, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
@@ -483,8 +505,6 @@ function changeChapter(forward = true) {
         } else if (nextBook != "") {
             getText(nextBook, 1, 0, 180, false, "");
         }
-        console.log("\nmax" + currentMaxChapter);
-        console.log("\ncur" + currentChapter);
     } else {
         if (parseInt(currentChapter) > 1) {
             getText(currentBook, parseInt(currentChapter) - 1, 0, 180, false, "");

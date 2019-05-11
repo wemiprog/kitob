@@ -124,7 +124,8 @@ main {
             max-width: none;
         }
 
-        .btn-book, .btn-chapter {
+        .btn-book,
+        .btn-chapter {
             color: #212529;
             background-color: #f8f9fa;
             border-color: #ffffff;
@@ -154,23 +155,29 @@ main {
                 border-color: #d3d9df
             }
 
-            
+
         }
+
         .book-gp {
             background-color: #e7f7e1;
         }
+
         .book-hi {
             background-color: #e9f4e4;
         }
+
         .book-pa {
             background-color: #ebf5e9;
         }
+
         .book-le {
             background-color: #f0f9f4;
         }
+
         .book-re {
             background-color: #eaf5df;
         }
+
         .btn-book {
             @media (max-width: 640px) {
                 .short {
@@ -182,8 +189,10 @@ main {
                 }
             }
         }
+
         .btn-chapter {
             background-color: #f0f9f4;
+
             @media (max-width: 310px) {
                 .short {
                     display: inline;
@@ -194,6 +203,7 @@ main {
                 }
             }
         }
+
         .current {
             //background-color: #007b08;
             color: #007b08;
@@ -222,6 +232,26 @@ main {
             background-color: #e5f2e6;
             padding: 0.1rem;
         }
+    }
+}
+
+.change-chapter {
+    position: fixed;
+    //right: 10px;
+    bottom: 10px;
+    font-size: 40px;
+
+    i {
+        background-color: white;
+        border-radius: 20px;
+    }
+
+    &.next {
+        right: 10px;
+    }
+
+    &.prev {
+        left: 10px;
     }
 }
 
