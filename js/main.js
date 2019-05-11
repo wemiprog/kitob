@@ -31,14 +31,10 @@ $(document).on({
 });
 $('#menuToggler').on({
     click: function () {
-        $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
-        $('#collapseMenu').toggleClass("show");
+        showMenu();
     },
     touch: function () {
-        $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
-        $('#collapseMenu').toggleClass("show");
+        showMenu();
     }
 })
 $('.form-control').on('input', function () {
@@ -46,6 +42,27 @@ $('.form-control').on('input', function () {
         this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
     }
 });
+$('.change-chapter').on({
+    click: function (e) {
+        handleNePr(e);
+    },
+    touch: function (e) {
+        handleNePr(e);
+    }
+})
+// let the menu disappear
+$('.menu-container').on({
+    click: function (e) {
+        if ($(e.target).hasClass("collapse-menu")) {
+            showMenu(false);
+        }
+    },
+    touch: function (e) {
+        if ($(e.target).hasClass("collapse-menu")) {
+            showMenu(false);
+        }
+    }
+})
 // Menu handler - bookChooser
 $('.menu .book-list, .menu .chapter-list').on({
     click: function (e) {
@@ -55,6 +72,16 @@ $('.menu .book-list, .menu .chapter-list').on({
         handleMenu(e);
     }
 })
+
+function showMenu(show = true) {
+    if(show) {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
+        $('#collapseMenu').toggleClass("show");
+    } else {
+        $('#collapseMenu').removeClass("show");
+    }
+}
 
 /* Global vars */
 var dontOverflow = 0;
@@ -288,13 +315,13 @@ function renderVerses(input, markBool, markStart, markEnd) {
 function renderSearch(input) {
     var i = 0,
         text = "";
-            var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        var searchArray = searchText.split(" ");
-        if(searchArray.length == 1) {
-            searchArray[1] = searchArray[0].replace(/у/ig, "ӯ");
-            searchArray[2] = searchArray[0].replace(/ӯ/ig, "у");
-        }
-        var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
+    var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var searchArray = searchText.split(" ");
+    if (searchArray.length == 1) {
+        searchArray[1] = searchArray[0].replace(/у/ig, "ӯ");
+        searchArray[2] = searchArray[0].replace(/ӯ/ig, "у");
+    }
+    var re = new RegExp('(' + searchArray.join('|') + ')', 'ig');
 
 
     $.each(input, function (key, value) {
@@ -416,17 +443,30 @@ function handleMenu(e) {
     noChapter = false;
     var tg = $(e.target);
     var pr = tg.parent();
-    if(tg.hasClass("toBook") || pr.hasClass("toBook")){
+    if (tg.hasClass("toBook") || pr.hasClass("toBook")) {
         toBookSelection();
-    }
-    else if (tg.hasClass("btn-book")) {
-        handleBook(tg.attr("book"), tg.attr("shortBook"),tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
+    } else if (tg.hasClass("btn-book")) {
+        handleBook(tg.attr("book"), tg.attr("shortBook"), tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
     } else if (pr.hasClass("btn-book")) {
-        handleBook(pr.attr("book"), pr.attr("shortBook"),pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
+        handleBook(pr.attr("book"), pr.attr("shortBook"), pr.attr("bookNr"), pr.attr("count"), pr.hasClass("current"));
     } else if (tg.hasClass("btn-chapter")) {
         handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
     } else if (pr.hasClass("btn-chapter")) {
         handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
+    }
+}
+
+function handleNePr(e) {
+    var tg = $(e.target);
+    var pr = tg.parent();
+    if (tg.hasClass("next")) {
+        changeChapter();
+    } else if (tg.hasClass("prev")) {
+        changeChapter(false);
+    } else if (pr.hasClass("next")) {
+        changeChapter();
+    } else if (pr.hasClass("prev")) {
+        changeChapter(false);
     }
 }
 
@@ -437,7 +477,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
     }
     chapterButtons = '<a class="col-3 col-sm-2 btn btn-chapter toBook"><i class="fas fa-arrow-left" style=" font-size: 13px;"></i></a>';
     chapterButtons += '<a class="col btn btn-chapter" chapter="1" bookNr="' + bookNr + '">'
-    chapterButtons += '<span class="long">' +bookName + '</span>'; 
+    chapterButtons += '<span class="long">' + bookName + '</span>';
     chapterButtons += '<span class="short">' + bookShort + "</span></a>";
     chapterButtons += '<div class="w-100"></div>';
     for (let i = 1; i <= count; i++) {
@@ -466,6 +506,46 @@ function toBookSelection() {
     $('#collapseMenu .btn-book').removeClass('current');
     $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
 }
+
+function changeChapter(forward = true) {
+    if (forward) {
+        currentMaxChapter = "", nextBook = "";
+        cpAv = chaptersAvailable[currentTl];
+        for (i in cpAv) {
+            if (cpAv[i].bookNumber == currentBook) {
+                currentMaxChapter = cpAv[i].chapterCount;
+            } else if (currentMaxChapter != "") {
+                nextBook = cpAv[i].bookNumber;
+                break;
+            }
+        }
+        if (parseInt(currentChapter) < parseInt(currentMaxChapter)) {
+            getText(currentBook, parseInt(currentChapter) + 1, 0, 180, false, "");
+        } else if (nextBook != "") {
+            getText(nextBook, 1, 0, 180, false, "");
+        }
+    } else {
+        if (parseInt(currentChapter) > 1) {
+            getText(currentBook, parseInt(currentChapter) - 1, 0, 180, false, "");
+        } else {
+            var prevBook = "",
+                prevBookChapters;
+            books = chaptersAvailable[currentTl];
+            for (i in books) {
+                if (books[i].bookNumber == currentBook) {
+                    break;
+                } else {
+                    prevBook = books[i].bookNumber;
+                    prevBookChapters = books[i].chapterCount;
+                }
+            }
+            if (prevBook != "") {
+                getText(prevBook, prevBookChapters, 0, 180, false, "");
+            }
+        }
+    }
+}
+
 
 /* Execute now */
 readUrl(); // chain-command, see top description of functions
@@ -530,3 +610,21 @@ function handleFirstTab(e) {
     }
 }
 window.addEventListener('keydown', handleFirstTab);
+
+$(window).on("load", function () {
+    var watchObj = document.getElementsByClassName("text")[0];
+    delete Hammer.defaults.cssProps.userSelect;
+    hammerText = new Hammer(watchObj, {
+        inputClass: Hammer.TouchInput
+    });
+    hammerText .get('swipe').set({
+        threshold: 120
+    });
+    hammerText.on('swipe', function (e){
+        if(e.direction == 2) {
+            changeChapter();
+        } else if (e.direction == 4) {
+            changeChapter(false);
+        }
+    });
+});

@@ -5,14 +5,15 @@ nav {
             display: none;
         }
 
-        &#logo {
-            padding-left: 10px;
-            margin-top: 2px;
-            display: none;
+    }
 
-            @media (min-width: 992px) {
-                display: inherit;
-            }
+    #logo {
+        padding-left: 10px;
+        margin-top: 2px;
+        display: none;
+
+        @media (min-width: 992px) {
+            display: inherit;
         }
     }
 
@@ -30,7 +31,7 @@ nav {
         }
     }
 
-    input#reference {
+    #reference {
         width: auto;
         background-color: rgba($color: #ffffff, $alpha: 0.3);
         font-weight: 600;
@@ -98,6 +99,9 @@ main {
         width: 100%;
         left: 0;
         height: calc(100% - 66px);
+        display: flex;
+        align-items: center;
+        background-color: #00000077;
 
         &.collapse-menu:not(.show) {
             display: none;
@@ -118,19 +122,24 @@ main {
 
         @media (min-width: 992px) {
             min-height: 500px;
+            min-width: 650px;
+            border-top: #e5f2e6 solid 4px;
+            border-bottom-width: 4px;
         }
 
         .container {
             max-width: none;
         }
 
-        .btn-book, .btn-chapter {
+        .btn-book,
+        .btn-chapter {
             color: #212529;
             background-color: #f8f9fa;
             border-color: #ffffff;
             height: 50px;
             line-height: 33px;
             vertical-align: middle;
+            cursor: pointer;
 
             .short {
                 display: none;
@@ -154,23 +163,29 @@ main {
                 border-color: #d3d9df
             }
 
-            
+
         }
+
         .book-gp {
             background-color: #e7f7e1;
         }
+
         .book-hi {
             background-color: #e9f4e4;
         }
+
         .book-pa {
             background-color: #ebf5e9;
         }
+
         .book-le {
             background-color: #f0f9f4;
         }
+
         .book-re {
             background-color: #eaf5df;
         }
+
         .btn-book {
             @media (max-width: 640px) {
                 .short {
@@ -182,8 +197,10 @@ main {
                 }
             }
         }
+
         .btn-chapter {
             background-color: #f0f9f4;
+
             @media (max-width: 310px) {
                 .short {
                     display: inline;
@@ -193,7 +210,12 @@ main {
                     display: none;
                 }
             }
+
+            &.col {
+                font-weight: bold !important;
+            }
         }
+
         .current {
             //background-color: #007b08;
             color: #007b08;
@@ -225,6 +247,32 @@ main {
     }
 }
 
+.change-chapter {
+    position: fixed;
+    //right: 10px;
+    bottom: 5px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #007b08;
+
+    i {
+        background-color: white;
+        border-radius: 15px;
+    }
+
+    &.next {
+        right: 10px;
+    }
+
+    &.prev {
+        left: 10px;
+    }
+
+    @media (min-width: 577px) {
+        bottom: 47%;
+    }
+}
+
 /* Removes blue thing around inputs except for keyboard users*/
 body:not(.user-is-tabbing) button:focus,
 body:not(.user-is-tabbing) select:focus,
@@ -232,6 +280,7 @@ body:not(.user-is-tabbing) input:focus,
 body:not(.user-is-tabbing) textarea:focus {
     outline: none !important;
     -webkit-appearance: none !important;
+    -moz-appearance: none !important;
     border-color: none;
     box-shadow: none;
 }
