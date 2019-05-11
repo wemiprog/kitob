@@ -31,14 +31,10 @@ $(document).on({
 });
 $('#menuToggler').on({
     click: function () {
-        $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
-        $('#collapseMenu').toggleClass("show");
+        showMenu();
     },
     touch: function () {
-        $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
-        $('#collapseMenu').toggleClass("show");
+        showMenu();
     }
 })
 $('.form-control').on('input', function () {
@@ -54,6 +50,19 @@ $('.change-chapter').on({
         handleNePr(e);
     }
 })
+// let the menu disappear
+$('.menu-container').on({
+    click: function (e) {
+        if ($(e.target).hasClass("collapse-menu")) {
+            showMenu(false);
+        }
+    },
+    touch: function (e) {
+        if ($(e.target).hasClass("collapse-menu")) {
+            showMenu(false);
+        }
+    }
+})
 // Menu handler - bookChooser
 $('.menu .book-list, .menu .chapter-list').on({
     click: function (e) {
@@ -63,6 +72,16 @@ $('.menu .book-list, .menu .chapter-list').on({
         handleMenu(e);
     }
 })
+
+function showMenu(show = true) {
+    if(show) {
+        $('#collapseMenu .btn-book').removeClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
+        $('#collapseMenu').toggleClass("show");
+    } else {
+        $('#collapseMenu').removeClass("show");
+    }
+}
 
 /* Global vars */
 var dontOverflow = 0;
@@ -437,10 +456,10 @@ function handleMenu(e) {
     }
 }
 
-function handleNePr (e) {
+function handleNePr(e) {
     var tg = $(e.target);
     var pr = tg.parent();
-    if (tg.hasClass("next")){
+    if (tg.hasClass("next")) {
         changeChapter();
     } else if (tg.hasClass("prev")) {
         changeChapter(false);
@@ -509,7 +528,8 @@ function changeChapter(forward = true) {
         if (parseInt(currentChapter) > 1) {
             getText(currentBook, parseInt(currentChapter) - 1, 0, 180, false, "");
         } else {
-            var prevBook = "", prevBookChapters;
+            var prevBook = "",
+                prevBookChapters;
             books = chaptersAvailable[currentTl];
             for (i in books) {
                 if (books[i].bookNumber == currentBook) {
@@ -519,7 +539,7 @@ function changeChapter(forward = true) {
                     prevBookChapters = books[i].chapterCount;
                 }
             }
-            if(prevBook != "") {
+            if (prevBook != "") {
                 getText(prevBook, prevBookChapters, 0, 180, false, "");
             }
         }

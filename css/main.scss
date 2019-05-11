@@ -98,6 +98,9 @@ main {
         width: 100%;
         left: 0;
         height: calc(100% - 66px);
+        display: flex;
+        align-items: center;
+        background-color: #00000077;
 
         &.collapse-menu:not(.show) {
             display: none;
@@ -118,6 +121,9 @@ main {
 
         @media (min-width: 992px) {
             min-height: 500px;
+            min-width: 650px;
+            border-top: #e5f2e6 solid 4px;
+            border-bottom-width: 4px;
         }
 
         .container {
@@ -132,6 +138,7 @@ main {
             height: 50px;
             line-height: 33px;
             vertical-align: middle;
+            cursor: pointer;
 
             .short {
                 display: none;
@@ -202,6 +209,10 @@ main {
                     display: none;
                 }
             }
+
+            &.col {
+                font-weight: bold !important;
+            }
         }
 
         .current {
@@ -238,12 +249,14 @@ main {
 .change-chapter {
     position: fixed;
     //right: 10px;
-    bottom: 10px;
-    font-size: 40px;
+    bottom: 5px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #007b08;
 
     i {
         background-color: white;
-        border-radius: 20px;
+        border-radius: 15px;
     }
 
     &.next {
@@ -252,6 +265,10 @@ main {
 
     &.prev {
         left: 10px;
+    }
+
+    @media (min-width: 577px) {
+        bottom: 47%;
     }
 }
 
