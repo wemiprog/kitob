@@ -7,11 +7,13 @@ var currentBookNr = "0";
 var currentChapter = "0";
 
 var searchQuest = "";
+var maybeSearch = false;
+var backupSearch = "";
 
 var chaptersAvailable = [];
 var booksRendered = [];
 
-var allowedChars = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ';
+var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
 var dontOverflow = 0; // recursion protection
 
 
@@ -115,13 +117,10 @@ function readUrl() {
     return requestedPath;
 }
 
-/**
- * Split Request into parts-- > getText()
- * @param {string} reqPath - Requested path to split
- */
+
 function interpretReq(reqPath) {
     searchQuest = reqPath.trim();
-    reqPath = reqPath.toLowerCase().trim();
+    reqPath = searchQuest.toLowerCase();
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
@@ -143,17 +142,15 @@ function interpretReq(reqPath) {
     // Get book name itself
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
-    //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
-    noChapter = false;
-    backupSearch = "";
+    //backupSearch = "";
     var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
-        noChapter = true;
+        maybeSearch = true;
         backupSearch = searchQuest;
     } catch (e) {
         var bookName = "матто";
-        noChapter = false;
+        maybeSearch = false;
     }
     // Combine count and name
     var reqBook = bookCount + bookName;
@@ -164,13 +161,13 @@ function interpretReq(reqPath) {
         var chapterRegex = ex.exec(reqPath)[0];
         var chapterString = chapterRegex.substr(1);
         var reqChapter = parseInt(chapterString);
-        noChapter = false;
+        maybeSearch = false;
     } catch (e) {
         var reqChapter = 1;
     }
 
     // Get verses
-    ex = /(:|,|\.)( ?)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
+    ex = /(:|,|\.)( ?)(\d+)((( ?)(-+)( ?)(\d+))?)/ // : or , followed by a number, optional - and again a number
     var markBool = false; // says if there are verses to mark
     try {
         var verseRegex = ex.exec(reqPath)[0];
@@ -194,8 +191,15 @@ function interpretReq(reqPath) {
         notResetUrl = true;
     }
     getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
-
     getChapters();
+    return {
+        book: reqBook,
+        chapter: reqChapter,
+        firstVerse: firstVerse,
+        lastVerse: lastVerse,
+        mark: markBool,
+        search: reqPath
+    }
 }
 
 
@@ -272,7 +276,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
         text = "";
 
     // Make book search possible
-    if (noChapter) {
+    if (maybeSearch) {
         text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
     }
 
@@ -500,6 +504,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
 }
 
 function handleChapter(bookNr, chapter) {
+    maybeSearch = false; // disable booksearch
     getText(bookNr, chapter, 0, 180, false, "");
     $('#collapseMenu').removeClass("show");
     getChapters();
