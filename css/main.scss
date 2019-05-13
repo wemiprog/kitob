@@ -101,6 +101,7 @@ main {
         height: calc(100% - 66px);
         display: flex;
         align-items: center;
+        background-color: rgba(0,0,0,0.5);
         background-color: #00000077;
 
         &.collapse-menu:not(.show) {

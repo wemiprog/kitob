@@ -146,7 +146,7 @@ function interpretReq(reqPath) {
         var bookName = ex.exec(reqPath)[0];
         noChapter = true;
         backupSearch = searchQuest;
-    } catch {
+    } catch (e) {
         var bookName = "матто";
         noChapter = false;
     }
@@ -160,7 +160,7 @@ function interpretReq(reqPath) {
         var chapterString = chapterRegex.substr(1);
         var reqChapter = parseInt(chapterString);
         noChapter = false;
-    } catch {
+    } catch (e) {
         var reqChapter = 1;
     }
 
@@ -178,7 +178,7 @@ function interpretReq(reqPath) {
         } else {
             var lastVerse = firstVerse;
         }
-    } catch { // if there is no verse -> whole chapter
+    } catch (e) { // if there is no verse -> whole chapter
         var firstVerse = 0;
         var lastVerse = 180;
     }
@@ -240,11 +240,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
             dontOverflow = 0;
         }
     });
-}
-
-function waitMessage() {
-    $('div.text').html("");
-    $('.book-load').show();
 }
 
 /* Renders text to html */
@@ -393,7 +388,7 @@ function getChapters() {
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
-    var i = 0,
+    i = 0,
         bookButtons = "";
     if (booksRendered[currentTl]) {
         bookButtons = booksRendered[currentTl];
@@ -586,7 +581,7 @@ function scrollToVerse() {
         $('body, html').animate({
             scrollTop: position
         }, 800);
-    } catch {
+    } catch (e) {
         //
     }
 }
@@ -597,7 +592,7 @@ function scrollToTop() {
         $('body, html').animate({
             scrollTop: position
         }, 800);
-    } catch {
+    } catch (e) {
         //
     }
 }
