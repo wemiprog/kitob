@@ -1,5 +1,5 @@
 /* Main file of kitob */
-// Global vars
+/* GLOBAL VARS */
 var currentTl = "kmn";
 var secondTl = "";
 
@@ -12,9 +12,15 @@ var chaptersAvailable = [];
 var booksRendered = [];
 
 var allowedChars = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ';
+var dontOverflow = 0; // recursion protection
 
 
-/* Events to catch */
+/* EVENT HANDLERS */
+$(window).on({
+    popstate: function() {
+        reloadText();
+    }
+});
 $(document).on({
     // Show and hide the loadscreen
     ajaxSend: function (event, request, settings) {
@@ -34,6 +40,9 @@ $('#menuToggler').on({
     touch: function () {
         showMenu();
     }
+});
+$('form').on('submit', function(e){
+    handleInput(e);
 });
 $('.form-control').on('input', function () {
     // Block all except allowedChars in input field
@@ -58,6 +67,14 @@ $('.menu-container').on({
         handleMenu(e);
     }
 });
+$('div.text').on({
+    click: function (e) {
+        textLinks(e);
+    },
+    touch: function (e) {
+        textLinks(e);
+    }
+})
 
 function showMenu(show = true) {
     if(show) {
@@ -69,31 +86,33 @@ function showMenu(show = true) {
     }
 }
 
-/* Global vars */
-var dontOverflow = 0;
-
-/* Reload text when user presses back or forward button in browser */
-window.onpopstate = function () {
-    readUrl();
-};
-
-/* Read User Input */
-function checkIfSend(e) {
+function handleInput(e) {
+    event.preventDefault();
     if (e.type == "submit") {
-        var requestField = $(e.target).find('#reference').val();
+        var request = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
-        interpretReq(requestField);
+        interpretReq(request);
     }
 }
 
-/* Read URL-Reques --> interpretUrl() */
+function textLinks(e) {
+    tg = $(e.target);
+    target = tg.attr('linkTg');
+    if (typeof target !== typeof undefined && target !== false) {
+        interpretReq(target);
+    }
+}
+
+/* MAIN FUNCTIONS */
+function reloadText(){
+    url = readUrl();
+    interpretReq(url);
+}
+
 function readUrl() {
-    // Get path from URL and decode kyrillic, omit slash
     var path = window.location.pathname;
     var requestedPath = decodeURI(path).substr(1);
-
-    // Send to splitter
-    interpretReq(requestedPath);
+    return requestedPath;
 }
 
 /**
@@ -314,7 +333,7 @@ function renderSearch(input) {
 
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a href = 'javascript:interpretReq(\"" + href + "\")\' style=\"color: inherit;\">\
+        <h3><a linkTg=" + href + "'>\
         " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
@@ -532,9 +551,8 @@ function changeChapter(forward = true) {
 }
 
 
-/* Execute now */
-readUrl(); // chain-command, see top description of functions
-
+/* FIRST RUN */
+reloadText();
 
 
 /* Helpers */
