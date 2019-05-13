@@ -242,11 +242,6 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
     });
 }
 
-function waitMessage() {
-    $('div.text').html("");
-    $('.book-load').show();
-}
-
 /* Renders text to html */
 function renderText(receivedText, markBool, markStart, markEnd) {
     // DEV-Info console.log(receivedText);
@@ -393,7 +388,7 @@ function getChapters() {
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
-    var i = 0,
+    i = 0,
         bookButtons = "";
     if (booksRendered[currentTl]) {
         bookButtons = booksRendered[currentTl];
