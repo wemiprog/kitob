@@ -473,6 +473,9 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         chapterLine += '>' + i + '</a>';
         chapterButtons += chapterLine;
     }
+    for (let i = 16 - count; i > 0; i--){
+        chapterButtons += '<a class="col-12"></a>';
+    }
     $('#collapseMenu .book-list').html("");
     $('#collapseMenu .chapter-list').html(chapterButtons);
 }
