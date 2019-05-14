@@ -234,6 +234,7 @@ function getText(rq, translation) {
 
 /* Renders text to html */
 function renderText(receivedText, markObj, translation) {
+    target = translation; // TODO: convert to jquery element
     if (receivedText == "[]") {
         $('#reference').val(searchQuest);
         $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
@@ -245,16 +246,16 @@ function renderText(receivedText, markObj, translation) {
         alert("Book doesn't exist, choose another");
     }
     if ("bookNr" in jsonText[0]) {
-        renderVerses(jsonText, markObj.mark, markObj.firstVerse, markObj.lastVerse);
+        renderVerses(jsonText, markObj, target);
         setTimeout(scrollToVerse, 10);
     } else {
-        renderSearch(jsonText);
+        renderSearch(jsonText, target);
         setTimeout(scrollToTop, 10);
     }
 
 }
 
-function renderVerses(input, markBool, markStart, markEnd) {
+function renderVerses(input, mk, tg) { // mk markobject
     /* Prepare vars */
     var book, chapter, firstVerse = false,
         lastVerse = false,
@@ -277,7 +278,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
         if (header) {
             text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>";
         }
-        if (verse >= markStart && verse <= markEnd && markBool) {
+        if (verse >= mk.firstVerse && verse <= mk.lastVerse && mk.mark) {
             text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
         } else {
             text = text + "<span verse='" + verse + "' class='verse'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
@@ -302,7 +303,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
     $('div.text').html(text);
 }
 
-function renderSearch(input) {
+function renderSearch(input, tg) {
     var i = 0,
         text = "";
     var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
