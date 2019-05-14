@@ -9,12 +9,12 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var backupSearch = "";
+var text = false;
 
 var chaptersAvailable = [];
 var booksRendered = [];
 
 var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
-var dontOverflow = 0; // recursion protection
 
 
 /* EVENT HANDLERS */
@@ -211,13 +211,14 @@ function interpretReq(reqPath) {
     }
 }
 
-
 function getText(rq, translation) {
+    var markObj = $.extend(true, {}, rq);
     // Request whole chapter if marking enabled
     if (rq.mark) {
         rq.firstVerse = 0;
         rq.lastVerse = 180;
     }
+    rq.translation = translation;
 
     var requestString = JSON.stringify(rq);
 
@@ -227,26 +228,24 @@ function getText(rq, translation) {
         url: "/php/getText.php",
         data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        if (data == "[]" && dontOverflow < 20) { // if no answer from server
-            dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            $('#reference').val(searchQuest);
-            $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
-        } else {
-            renderText(data, rq.mark, rq.firstVerse, rq.lastVerse);
-            dontOverflow = 0;
-        }
+        renderText(data, markObj, translation);
     });
 }
 
 /* Renders text to html */
-function renderText(receivedText, markBool, markStart, markEnd) {
+function renderText(receivedText, markObj, translation) {
+    if (receivedText == "[]") {
+        $('#reference').val(searchQuest);
+        $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        return;
+    }
     // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
     }
     if ("bookNr" in jsonText[0]) {
-        renderVerses(jsonText, markBool, markStart, markEnd);
+        renderVerses(jsonText, markObj.mark, markObj.firstVerse, markObj.lastVerse);
         setTimeout(scrollToVerse, 10);
     } else {
         renderSearch(jsonText);
@@ -540,10 +539,10 @@ function changeChapter(forward = true) {
         } else {
             var prevBook = "",
                 prevBookChapters;
-                books = chaptersAvailable[currentTl];
-                for (i in books) {
-                    if (books[i].bookNumber == currentBookNr) {
-                        break;
+            books = chaptersAvailable[currentTl];
+            for (i in books) {
+                if (books[i].bookNumber == currentBookNr) {
+                    break;
                 } else {
                     prevBook = books[i].bookNumber;
                     prevBookChapters = books[i].chapterCount;
