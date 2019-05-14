@@ -11,7 +11,6 @@ var maybeSearch = false;
 var dontUpdate = false;
 
 var backupSearch = "";
-var text = false;
 
 var chaptersAvailable = [];
 var booksRendered = [];
