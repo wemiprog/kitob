@@ -19,7 +19,7 @@ var dontOverflow = 0; // recursion protection
 
 /* EVENT HANDLERS */
 $(window).on({
-    popstate: function() {
+    popstate: function () {
         reloadText();
     }
 });
@@ -43,7 +43,7 @@ $('#menuToggler').on({
         showMenu();
     }
 });
-$('form').on('submit', function(e){
+$('form').on('submit', function (e) {
     handleInput(e);
 });
 $('.form-control').on('input', function () {
@@ -79,7 +79,7 @@ $('div.text').on({
 })
 
 function showMenu(show = true) {
-    if(show) {
+    if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
         $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
@@ -93,7 +93,7 @@ function handleInput(e) {
     if (e.type == "submit") {
         var request = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
-        interpretReq(request);
+        reloadText(request);
     }
 }
 
@@ -101,14 +101,24 @@ function textLinks(e) {
     tg = $(e.target);
     target = tg.attr('linkTg');
     if (typeof target !== typeof undefined && target !== false) {
-        interpretReq(target);
+        reloadText(target);
     }
 }
 
 /* MAIN FUNCTIONS */
-function reloadText(){
-    url = readUrl();
-    interpretReq(url);
+function reloadText(source = "url") {
+    if (source == "url") {
+        var reTxt = readUrl();
+    } else if (typeof source == "string") {
+        var reTxt = source;
+    } else {
+        var reObj = source;
+    }
+    if (typeof reObj != "object") {
+        reObj = interpretReq(reTxt);
+    }
+    getText(reObj);
+    getChapters();
 }
 
 function readUrl() {
@@ -190,8 +200,7 @@ function interpretReq(reqPath) {
     if (reqPath.slice(-1) == "-") {
         notResetUrl = true;
     }
-    getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
-    getChapters();
+
     return {
         book: reqBook,
         chapter: reqChapter,
@@ -203,36 +212,14 @@ function interpretReq(reqPath) {
 }
 
 
-/**
- * Get text from server-- > renderText()
- * @param {string} book 
- * @param {number} chapter 
- * @param {number} firstVerse 
- * @param {number} lastVerse
- * @param {bool} markBool - verse selection to mark (true) or to request (false)
- */
-function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, wholeQuest) {
-
+function getText(rq, translation) {
     // Request whole chapter if marking enabled
-    if (markBool) {
-        var request = {
-            book: book,
-            chapter: chapter,
-            firstVerse: 0,
-            lastVerse: 180,
-            search: wholeQuest,
-        };
-    } else {
-        var request = {
-            book: book,
-            chapter: chapter,
-            firstVerse: firstVerse,
-            lastVerse: lastVerse,
-            search: wholeQuest,
-        }
+    if (rq.mark) {
+        rq.firstVerse = 0;
+        rq.lastVerse = 180;
     }
 
-    var requestString = JSON.stringify(request);
+    var requestString = JSON.stringify(rq);
 
     // Send request to server via AJAX
     $.ajax({
@@ -245,7 +232,7 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
             $('#reference').val(searchQuest);
             $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         } else {
-            renderText(data, markBool, firstVerse, lastVerse);
+            renderText(data, rq.mark, rq.firstVerse, rq.lastVerse);
             dontOverflow = 0;
         }
     });
@@ -496,7 +483,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         chapterLine += '>' + i + '</a>';
         chapterButtons += chapterLine;
     }
-    for (let i = 16 - count; i > 0; i--){
+    for (let i = 16 - count; i > 0; i--) {
         chapterButtons += '<a class="col-12"></a>';
     }
     $('#collapseMenu .book-list').html("");
@@ -505,9 +492,15 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
 
 function handleChapter(bookNr, chapter) {
     maybeSearch = false; // disable booksearch
-    getText(bookNr, chapter, 0, 180, false, "");
+    reloadText({
+        book: bookNr,
+        chapter: chapter,
+        firstVerse: 0,
+        lastVerse: 180,
+        mark: false,
+        search: ""
+    });
     $('#collapseMenu').removeClass("show");
-    getChapters();
 }
 
 function toBookSelection() {
@@ -517,6 +510,14 @@ function toBookSelection() {
 }
 
 function changeChapter(forward = true) {
+    chapterRq = {
+        book: currentBookNr,
+        chapter: 1,
+        firstVerse: 0,
+        lastVerse: 180,
+        mark: false,
+        search: ""
+    }
     if (forward) {
         currentMaxChapter = "", nextBook = "";
         cpAv = chaptersAvailable[currentTl];
@@ -529,30 +530,32 @@ function changeChapter(forward = true) {
             }
         }
         if (parseInt(currentChapter) < parseInt(currentMaxChapter)) {
-            getText(currentBookNr, parseInt(currentChapter) + 1, 0, 180, false, "");
+            chapterRq.chapter = parseInt(currentChapter) + 1;
         } else if (nextBook != "") {
-            getText(nextBook, 1, 0, 180, false, "");
+            chapterRq.book = nextBook;
         }
     } else {
         if (parseInt(currentChapter) > 1) {
-            getText(currentBookNr, parseInt(currentChapter) - 1, 0, 180, false, "");
+            chapterRq.chapter = parseInt(currentChapter) - 1;
         } else {
             var prevBook = "",
                 prevBookChapters;
-            books = chaptersAvailable[currentTl];
-            for (i in books) {
-                if (books[i].bookNumber == currentBookNr) {
-                    break;
+                books = chaptersAvailable[currentTl];
+                for (i in books) {
+                    if (books[i].bookNumber == currentBookNr) {
+                        break;
                 } else {
                     prevBook = books[i].bookNumber;
                     prevBookChapters = books[i].chapterCount;
                 }
             }
             if (prevBook != "") {
-                getText(prevBook, prevBookChapters, 0, 180, false, "");
+                chapterRq.book = prevBook;
+                chapterRq.chapter = prevBookChapters;
             }
         }
     }
+    reloadText(chapterRq);
 }
 
 
@@ -625,11 +628,11 @@ $(window).on("load", function () {
     hammerText = new Hammer(watchObj, {
         inputClass: Hammer.TouchInput
     });
-    hammerText .get('swipe').set({
+    hammerText.get('swipe').set({
         threshold: 120
     });
-    hammerText.on('swipe', function (e){
-        if(e.direction == 2) {
+    hammerText.on('swipe', function (e) {
+        if (e.direction == 2) {
             changeChapter();
         } else if (e.direction == 4) {
             changeChapter(false);
