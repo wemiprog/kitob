@@ -262,10 +262,15 @@ main {
     font-size: 30px;
     cursor: pointer;
     color: #007b08;
+    display: none;
 
     i {
         background-color: white;
         border-radius: 15px;
+    }
+
+    &.show {
+        display: block;
     }
 
     &.next {

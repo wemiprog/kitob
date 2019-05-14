@@ -8,6 +8,8 @@ var currentChapter = "0";
 
 var searchQuest = "";
 var maybeSearch = false;
+var dontUpdate = false;
+
 var backupSearch = "";
 var text = false;
 
@@ -20,7 +22,7 @@ var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
 /* EVENT HANDLERS */
 $(window).on({
     popstate: function () {
-        reloadText();
+        reloadText("noUrlUpdate");
     }
 });
 $(document).on({
@@ -107,6 +109,10 @@ function textLinks(e) {
 
 /* MAIN FUNCTIONS */
 function reloadText(source = "url") {
+    if (source == "noUrlUpdate"){
+        source = "url";
+        dontUpdate = true;
+    }
     if (source == "url") {
         var reTxt = readUrl();
     } else if (typeof source == "string") {
@@ -289,7 +295,9 @@ function renderVerses(input, mk, tg) { // mk markobject
     // Set browser url
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
-    if (!notResetUrl) {
+    if (dontUpdate) {
+        dontUpdate = false;
+    } else {
         window.history.pushState("", book, "/" + shortPath);
     }
     designBook = shortenBook(book, ". ");
@@ -301,9 +309,11 @@ function renderVerses(input, mk, tg) { // mk markobject
     currentChapter = chapter;
     $('#reference').val(designPath);
     $('div.text').html(text);
+    $('.change-chapter:not(.show)').addClass("show");
 }
 
 function renderSearch(input, tg) {
+    $('.change-chapter').removeClass("show");
     var i = 0,
         text = "";
     var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -336,7 +346,11 @@ function renderSearch(input, tg) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    window.history.pushState("", searchQuest, "/" + searchQuest);
+    if (dontUpdate){
+        dontUpdate = false;
+    } else {
+        window.history.pushState("", searchQuest, "/" + searchQuest);
+    }
     document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
@@ -354,7 +368,14 @@ function renderSearch(input, tg) {
 }
 
 function forceSearch() {
-    getText('фҷва', 0, 1, 180, false, backupSearch);
+    reloadText({
+        book: 'фҷва',
+        chapter: 0,
+        firstVerse: 1,
+        lastVerse: 180,
+        mark: false,
+        search: backupSearch
+    });
 }
 
 
