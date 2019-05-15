@@ -122,7 +122,7 @@ function reloadText(source = "url") {
     if (typeof reObj != "object") {
         reObj = interpretReq(reTxt);
     }
-    getText(reObj);
+    getText(reObj,1);
     getChapters();
 }
 
@@ -150,6 +150,8 @@ function interpretReq(reqPath) {
         case "3":
             var bookCount = 'Сеюми ';
             break;
+        case "4":
+            var bookCount = 'Чоруми ';
         default:
             var bookCount = '';
             break;
@@ -223,7 +225,11 @@ function getText(rq, translation) {
         rq.firstVerse = 0;
         rq.lastVerse = 180;
     }
-    rq.translation = translation;
+    if (translation = 1){
+        rq.translation = currentTl;
+    } else if (translation = 2) {
+        rq.translation = secondTl;
+    }
 
     var requestString = JSON.stringify(rq);
 
@@ -245,7 +251,8 @@ function renderText(receivedText, markObj, translation) {
         $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         return;
     }
-    // DEV-Info console.log(receivedText);
+    // DEV-Info 
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
@@ -596,6 +603,13 @@ function shortenBook(book, separator) {
             break;
         case 'Сеюми':
             var bookCount = '3';
+            break;
+        case 'Чоруми':
+            var bookCount = '4';
+            break;
+        case 'Такрори':
+            var bookCount = '';
+            separator = '';
             break;
         case 'Инчили':
             var bookCount = '';
