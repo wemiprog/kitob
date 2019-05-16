@@ -1,7 +1,7 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
-var currentTl = "kmn";
-var secondTl = "";
+var currentTl = "КМН";
+var secondTl = "Ҳеҷ";
 
 var currentBookNr = "0";
 var currentChapter = "0";
@@ -16,15 +16,15 @@ var chaptersAvailable = [];
 var booksRendered = [];
 var translationsAvailable = {
     1: {
-        name: "кмн",
+        name: "КМН",
         target: 3
     },
     2: {
-        name: "км92",
+        name: "КМ92",
         target: 3
     },
     3: {
-        name: "ҳеҷ",
+        name: "Ҳеҷ",
         target: 2
     }
 }
@@ -68,6 +68,11 @@ $('.form-control').on('input', function () {
         this.value = this.value.replace(re, '');
     }
 });
+$('.custom-select').on({
+    change: function (e) {
+        handleTranslation(e);
+    }
+});
 $('.change-chapter').on({
     click: function (e) {
         handleNePr(e);
@@ -91,7 +96,7 @@ $('div.text').on({
     touch: function (e) {
         textLinks(e);
     }
-})
+});
 
 function showMenu(show = true) {
     if (show) {
@@ -121,8 +126,9 @@ function textLinks(e) {
 }
 
 /* MAIN FUNCTIONS */
-function reloadText(source = "url") {
-    if (source == "noUrlUpdate"){
+function reloadText(source = "url", target = 1) {
+    
+    if (source == "noUrlUpdate") {
         source = "url";
         dontUpdate = true;
     }
@@ -136,7 +142,7 @@ function reloadText(source = "url") {
     if (typeof reObj != "object") {
         reObj = interpretReq(reTxt);
     }
-    getText(reObj,1);
+    getText(reObj, target);
     getChapters();
 }
 
@@ -239,7 +245,7 @@ function getText(rq, translation) {
         rq.firstVerse = 0;
         rq.lastVerse = 180;
     }
-    if (translation = 1){
+    if (translation = 1) {
         rq.translation = currentTl;
     } else if (translation = 2) {
         rq.translation = secondTl;
@@ -265,8 +271,7 @@ function renderText(receivedText, markObj, translation) {
         $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         return;
     }
-    // DEV-Info 
-    console.log(receivedText);
+    // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
@@ -366,7 +371,7 @@ function renderSearch(input, tg) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    if (dontUpdate){
+    if (dontUpdate) {
         dontUpdate = false;
     } else {
         window.history.pushState("", searchQuest, "/" + searchQuest);
@@ -503,6 +508,19 @@ function handleNePr(e) {
     }
 }
 
+function handleTranslation(e) {
+    var tg = $(e.target);
+    var tgWindow = tg.attr("tr");
+    var newTl = tg.val();
+    if(tgWindow == 1) {
+        currentTl = newTl.toLowerCase();
+    } else if (tgWindow == 2) {
+        secondTl = newTl.toLowerCase();
+    }
+    reloadText("noUrlUpdate", tgWindow);
+    getChapters();
+}
+
 function handleBook(bookName, bookShort, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
@@ -548,6 +566,43 @@ function toBookSelection() {
     getChapters();
     $('#collapseMenu .btn-book').removeClass('current');
     $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
+}
+
+
+function renderTranslations(sc = false) {
+    var menu1 = "";
+    var menu2 = "";
+    if (sc) {
+        translationsAvailable[Object.keys(translationsAvailable).length + 1] = {
+            name: "ELB",
+            target: 3
+        };
+    }
+    // Menu 1
+    $.each(translationsAvailable,function(index, value) {
+        var trOption1 = "<option value='";
+        var trOption2;
+        var m1sel = "", m2sel ="";
+        var m1but = "", m2but = "";
+        trOption1 += value.name + "' ";
+        if(value.name == currentTl){
+            m1sel += "selected";
+        }
+        if(value.name == secondTl){
+            m2sel += "selected";
+        }
+        trOption2 = ">" + value.name + "</option>";
+        if(value.target == 1 || value.target == 3){
+            m1but = trOption1 + m1sel + trOption2;
+        }
+        if(value.target == 2 || value.target == 3){
+            m2but = trOption1 + m2sel + trOption2;
+        }
+        menu1 += m1but;
+        menu2 += m2but;
+    });
+    $('#trans-select1').html(menu1);
+    $('#trans-select2').html(menu2);
 }
 
 function changeChapter(forward = true) {
@@ -602,6 +657,7 @@ function changeChapter(forward = true) {
 
 /* FIRST RUN */
 reloadText();
+renderTranslations();
 
 
 /* Helpers */
