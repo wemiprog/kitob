@@ -245,6 +245,13 @@ main {
             background-color: #e5f2e6;
             padding: 0.1rem;
         }
+        
+        a {
+            cursor: pointer;
+            &:not([href]):hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 
@@ -255,10 +262,15 @@ main {
     font-size: 30px;
     cursor: pointer;
     color: #007b08;
+    display: none;
 
     i {
         background-color: white;
         border-radius: 15px;
+    }
+
+    &.show {
+        display: block;
     }
 
     &.next {

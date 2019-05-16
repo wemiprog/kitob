@@ -1,31 +1,38 @@
 /* Main file of kitob */
-var searchQuest = "",
-    notResetUrl = false;
-// save chapters -> one request per translation
-chaptersAvailable = [];
-booksRendered = [], chaptersRendered = [];
-// save translations
-currentTl = "kmn";
-secondTl = "";
-currentBook = "0";
-currentChapter = "0";
+/* GLOBAL VARS */
+var currentTl = "kmn";
+var secondTl = "";
 
-/* Events to catch */
+var currentBookNr = "0";
+var currentChapter = "0";
+
+var searchQuest = "";
+var maybeSearch = false;
+var dontUpdate = false;
+
+var backupSearch = "";
+
+var chaptersAvailable = [];
+var booksRendered = [];
+
+var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
+
+
+/* EVENT HANDLERS */
+$(window).on({
+    popstate: function () {
+        reloadText("noUrlUpdate");
+    }
+});
 $(document).on({
+    // Show and hide the loadscreen
     ajaxSend: function (event, request, settings) {
         if (settings.url == "/php/getText.php") {
             $('.book-load').show();
             $('div.text').html("");
         }
     },
-    ajaxStart: function () {
-        //$('.book-load').show();
-        //$('div.text').html("");
-    },
     ajaxStop: function () {
-        $('.book-load').hide();
-    },
-    ajaxError: function () {
         $('.book-load').hide();
     },
 });
@@ -36,10 +43,15 @@ $('#menuToggler').on({
     touch: function () {
         showMenu();
     }
-})
+});
+$('form').on('submit', function (e) {
+    handleInput(e);
+});
 $('.form-control').on('input', function () {
-    if (this.value.match(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g)) {
-        this.value = this.value.replace(/[^ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.\-1234567890 ]+/g, '');
+    // Block all except allowedChars in input field
+    var re = new RegExp('[^' + allowedChars + ']+', 'g');
+    if (this.value.match(re)) {
+        this.value = this.value.replace(re, '');
     }
 });
 $('.change-chapter').on({
@@ -49,74 +61,81 @@ $('.change-chapter').on({
     touch: function (e) {
         handleNePr(e);
     }
-})
-// let the menu disappear
+});
 $('.menu-container').on({
     click: function (e) {
-        if ($(e.target).hasClass("collapse-menu")) {
-            showMenu(false);
-        }
+        handleMenu(e);
     },
     touch: function (e) {
-        if ($(e.target).hasClass("collapse-menu")) {
-            showMenu(false);
-        }
+        handleMenu(e);
     }
-})
-// Menu handler - bookChooser
-$('.menu .book-list, .menu .chapter-list').on({
+});
+$('div.text').on({
     click: function (e) {
-        handleMenu(e);
+        textLinks(e);
     },
     touch: function (e) {
-        handleMenu(e);
+        textLinks(e);
     }
 })
 
 function showMenu(show = true) {
-    if(show) {
+    if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
+        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
         $('#collapseMenu').toggleClass("show");
     } else {
         $('#collapseMenu').removeClass("show");
     }
 }
 
-/* Global vars */
-var dontOverflow = 0;
-
-/* Reload text when user presses back or forward button in browser */
-window.onpopstate = function () {
-    readUrl();
-};
-
-/* Read User Input */
-function checkIfSend(e) {
+function handleInput(e) {
+    event.preventDefault();
     if (e.type == "submit") {
-        var requestField = $(e.target).find('#reference').val();
+        var request = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
-        interpretReq(requestField);
+        reloadText(request);
     }
 }
 
-/* Read URL-Reques --> interpretUrl() */
-function readUrl() {
-    // Get path from URL and decode kyrillic, omit slash
-    var path = window.location.pathname;
-    var requestedPath = decodeURI(path).substr(1);
-
-    // Send to splitter
-    interpretReq(requestedPath);
+function textLinks(e) {
+    tg = $(e.target);
+    target = tg.attr('linkTg');
+    if (typeof target !== typeof undefined && target !== false) {
+        reloadText(target);
+    }
 }
 
-/**
- * Split Request into parts-- > getText()
- * @param {string} reqPath - Requested path to split
- */
+/* MAIN FUNCTIONS */
+function reloadText(source = "url") {
+    if (source == "noUrlUpdate"){
+        source = "url";
+        dontUpdate = true;
+    }
+    if (source == "url") {
+        var reTxt = readUrl();
+    } else if (typeof source == "string") {
+        var reTxt = source;
+    } else {
+        var reObj = source;
+    }
+    if (typeof reObj != "object") {
+        reObj = interpretReq(reTxt);
+    }
+    getText(reObj);
+    getChapters();
+}
+
+function readUrl() {
+    var path = window.location.pathname;
+    var requestedPath = decodeURI(path).substr(1);
+    return requestedPath;
+}
+
+
 function interpretReq(reqPath) {
     searchQuest = reqPath.trim();
-    reqPath = reqPath.toLowerCase().trim();
+    reqPath = searchQuest.toLowerCase();
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
@@ -138,17 +157,15 @@ function interpretReq(reqPath) {
     // Get book name itself
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
-    //var ex = /([^1-9 \.]+)((( ?)([^1-9 \.]+))?)/
-    noChapter = false;
-    backupSearch = "";
+    //backupSearch = "";
     var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
-        noChapter = true;
+        maybeSearch = true;
         backupSearch = searchQuest;
     } catch (e) {
         var bookName = "матто";
-        noChapter = false;
+        maybeSearch = false;
     }
     // Combine count and name
     var reqBook = bookCount + bookName;
@@ -159,13 +176,13 @@ function interpretReq(reqPath) {
         var chapterRegex = ex.exec(reqPath)[0];
         var chapterString = chapterRegex.substr(1);
         var reqChapter = parseInt(chapterString);
-        noChapter = false;
+        maybeSearch = false;
     } catch (e) {
         var reqChapter = 1;
     }
 
     // Get verses
-    ex = /(:|,|\.)( ?)(\d+)(((-+)(\d+))?)/ // : or , followed by a number, optional - and again a number
+    ex = /(:|,|\.)( ?)(\d+)((( ?)(-+)( ?)(\d+))?)/ // : or , followed by a number, optional - and again a number
     var markBool = false; // says if there are verses to mark
     try {
         var verseRegex = ex.exec(reqPath)[0];
@@ -188,42 +205,27 @@ function interpretReq(reqPath) {
     if (reqPath.slice(-1) == "-") {
         notResetUrl = true;
     }
-    getText(reqBook, reqChapter, firstVerse, lastVerse, markBool, reqPath);
 
-    getChapters();
+    return {
+        book: reqBook,
+        chapter: reqChapter,
+        firstVerse: firstVerse,
+        lastVerse: lastVerse,
+        mark: markBool,
+        search: reqPath
+    }
 }
 
-
-/**
- * Get text from server-- > renderText()
- * @param {string} book 
- * @param {number} chapter 
- * @param {number} firstVerse 
- * @param {number} lastVerse
- * @param {bool} markBool - verse selection to mark (true) or to request (false)
- */
-function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, wholeQuest) {
-
+function getText(rq, translation) {
+    var markObj = $.extend(true, {}, rq);
     // Request whole chapter if marking enabled
-    if (markBool) {
-        var request = {
-            book: book,
-            chapter: chapter,
-            firstVerse: 0,
-            lastVerse: 180,
-            search: wholeQuest,
-        };
-    } else {
-        var request = {
-            book: book,
-            chapter: chapter,
-            firstVerse: firstVerse,
-            lastVerse: lastVerse,
-            search: wholeQuest,
-        }
+    if (rq.mark) {
+        rq.firstVerse = 0;
+        rq.lastVerse = 180;
     }
+    rq.translation = translation;
 
-    var requestString = JSON.stringify(request);
+    var requestString = JSON.stringify(rq);
 
     // Send request to server via AJAX
     $.ajax({
@@ -231,35 +233,34 @@ function getText(book, chapter, firstVerse = 0, lastVerse = 180, markBool, whole
         url: "/php/getText.php",
         data: "data=" + requestString // Embed JSON into POST['data']
     }).done(function (data) {
-        if (data == "[]" && dontOverflow < 20) { // if no answer from server
-            dontOverflow = dontOverflow + 1; // don't crash when ex. server unavailable
-            $('#reference').val(searchQuest);
-            $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
-        } else {
-            renderText(data, markBool, firstVerse, lastVerse);
-            dontOverflow = 0;
-        }
+        renderText(data, markObj, translation);
     });
 }
 
 /* Renders text to html */
-function renderText(receivedText, markBool, markStart, markEnd) {
+function renderText(receivedText, markObj, translation) {
+    target = translation; // TODO: convert to jquery element
+    if (receivedText == "[]") {
+        $('#reference').val(searchQuest);
+        $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        return;
+    }
     // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
     }
     if ("bookNr" in jsonText[0]) {
-        renderVerses(jsonText, markBool, markStart, markEnd);
+        renderVerses(jsonText, markObj, target);
         setTimeout(scrollToVerse, 10);
     } else {
-        renderSearch(jsonText);
+        renderSearch(jsonText, target);
         setTimeout(scrollToTop, 10);
     }
 
 }
 
-function renderVerses(input, markBool, markStart, markEnd) {
+function renderVerses(input, mk, tg) { // mk markobject
     /* Prepare vars */
     var book, chapter, firstVerse = false,
         lastVerse = false,
@@ -267,7 +268,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
         text = "";
 
     // Make book search possible
-    if (noChapter) {
+    if (maybeSearch) {
         text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
     }
 
@@ -282,7 +283,7 @@ function renderVerses(input, markBool, markStart, markEnd) {
         if (header) {
             text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>";
         }
-        if (verse >= markStart && verse <= markEnd && markBool) {
+        if (verse >= mk.firstVerse && verse <= mk.lastVerse && mk.mark) {
             text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
         } else {
             text = text + "<span verse='" + verse + "' class='verse'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
@@ -293,7 +294,9 @@ function renderVerses(input, markBool, markStart, markEnd) {
     // Set browser url
     shortBook = shortenBook(book, "");
     shortPath = shortBook + chapter;
-    if (!notResetUrl) {
+    if (dontUpdate) {
+        dontUpdate = false;
+    } else {
         window.history.pushState("", book, "/" + shortPath);
     }
     designBook = shortenBook(book, ". ");
@@ -301,13 +304,15 @@ function renderVerses(input, markBool, markStart, markEnd) {
     document.title = designPath + ' - Китоби Муқаддас';
 
     // set currents
-    currentBook = bookNr;
+    currentBookNr = bookNr;
     currentChapter = chapter;
     $('#reference').val(designPath);
     $('div.text').html(text);
+    $('.change-chapter:not(.show)').addClass("show");
 }
 
-function renderSearch(input) {
+function renderSearch(input, tg) {
+    $('.change-chapter').removeClass("show");
     var i = 0,
         text = "";
     var searchText = searchQuest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -328,7 +333,7 @@ function renderSearch(input) {
 
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a href = 'javascript:interpretReq(\"" + href + "\")\' style=\"color: inherit;\">\
+        <h3><a linkTg=" + href + "'>\
         " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
@@ -340,7 +345,11 @@ function renderSearch(input) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    window.history.pushState("", searchQuest, "/" + searchQuest);
+    if (dontUpdate){
+        dontUpdate = false;
+    } else {
+        window.history.pushState("", searchQuest, "/" + searchQuest);
+    }
     document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
@@ -353,12 +362,19 @@ function renderSearch(input) {
         counterText = words + " маротиба, " + counterText;
         $('div.count i').html(counterText);
     }
-    currentBook = "0";
+    currentBookNr = "0";
     currentChapter = "0";
 }
 
 function forceSearch() {
-    getText('фҷва', 0, 1, 180, false, backupSearch);
+    reloadText({
+        book: 'фҷва',
+        chapter: 0,
+        firstVerse: 1,
+        lastVerse: 180,
+        mark: false,
+        search: backupSearch
+    });
 }
 
 
@@ -435,10 +451,11 @@ function renderBookChooser(chapterArray) {
 }
 
 function handleMenu(e) {
-    noChapter = false;
     var tg = $(e.target);
     var pr = tg.parent();
-    if (tg.hasClass("toBook") || pr.hasClass("toBook")) {
+    if (tg.hasClass("collapse-menu")) {
+        showMenu(false);
+    } else if (tg.hasClass("toBook") || pr.hasClass("toBook")) {
         toBookSelection();
     } else if (tg.hasClass("btn-book")) {
         handleBook(tg.attr("book"), tg.attr("shortBook"), tg.attr("bookNr"), tg.attr("count"), tg.hasClass("current"));
@@ -486,28 +503,46 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         chapterLine += '>' + i + '</a>';
         chapterButtons += chapterLine;
     }
+    for (let i = 16 - count; i > 0; i--) {
+        chapterButtons += '<a class="col-12"></a>';
+    }
     $('#collapseMenu .book-list').html("");
     $('#collapseMenu .chapter-list').html(chapterButtons);
 }
 
 function handleChapter(bookNr, chapter) {
-    getText(bookNr, chapter, 0, 180, false, "");
+    maybeSearch = false; // disable booksearch
+    reloadText({
+        book: bookNr,
+        chapter: chapter,
+        firstVerse: 0,
+        lastVerse: 180,
+        mark: false,
+        search: ""
+    });
     $('#collapseMenu').removeClass("show");
-    getChapters();
 }
 
 function toBookSelection() {
     getChapters();
     $('#collapseMenu .btn-book').removeClass('current');
-    $('#collapseMenu .btn-book').filter('[bookNr=' + currentBook + ']').addClass('current');
+    $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
 }
 
 function changeChapter(forward = true) {
+    chapterRq = {
+        book: currentBookNr,
+        chapter: 1,
+        firstVerse: 0,
+        lastVerse: 180,
+        mark: false,
+        search: ""
+    }
     if (forward) {
         currentMaxChapter = "", nextBook = "";
         cpAv = chaptersAvailable[currentTl];
         for (i in cpAv) {
-            if (cpAv[i].bookNumber == currentBook) {
+            if (cpAv[i].bookNumber == currentBookNr) {
                 currentMaxChapter = cpAv[i].chapterCount;
             } else if (currentMaxChapter != "") {
                 nextBook = cpAv[i].bookNumber;
@@ -515,19 +550,19 @@ function changeChapter(forward = true) {
             }
         }
         if (parseInt(currentChapter) < parseInt(currentMaxChapter)) {
-            getText(currentBook, parseInt(currentChapter) + 1, 0, 180, false, "");
+            chapterRq.chapter = parseInt(currentChapter) + 1;
         } else if (nextBook != "") {
-            getText(nextBook, 1, 0, 180, false, "");
+            chapterRq.book = nextBook;
         }
     } else {
         if (parseInt(currentChapter) > 1) {
-            getText(currentBook, parseInt(currentChapter) - 1, 0, 180, false, "");
+            chapterRq.chapter = parseInt(currentChapter) - 1;
         } else {
             var prevBook = "",
                 prevBookChapters;
             books = chaptersAvailable[currentTl];
             for (i in books) {
-                if (books[i].bookNumber == currentBook) {
+                if (books[i].bookNumber == currentBookNr) {
                     break;
                 } else {
                     prevBook = books[i].bookNumber;
@@ -535,16 +570,17 @@ function changeChapter(forward = true) {
                 }
             }
             if (prevBook != "") {
-                getText(prevBook, prevBookChapters, 0, 180, false, "");
+                chapterRq.book = prevBook;
+                chapterRq.chapter = prevBookChapters;
             }
         }
     }
+    reloadText(chapterRq);
 }
 
 
-/* Execute now */
-readUrl(); // chain-command, see top description of functions
-
+/* FIRST RUN */
+reloadText();
 
 
 /* Helpers */
@@ -612,11 +648,11 @@ $(window).on("load", function () {
     hammerText = new Hammer(watchObj, {
         inputClass: Hammer.TouchInput
     });
-    hammerText .get('swipe').set({
+    hammerText.get('swipe').set({
         threshold: 120
     });
-    hammerText.on('swipe', function (e){
-        if(e.direction == 2) {
+    hammerText.on('swipe', function (e) {
+        if (e.direction == 2) {
             changeChapter();
         } else if (e.direction == 4) {
             changeChapter(false);
