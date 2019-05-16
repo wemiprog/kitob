@@ -17,6 +17,7 @@ function createDBCon($translation)
             break;
         case "км92":
             $cfg_current = $cfg_km92;
+            break;
         default:
             $cfg_current = $cfg_kmn;
     }

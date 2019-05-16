@@ -14,6 +14,20 @@ var backupSearch = "";
 
 var chaptersAvailable = [];
 var booksRendered = [];
+var translationsAvailable = {
+    1: {
+        name: "кмн",
+        target: 3
+    },
+    2: {
+        name: "км92",
+        target: 3
+    },
+    3: {
+        name: "ҳеҷ",
+        target: 2
+    }
+}
 
 var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
 
@@ -510,7 +524,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         chapterLine += '>' + i + '</a>';
         chapterButtons += chapterLine;
     }
-    for (let i = 16 - count; i > 0; i--) {
+    for (let i = 17 - count; i > 0; i--) {
         chapterButtons += '<a class="col-12"></a>';
     }
     $('#collapseMenu .book-list').html("");
