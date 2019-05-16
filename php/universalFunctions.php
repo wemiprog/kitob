@@ -5,15 +5,11 @@ function createDBCon($translation)
     $cfg_kmn = $GLOBALS['configdir'] . 'database_kitob.php';
     $cfg_km92 = $GLOBALS['configdir'] . 'db_kitob_km92.php';
 
+    $translation = mb_strtolower($translation, 'UTF-8');
+
     switch ($translation) {
-        case "kmn":
-            $cfg_current = $cfg_kmn;
-            break;
         case "кмн":
             $cfg_current = $cfg_kmn;
-            break;
-        case "km92":
-            $cfg_current = $cfg_km92;
             break;
         case "км92":
             $cfg_current = $cfg_km92;

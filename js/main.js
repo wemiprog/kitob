@@ -1,7 +1,27 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
-var currentTl = "КМН";
-var secondTl = "Ҳеҷ";
+var avTls = {
+    1: {
+        name: "КМН",
+        alias: "кмн",
+        content: true,
+        target: 3
+    },
+    2: {
+        name: "КМ92",
+        alias: "км92",
+        content: true,
+        target: 3
+    },
+    3: {
+        name: "Ҳеҷ",
+        alias: false,
+        content: false,
+        target: 2
+    }
+}
+var curTl = avTls[1];
+var secTl = avTls[3];
 
 var currentBookNr = "0";
 var currentChapter = "0";
@@ -9,27 +29,14 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
+var sc = false;
 
 var backupSearch = "";
 
 var chaptersAvailable = [];
 var booksRendered = [];
-var translationsAvailable = {
-    1: {
-        name: "КМН",
-        target: 3
-    },
-    2: {
-        name: "КМ92",
-        target: 3
-    },
-    3: {
-        name: "Ҳеҷ",
-        target: 2
-    }
-}
 
-var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
+var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
 
 /* EVENT HANDLERS */
@@ -127,7 +134,7 @@ function textLinks(e) {
 
 /* MAIN FUNCTIONS */
 function reloadText(source = "url", target = 1) {
-    
+
     if (source == "noUrlUpdate") {
         source = "url";
         dontUpdate = true;
@@ -156,6 +163,27 @@ function readUrl() {
 function interpretReq(reqPath) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
+    // Extract translation
+    var ex = /^([\u0400-\u05271234567890]{3,4})\//
+    var trans1 = false;
+    var trans2 = false;
+    try {
+        trans1 = ex.exec(reqPath)[0].slice(0,-1);
+        reqPath = reqPath.replace(ex, '');
+    } catch (e) {}
+    try {
+        trans2 = ex.exec(reqPath)[0].slice(0,-1);
+        reqPath = reqPath.replace(ex, '');
+    } catch (e) {}
+    $.each(avTls, function(key, value) {
+        if(value.name.toLowerCase() == trans1){
+            curTl = value;
+        }
+        if(value.name.toLowerCase() == trans2){
+            secTl = value;
+        }
+    });
+
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
@@ -246,9 +274,9 @@ function getText(rq, translation) {
         rq.lastVerse = 180;
     }
     if (translation = 1) {
-        rq.translation = currentTl;
+        rq.translation = curTl.name;
     } else if (translation = 2) {
-        rq.translation = secondTl;
+        rq.translation = secTl.name;
     }
 
     var requestString = JSON.stringify(rq);
@@ -406,13 +434,13 @@ function forceSearch() {
 
 /* Get book data for verse chooser */
 function getChapters() {
-    if (chaptersAvailable[currentTl]) {
-        renderBookChooser(chaptersAvailable[currentTl]);
+    if (chaptersAvailable[curTl]) {
+        renderBookChooser(chaptersAvailable[curTl]);
     } else {
         $.ajax({
             method: "POST", // invisible in URL
             url: "/php/getChapters.php",
-            data: "translation=" + currentTl
+            data: "translation=" + curTl.name
         }).done(function (data) {
             try {
                 answer = $.parseJSON(data);
@@ -421,8 +449,8 @@ function getChapters() {
                 successfulReceived = false;
             }
             if (successfulReceived) {
-                chaptersAvailable[currentTl] = answer;
-                renderBookChooser(chaptersAvailable[currentTl]);
+                chaptersAvailable[curTl] = answer;
+                renderBookChooser(chaptersAvailable[curTl]);
             }
         });
     }
@@ -432,8 +460,8 @@ function getChapters() {
 function renderBookChooser(chapterArray) {
     i = 0,
         bookButtons = "";
-    if (booksRendered[currentTl]) {
-        bookButtons = booksRendered[currentTl];
+    if (booksRendered[curTl]) {
+        bookButtons = booksRendered[curTl];
     } else {
         $.each(chapterArray, function (key, value) {
             i++;
@@ -470,7 +498,7 @@ function renderBookChooser(chapterArray) {
 
             bookButtons += bookLine;
         });
-        booksRendered[currentTl] = bookButtons;
+        booksRendered[curTl] = bookButtons;
     }
     $('#collapseMenu .book-list').html(bookButtons);
     $('#collapseMenu .chapter-list').html("");
@@ -511,11 +539,11 @@ function handleNePr(e) {
 function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
-    var newTl = tg.val();
-    if(tgWindow == 1) {
-        currentTl = newTl.toLowerCase();
+    var newTlNr = parseInt(tg.val());
+    if (tgWindow == 1) {
+        curTl = avTls[newTlNr];
     } else if (tgWindow == 2) {
-        secondTl = newTl.toLowerCase();
+        secTl = avTls[newTlNr];
     }
     reloadText("noUrlUpdate", tgWindow);
     getChapters();
@@ -569,33 +597,37 @@ function toBookSelection() {
 }
 
 
-function renderTranslations(sc = false) {
+function renderTranslations() {
     var menu1 = "";
     var menu2 = "";
     if (sc) {
-        translationsAvailable[Object.keys(translationsAvailable).length + 1] = {
+        avTls[Object.keys(avTls).length + 1] = {
             name: "ELB",
+            alias: "elb",
+            content: true,
             target: 3
         };
     }
     // Menu 1
-    $.each(translationsAvailable,function(index, value) {
+    $.each(avTls, function (index, value) {
         var trOption1 = "<option value='";
         var trOption2;
-        var m1sel = "", m2sel ="";
-        var m1but = "", m2but = "";
-        trOption1 += value.name + "' ";
-        if(value.name == currentTl){
+        var m1sel = "",
+            m2sel = "";
+        var m1but = "",
+            m2but = "";
+        trOption1 += index + "' ";
+        if (value.name == curTl.name) {
             m1sel += "selected";
         }
-        if(value.name == secondTl){
+        if (value.name == secTl) {
             m2sel += "selected";
         }
         trOption2 = ">" + value.name + "</option>";
-        if(value.target == 1 || value.target == 3){
+        if (value.target == 1 || value.target == 3) {
             m1but = trOption1 + m1sel + trOption2;
         }
-        if(value.target == 2 || value.target == 3){
+        if (value.target == 2 || value.target == 3) {
             m2but = trOption1 + m2sel + trOption2;
         }
         menu1 += m1but;
@@ -616,7 +648,7 @@ function changeChapter(forward = true) {
     }
     if (forward) {
         currentMaxChapter = "", nextBook = "";
-        cpAv = chaptersAvailable[currentTl];
+        cpAv = chaptersAvailable[curTl];
         for (i in cpAv) {
             if (cpAv[i].bookNumber == currentBookNr) {
                 currentMaxChapter = cpAv[i].chapterCount;
@@ -636,7 +668,7 @@ function changeChapter(forward = true) {
         } else {
             var prevBook = "",
                 prevBookChapters;
-            books = chaptersAvailable[currentTl];
+            books = chaptersAvailable[curTl];
             for (i in books) {
                 if (books[i].bookNumber == currentBookNr) {
                     break;
