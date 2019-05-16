@@ -23,6 +23,7 @@ var avTls = {
 var curTl = avTls[1];
 var secTl = avTls[3];
 
+var currentBook = "";
 var currentBookNr = "0";
 var currentChapter = "0";
 
@@ -108,7 +109,9 @@ $('div.text').on({
 function showMenu(show = true) {
     if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
+        if (currentBookNr && currentBookNr != "") {
+            $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
+        }
         $('#collapseMenu').toggleClass("show");
     } else {
         $('#collapseMenu').removeClass("show");
@@ -141,6 +144,8 @@ function reloadText(source = "url", target = 1) {
     }
     if (source == "url") {
         var reTxt = readUrl();
+    } else if (source == "numbers") {
+        var reObj = interpretReq(backupSearch, true);
     } else if (typeof source == "string") {
         var reTxt = source;
     } else {
@@ -159,8 +164,34 @@ function readUrl() {
     return requestedPath;
 }
 
+function setUrl(book = currentBook, chapter = currentChapter, withInput = true, onlyTitle = false) {
+    // Set browser url
+    shortBook = shortenBook(book, "");
+    translation = curTl.alias + "/";
+    if (secTl.alias) {
+        translation += secTl.alias + "/";
+    }
+    shortPath = translation + shortBook + chapter;
+    if (!onlyTitle) {
+        if (dontUpdate) {
+            dontUpdate = false;
+        } else {
+            window.history.pushState("", book, "/" + shortPath);
+        }
+    }
+    designBook = shortenBook(book, ". ");
+    designPath = designBook
+    if (chapter != "") {
+        designPath += " " + chapter;
+    }
+    document.title = designPath + ' - Китоби Муқаддас';
+    if (withInput) {
+        $('#reference').val(designPath);
+    }
+}
 
-function interpretReq(reqPath) {
+
+function interpretReq(reqPath, numberIfPos = false) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
     // Extract translation
@@ -168,18 +199,20 @@ function interpretReq(reqPath) {
     var trans1 = false;
     var trans2 = false;
     try {
-        trans1 = ex.exec(reqPath)[0].slice(0,-1);
+        trans1 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
+        searchQuest = searchQuest.replace(ex, '');
     } catch (e) {}
     try {
-        trans2 = ex.exec(reqPath)[0].slice(0,-1);
+        trans2 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
+        searchQuest = searchQuest.replace(ex, '');
     } catch (e) {}
-    $.each(avTls, function(key, value) {
-        if(value.name.toLowerCase() == trans1){
+    $.each(avTls, function (key, value) {
+        if (value.name.toLowerCase() == trans1) {
             curTl = value;
         }
-        if(value.name.toLowerCase() == trans2){
+        if (value.name.toLowerCase() == trans2) {
             secTl = value;
         }
     });
@@ -196,10 +229,11 @@ function interpretReq(reqPath) {
             var bookCount = 'дуюми ';
             break;
         case "3":
-            var bookCount = 'Сеюми ';
+            var bookCount = 'сеюми ';
             break;
         case "4":
-            var bookCount = 'Чоруми ';
+            var bookCount = 'чоруми ';
+            break;
         default:
             var bookCount = '';
             break;
@@ -256,14 +290,32 @@ function interpretReq(reqPath) {
         notResetUrl = true;
     }
 
-    return {
-        book: reqBook,
-        chapter: reqChapter,
-        firstVerse: firstVerse,
-        lastVerse: lastVerse,
-        mark: markBool,
-        search: reqPath
+    // Numbers if possible
+    if (numberIfPos) {
+        var mem = maybeSearch;
+        maybeSearch = false;
+        if (currentBookNr != "0" && currentBookNr != "") {
+            reqBook = currentBookNr;
+        } else if (currentBook != "") {
+            if (mem){
+                maybeSearch = true;
+            }
+            reqBook = currentBook;
+        }
+    if (currentChapter != "0" && currentChapter) {
+        reqChapter = currentChapter;
     }
+
+}
+
+return {
+    book: reqBook,
+    chapter: reqChapter,
+    firstVerse: firstVerse,
+    lastVerse: lastVerse,
+    mark: markBool,
+    search: reqPath
+}
 }
 
 function getText(rq, translation) {
@@ -324,6 +376,9 @@ function renderVerses(input, mk, tg) { // mk markobject
     // Make book search possible
     if (maybeSearch) {
         text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
+        maybeSearch = false;
+    } else {
+
     }
 
     /* Read 'n convert each verse */
@@ -345,22 +400,12 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    // Set browser url
-    shortBook = shortenBook(book, "");
-    shortPath = shortBook + chapter;
-    if (dontUpdate) {
-        dontUpdate = false;
-    } else {
-        window.history.pushState("", book, "/" + shortPath);
-    }
-    designBook = shortenBook(book, ". ");
-    designPath = designBook + " " + chapter;
-    document.title = designPath + ' - Китоби Муқаддас';
 
+    setUrl(book, chapter);
     // set currents
+    currentBook = book;
     currentBookNr = bookNr;
     currentChapter = chapter;
-    $('#reference').val(designPath);
     $('div.text').html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
@@ -399,16 +444,9 @@ function renderSearch(input, tg) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    if (dontUpdate) {
-        dontUpdate = false;
-    } else {
-        window.history.pushState("", searchQuest, "/" + searchQuest);
-    }
-    document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
     text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
-    $('#reference').val(searchQuest);
     $('div.text').html(text);
     if (searchQuest.split(" ").length == 1) {
         var words = $('.container').html().split('"mark"').length;
@@ -416,8 +454,11 @@ function renderSearch(input, tg) {
         counterText = words + " маротиба, " + counterText;
         $('div.count i').html(counterText);
     }
-    currentBookNr = "0";
-    currentChapter = "0";
+    currentBook = searchQuest;
+    currentBookNr = "";
+    currentChapter = "";
+
+    setUrl(searchQuest);
 }
 
 function forceSearch() {
@@ -434,8 +475,8 @@ function forceSearch() {
 
 /* Get book data for verse chooser */
 function getChapters() {
-    if (chaptersAvailable[curTl]) {
-        renderBookChooser(chaptersAvailable[curTl]);
+    if (chaptersAvailable[curTl.name]) {
+        renderBookChooser(chaptersAvailable[curTl.name]);
     } else {
         $.ajax({
             method: "POST", // invisible in URL
@@ -449,8 +490,8 @@ function getChapters() {
                 successfulReceived = false;
             }
             if (successfulReceived) {
-                chaptersAvailable[curTl] = answer;
-                renderBookChooser(chaptersAvailable[curTl]);
+                chaptersAvailable[curTl.name] = answer;
+                renderBookChooser(chaptersAvailable[curTl.name]);
             }
         });
     }
@@ -460,8 +501,8 @@ function getChapters() {
 function renderBookChooser(chapterArray) {
     i = 0,
         bookButtons = "";
-    if (booksRendered[curTl]) {
-        bookButtons = booksRendered[curTl];
+    if (booksRendered[curTl.name]) {
+        bookButtons = booksRendered[curTl.name];
     } else {
         $.each(chapterArray, function (key, value) {
             i++;
@@ -498,7 +539,7 @@ function renderBookChooser(chapterArray) {
 
             bookButtons += bookLine;
         });
-        booksRendered[curTl] = bookButtons;
+        booksRendered[curTl.name] = bookButtons;
     }
     $('#collapseMenu .book-list').html(bookButtons);
     $('#collapseMenu .chapter-list').html("");
@@ -545,7 +586,8 @@ function handleTranslation(e) {
     } else if (tgWindow == 2) {
         secTl = avTls[newTlNr];
     }
-    reloadText("noUrlUpdate", tgWindow);
+    dontUpdate = false;
+    reloadText("numbers", tgWindow);
     getChapters();
 }
 
@@ -597,7 +639,7 @@ function toBookSelection() {
 }
 
 
-function renderTranslations() {
+function renderTranslations(target = false) {
     var menu1 = "";
     var menu2 = "";
     if (sc) {
@@ -614,14 +656,15 @@ function renderTranslations() {
         var trOption2;
         var m1sel = "",
             m2sel = "";
+
         var m1but = "",
             m2but = "";
-        trOption1 += index + "' ";
+        trOption1 += index + "'";
         if (value.name == curTl.name) {
-            m1sel += "selected";
+            m1sel += " selected";
         }
-        if (value.name == secTl) {
-            m2sel += "selected";
+        if (value.name == secTl.name) {
+            m2sel += " selected";
         }
         trOption2 = ">" + value.name + "</option>";
         if (value.target == 1 || value.target == 3) {
@@ -648,7 +691,7 @@ function changeChapter(forward = true) {
     }
     if (forward) {
         currentMaxChapter = "", nextBook = "";
-        cpAv = chaptersAvailable[curTl];
+        cpAv = chaptersAvailable[curTl.name];
         for (i in cpAv) {
             if (cpAv[i].bookNumber == currentBookNr) {
                 currentMaxChapter = cpAv[i].chapterCount;
@@ -668,7 +711,7 @@ function changeChapter(forward = true) {
         } else {
             var prevBook = "",
                 prevBookChapters;
-            books = chaptersAvailable[curTl];
+            books = chaptersAvailable[curTl.name];
             for (i in books) {
                 if (books[i].bookNumber == currentBookNr) {
                     break;
