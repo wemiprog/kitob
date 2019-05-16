@@ -1,4 +1,7 @@
 /* Restart for bootstrap support */
+body {
+    overflow-y: scroll;
+}
 nav {
     img {
         @media (max-width: 250px) {
@@ -119,13 +122,16 @@ main {
         margin: 0 auto;
         min-height: 100%;
         max-height: 100%;
-        overflow-y: auto;
+        overflow-y: scroll;
 
         @media (min-width: 992px) {
             min-height: 500px;
             min-width: 650px;
             border-top: #e5f2e6 solid 4px;
             border-bottom-width: 4px;
+            &.fullHeight {
+                min-height: 100%;
+            }
         }
 
         .container {
@@ -300,4 +306,23 @@ body:not(.user-is-tabbing) textarea:focus {
 
 .rounded-sm {
     border-radius: 0.1rem !important;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: #FFF;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #CBCBCB;
+    outline: 2px solid #FFF;
+    outline-offset: -2px;
+    border: .1px solid #B7B7B7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #909090;
 }

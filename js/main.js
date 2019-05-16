@@ -30,7 +30,8 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
-var sc = false;
+var sc = -4;
+var ftts = true;
 
 var backupSearch = "";
 
@@ -297,25 +298,25 @@ function interpretReq(reqPath, numberIfPos = false) {
         if (currentBookNr != "0" && currentBookNr != "") {
             reqBook = currentBookNr;
         } else if (currentBook != "") {
-            if (mem){
+            if (mem) {
                 maybeSearch = true;
             }
             reqBook = currentBook;
         }
-    if (currentChapter != "0" && currentChapter) {
-        reqChapter = currentChapter;
+        if (currentChapter != "0" && currentChapter) {
+            reqChapter = currentChapter;
+        }
+
     }
 
-}
-
-return {
-    book: reqBook,
-    chapter: reqChapter,
-    firstVerse: firstVerse,
-    lastVerse: lastVerse,
-    mark: markBool,
-    search: reqPath
-}
+    return {
+        book: reqBook,
+        chapter: reqChapter,
+        firstVerse: firstVerse,
+        lastVerse: lastVerse,
+        mark: markBool,
+        search: reqPath
+    }
 }
 
 function getText(rq, translation) {
@@ -581,6 +582,10 @@ function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
     var newTlNr = parseInt(tg.val());
+    if (ftts) {
+        $('.menu').addClass("fullHeight");
+        ffts = false;
+    }
     if (tgWindow == 1) {
         curTl = avTls[newTlNr];
     } else if (tgWindow == 2) {
@@ -642,12 +647,12 @@ function toBookSelection() {
 function renderTranslations(target = false) {
     var menu1 = "";
     var menu2 = "";
-    if (sc) {
+    if (sc == true) {
         avTls[Object.keys(avTls).length + 1] = {
-            name: "ELB",
-            alias: "elb",
+            name: "ЕЛБ",
+            alias: "елб",
             content: true,
-            target: 3
+            target: 2
         };
     }
     // Menu 1
@@ -704,6 +709,10 @@ function changeChapter(forward = true) {
             chapterRq.chapter = parseInt(currentChapter) + 1;
         } else if (nextBook != "") {
             chapterRq.book = nextBook;
+        } else {
+            sc++;
+            if (sc == true) renderTranslations();
+            return;
         }
     } else {
         if (parseInt(currentChapter) > 1) {
