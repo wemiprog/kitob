@@ -239,10 +239,17 @@ main {
 
         .window {
             overflow-y: scroll;
-            height: 50%;
+            height: calc(50% - 10px);
 
             &.no1 {
                 border-bottom: 2px solid #e5f2e6;
+            }
+
+            &.fullHeight {
+                height: calc(100% - 20px);
+                .text {
+                    padding-bottom: 3rem!important;
+                }
             }
 
             &.no2 {

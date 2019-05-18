@@ -30,6 +30,7 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
+var dontErase = false;
 var sc = -4;
 var ftts = true;
 
@@ -50,7 +51,7 @@ $(window).on({
 $(document).on({
     // Show and hide the loadscreen
     ajaxSend: function (event, request, settings) {
-        if (settings.url == "/php/getText.php") {
+        if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
             $('div.text').html("");
         }
@@ -326,10 +327,16 @@ function getText(rq, translation) {
         rq.firstVerse = 0;
         rq.lastVerse = 180;
     }
-    if (translation = 1) {
+    if (translation == 1) {
         rq.translation = curTl.name;
-    } else if (translation = 2) {
-        rq.translation = secTl.name;
+    } else if (translation == 2) {
+        if(secTl.content){
+            rq.translation = secTl.name;
+            $('.no1').removeClass("fullHeight");
+        } else {
+            $('.no1').addClass("fullHeight");
+            return;
+        }
     }
 
     var requestString = JSON.stringify(rq);
@@ -346,7 +353,12 @@ function getText(rq, translation) {
 
 /* Renders text to html */
 function renderText(receivedText, markObj, translation) {
-    target = translation; // TODO: convert to jquery element
+    if (translation == 1) {
+        var target = $('.windowContainer .no1 .text');
+    } else if (translation == 2) {
+        var target = $('.windowContainer .no2 .text');
+    }
+
     if (receivedText == "[]") {
         $('#reference').val(searchQuest);
         $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
@@ -363,6 +375,11 @@ function renderText(receivedText, markObj, translation) {
     } else {
         renderSearch(jsonText, target);
         setTimeout(scrollToTop, 10);
+    }
+    if (translation == 1) {
+        dontErase = true;
+        dontUpdate = true;
+        getText(markObj, 2);
     }
 
 }
@@ -407,7 +424,7 @@ function renderVerses(input, mk, tg) { // mk markobject
     currentBook = book;
     currentBookNr = bookNr;
     currentChapter = chapter;
-    $('div.text').html(text);
+    tg.html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
 
@@ -448,7 +465,7 @@ function renderSearch(input, tg) {
 
     // Add result count
     text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
-    $('div.text').html(text);
+    tg.html(text);
     if (searchQuest.split(" ").length == 1) {
         var words = $('.container').html().split('"mark"').length;
         counterText = $('div.count i').html();
