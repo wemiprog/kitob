@@ -330,7 +330,7 @@ function getText(rq, translation) {
     if (translation == 1) {
         rq.translation = curTl.name;
     } else if (translation == 2) {
-        if(secTl.content){
+        if (secTl.content) {
             rq.translation = secTl.name;
             $('.no1').removeClass("fullHeight");
         } else {
@@ -360,8 +360,10 @@ function renderText(receivedText, markObj, translation) {
     }
 
     if (receivedText == "[]") {
-        $('#reference').val(searchQuest);
-        $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        if (translation == 1) {
+            $('#reference').val(searchQuest);
+        }
         return;
     }
     // DEV-Info console.log(receivedText);
@@ -379,7 +381,7 @@ function renderText(receivedText, markObj, translation) {
     if (translation == 1) {
         dontErase = true;
         dontUpdate = true;
-        getText(markObj, 2);
+        reloadText("numbers",2);
     }
 
 }
@@ -418,12 +420,15 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-
-    setUrl(book, chapter);
-    // set currents
-    currentBook = book;
-    currentBookNr = bookNr;
-    currentChapter = chapter;
+    if(!tg.parent().hasClass("no2")){
+        console.log("hello");
+        
+        setUrl(book, chapter);
+        // set currents
+        currentBook = book;
+        currentBookNr = bookNr;
+        currentChapter = chapter;
+    }
     tg.html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
@@ -467,7 +472,7 @@ function renderSearch(input, tg) {
     text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
     tg.html(text);
     if (searchQuest.split(" ").length == 1) {
-        var words = $('.container').html().split('"mark"').length;
+        var words = $('.container').html().split('"mark"').length; // todo fix counter
         counterText = $('div.count i').html();
         counterText = words + " маротиба, " + counterText;
         $('div.count i').html(counterText);
