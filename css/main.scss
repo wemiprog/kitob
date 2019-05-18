@@ -2,6 +2,7 @@
 body {
     overflow-y: scroll;
 }
+
 nav {
     img {
         @media (max-width: 250px) {
@@ -104,7 +105,7 @@ main {
         height: calc(100% - 66px);
         display: flex;
         align-items: center;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         background-color: #00000077;
 
         &.collapse-menu:not(.show) {
@@ -129,6 +130,7 @@ main {
             min-width: 650px;
             border-top: #e5f2e6 solid 4px;
             border-bottom-width: 4px;
+
             &.fullHeight {
                 min-height: 100%;
             }
@@ -230,6 +232,25 @@ main {
         }
     }
 
+    .windowContainer {
+        position: fixed;
+        height: calc(100% - 66px);
+        width: 100%;
+
+        .window {
+            overflow-y: scroll;
+            height: 50%;
+
+            &.no1 {
+                border-bottom: 2px solid #e5f2e6;
+            }
+
+            &.no2 {
+                border-top: 2px solid #e5f2e6;
+            }
+        }
+    }
+
     .text {
         h3 {
             color: #007b08;
@@ -251,9 +272,10 @@ main {
             background-color: #e5f2e6;
             padding: 0.1rem;
         }
-        
+
         a {
             cursor: pointer;
+
             &:not([href]):hover {
                 text-decoration: underline;
             }
