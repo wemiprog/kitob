@@ -31,7 +31,7 @@ var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
 var dontErase = false;
-var sc = -4;
+var sc = -2;
 var ftts = true;
 
 var backupSearch = "";
@@ -55,6 +55,7 @@ $(document).on({
             $('.book-load').show();
             $('div.text').html("");
         }
+        dontErase = false;
     },
     ajaxStop: function () {
         $('.book-load').hide();
@@ -366,7 +367,8 @@ function renderText(receivedText, markObj, translation) {
         }
         return;
     }
-    // DEV-Info console.log(receivedText);
+    // DEV-Info
+    console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
@@ -380,7 +382,7 @@ function renderText(receivedText, markObj, translation) {
     }
     if (translation == 1) {
         dontErase = true;
-        dontUpdate = true;
+        //dontUpdate = true;
         reloadText("numbers",2);
     }
 
@@ -420,9 +422,7 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    if(!tg.parent().hasClass("no2")){
-        console.log("hello");
-        
+    if(!tg.parent().hasClass("no2")){        
         setUrl(book, chapter);
         // set currents
         currentBook = book;
@@ -472,10 +472,10 @@ function renderSearch(input, tg) {
     text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
     tg.html(text);
     if (searchQuest.split(" ").length == 1) {
-        var words = $('.container').html().split('"mark"').length; // todo fix counter
-        counterText = $('div.count i').html();
+        var words = tg.html().split('"mark"').length; // todo fix counter
+        counterText = tg.find('.count i').html();
         counterText = words + " маротиба, " + counterText;
-        $('div.count i').html(counterText);
+        tg.find('.count i').html(counterText);
     }
     currentBook = searchQuest;
     currentBookNr = "";
@@ -833,19 +833,24 @@ function handleFirstTab(e) {
 window.addEventListener('keydown', handleFirstTab);
 
 $(window).on("load", function () {
-    var watchObj = document.getElementsByClassName("text")[0];
     delete Hammer.defaults.cssProps.userSelect;
-    hammerText = new Hammer(watchObj, {
-        inputClass: Hammer.TouchInput
-    });
-    hammerText.get('swipe').set({
-        threshold: 120
-    });
-    hammerText.on('swipe', function (e) {
-        if (e.direction == 2) {
-            changeChapter();
-        } else if (e.direction == 4) {
-            changeChapter(false);
-        }
-    });
+    var watchObjs = document.getElementsByClassName("text");
+    var i = 0;
+    var hammerText =[];
+    for (watchObj of watchObjs) {
+        i++;
+        hammerText[i] = new Hammer(watchObj, {
+            inputClass: Hammer.TouchInput
+        });
+        hammerText[i].get('swipe').set({
+            threshold: 120
+        });
+        hammerText[i].on('swipe', function (e) {
+            if (e.direction == 2) {
+                changeChapter();
+            } else if (e.direction == 4) {
+                changeChapter(false);
+            }
+        });
+    };   
 });
