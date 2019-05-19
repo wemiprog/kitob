@@ -1,4 +1,8 @@
 /* Restart for bootstrap support */
+body {
+    overflow-y: scroll;
+}
+
 nav {
     img {
         @media (max-width: 250px) {
@@ -101,7 +105,7 @@ main {
         height: calc(100% - 66px);
         display: flex;
         align-items: center;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         background-color: #00000077;
 
         &.collapse-menu:not(.show) {
@@ -119,13 +123,17 @@ main {
         margin: 0 auto;
         min-height: 100%;
         max-height: 100%;
-        overflow-y: auto;
+        overflow-y: scroll;
 
         @media (min-width: 992px) {
             min-height: 500px;
             min-width: 650px;
             border-top: #e5f2e6 solid 4px;
             border-bottom-width: 4px;
+
+            &.fullHeight {
+                min-height: 100%;
+            }
         }
 
         .container {
@@ -167,23 +175,23 @@ main {
 
         }
 
-        .book-gp {
+        .book-gp, .book-mos {
             background-color: #e7f7e1;
         }
 
-        .book-hi {
+        .book-hi, .book-pr {
             background-color: #e9f4e4;
         }
 
-        .book-pa {
+        .book-pa, .book-lt {
             background-color: #ebf5e9;
         }
 
-        .book-le {
+        .book-le, .book-hiat {
             background-color: #f0f9f4;
         }
 
-        .book-re {
+        .book-re, .book-pt {
             background-color: #eaf5df;
         }
 
@@ -224,6 +232,32 @@ main {
         }
     }
 
+    .windowContainer {
+        position: fixed;
+        height: calc(100% - 66px);
+        width: 100%;
+
+        .window {
+            overflow-y: scroll;
+            height: calc(50% - 2px);
+
+            &.no1 {
+                border-bottom: 2px solid #e5f2e6;
+            }
+
+            &.fullHeight {
+                height: calc(100% - 4px);
+                .text {
+                    padding-bottom: 3rem!important;
+                }
+            }
+
+            &.no2 {
+                border-top: 2px solid #e5f2e6;
+            }
+        }
+    }
+
     .text {
         h3 {
             color: #007b08;
@@ -245,9 +279,10 @@ main {
             background-color: #e5f2e6;
             padding: 0.1rem;
         }
-        
+
         a {
             cursor: pointer;
+
             &:not([href]):hover {
                 text-decoration: underline;
             }
@@ -300,4 +335,23 @@ body:not(.user-is-tabbing) textarea:focus {
 
 .rounded-sm {
     border-radius: 0.1rem !important;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: #FFF;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #CBCBCB;
+    outline: 2px solid #FFF;
+    outline-offset: -2px;
+    border: .1px solid #B7B7B7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #909090;
 }

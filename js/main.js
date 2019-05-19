@@ -1,21 +1,45 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
-var currentTl = "kmn";
-var secondTl = "";
+var avTls = {
+    1: {
+        name: "КМН",
+        alias: "кмн",
+        content: true,
+        target: 3
+    },
+    2: {
+        name: "КМ92",
+        alias: "км92",
+        content: true,
+        target: 3
+    },
+    3: {
+        name: "Ҳеҷ",
+        alias: false,
+        content: false,
+        target: 2
+    }
+}
+var curTl = avTls[1];
+var secTl = avTls[3];
 
+var currentBook = "";
 var currentBookNr = "0";
 var currentChapter = "0";
 
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
+var dontErase = false;
+var sc = -2;
+var ftts = true;
 
 var backupSearch = "";
 
 var chaptersAvailable = [];
 var booksRendered = [];
 
-var allowedChars = '\u0400-\u0527:,.\\-1234567890 ';
+var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
 
 /* EVENT HANDLERS */
@@ -27,10 +51,11 @@ $(window).on({
 $(document).on({
     // Show and hide the loadscreen
     ajaxSend: function (event, request, settings) {
-        if (settings.url == "/php/getText.php") {
+        if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
             $('div.text').html("");
         }
+        dontErase = false;
     },
     ajaxStop: function () {
         $('.book-load').hide();
@@ -52,6 +77,11 @@ $('.form-control').on('input', function () {
     var re = new RegExp('[^' + allowedChars + ']+', 'g');
     if (this.value.match(re)) {
         this.value = this.value.replace(re, '');
+    }
+});
+$('.custom-select').on({
+    change: function (e) {
+        handleTranslation(e);
     }
 });
 $('.change-chapter').on({
@@ -77,12 +107,14 @@ $('div.text').on({
     touch: function (e) {
         textLinks(e);
     }
-})
+});
 
 function showMenu(show = true) {
     if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
-        $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
+        if (currentBookNr && currentBookNr != "") {
+            $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
+        }
         $('#collapseMenu').toggleClass("show");
     } else {
         $('#collapseMenu').removeClass("show");
@@ -107,13 +139,16 @@ function textLinks(e) {
 }
 
 /* MAIN FUNCTIONS */
-function reloadText(source = "url") {
-    if (source == "noUrlUpdate"){
+function reloadText(source = "url", target = 1) {
+
+    if (source == "noUrlUpdate") {
         source = "url";
         dontUpdate = true;
     }
     if (source == "url") {
         var reTxt = readUrl();
+    } else if (source == "numbers") {
+        var reObj = interpretReq(backupSearch, true);
     } else if (typeof source == "string") {
         var reTxt = source;
     } else {
@@ -122,7 +157,7 @@ function reloadText(source = "url") {
     if (typeof reObj != "object") {
         reObj = interpretReq(reTxt);
     }
-    getText(reObj);
+    getText(reObj, target);
     getChapters();
 }
 
@@ -132,10 +167,59 @@ function readUrl() {
     return requestedPath;
 }
 
+function setUrl(book = currentBook, chapter = currentChapter, withInput = true, onlyTitle = false) {
+    // Set browser url
+    shortBook = shortenBook(book, "");
+    translation = curTl.alias + "/";
+    if (secTl.alias) {
+        translation += secTl.alias + "/";
+    }
+    shortPath = translation + shortBook + chapter;
+    if (!onlyTitle) {
+        if (dontUpdate) {
+            dontUpdate = false;
+        } else {
+            window.history.pushState("", book, "/" + shortPath);
+        }
+    }
+    designBook = shortenBook(book, ". ");
+    designPath = designBook
+    if (chapter != "") {
+        designPath += " " + chapter;
+    }
+    document.title = designPath + ' - Китоби Муқаддас';
+    if (withInput) {
+        $('#reference').val(designPath);
+    }
+}
 
-function interpretReq(reqPath) {
+
+function interpretReq(reqPath, numberIfPos = false) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
+    // Extract translation
+    var ex = /^([\u0400-\u05271234567890]{3,4})\//
+    var trans1 = false;
+    var trans2 = false;
+    try {
+        trans1 = ex.exec(reqPath)[0].slice(0, -1);
+        reqPath = reqPath.replace(ex, '');
+        searchQuest = searchQuest.replace(ex, '');
+    } catch (e) {}
+    try {
+        trans2 = ex.exec(reqPath)[0].slice(0, -1);
+        reqPath = reqPath.replace(ex, '');
+        searchQuest = searchQuest.replace(ex, '');
+    } catch (e) {}
+    $.each(avTls, function (key, value) {
+        if (value.name.toLowerCase() == trans1) {
+            curTl = value;
+        }
+        if (value.name.toLowerCase() == trans2) {
+            secTl = value;
+        }
+    });
+
     // Extract book
     // Get book number ex. 2corinthian -> second cor...
     var ex = /^(\d?)/g; // One number at beginning of string
@@ -148,7 +232,10 @@ function interpretReq(reqPath) {
             var bookCount = 'дуюми ';
             break;
         case "3":
-            var bookCount = 'Сеюми ';
+            var bookCount = 'сеюми ';
+            break;
+        case "4":
+            var bookCount = 'чоруми ';
             break;
         default:
             var bookCount = '';
@@ -206,6 +293,24 @@ function interpretReq(reqPath) {
         notResetUrl = true;
     }
 
+    // Numbers if possible
+    if (numberIfPos) {
+        var mem = maybeSearch;
+        maybeSearch = false;
+        if (currentBookNr != "0" && currentBookNr != "") {
+            reqBook = currentBookNr;
+        } else if (currentBook != "") {
+            if (mem) {
+                maybeSearch = true;
+            }
+            reqBook = currentBook;
+        }
+        if (currentChapter != "0" && currentChapter) {
+            reqChapter = currentChapter;
+        }
+
+    }
+
     return {
         book: reqBook,
         chapter: reqChapter,
@@ -223,7 +328,17 @@ function getText(rq, translation) {
         rq.firstVerse = 0;
         rq.lastVerse = 180;
     }
-    rq.translation = translation;
+    if (translation == 1) {
+        rq.translation = curTl.name;
+    } else if (translation == 2) {
+        if (secTl.content) {
+            rq.translation = secTl.name;
+            $('.no1').removeClass("fullHeight");
+        } else {
+            $('.no1').addClass("fullHeight");
+            return;
+        }
+    }
 
     var requestString = JSON.stringify(rq);
 
@@ -239,10 +354,17 @@ function getText(rq, translation) {
 
 /* Renders text to html */
 function renderText(receivedText, markObj, translation) {
-    target = translation; // TODO: convert to jquery element
+    if (translation == 1) {
+        var target = $('.windowContainer .no1 .text');
+    } else if (translation == 2) {
+        var target = $('.windowContainer .no2 .text');
+    }
+
     if (receivedText == "[]") {
-        $('#reference').val(searchQuest);
-        $('div.text').html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        if (translation == 1) {
+            $('#reference').val(searchQuest);
+        }
         return;
     }
     // DEV-Info console.log(receivedText);
@@ -257,6 +379,11 @@ function renderText(receivedText, markObj, translation) {
         renderSearch(jsonText, target);
         setTimeout(scrollToTop, 10);
     }
+    if (translation == 1) {
+        dontErase = true;
+        //dontUpdate = true;
+        reloadText("numbers",2);
+    }
 
 }
 
@@ -270,6 +397,9 @@ function renderVerses(input, mk, tg) { // mk markobject
     // Make book search possible
     if (maybeSearch) {
         text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
+        maybeSearch = false;
+    } else {
+
     }
 
     /* Read 'n convert each verse */
@@ -291,23 +421,14 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    // Set browser url
-    shortBook = shortenBook(book, "");
-    shortPath = shortBook + chapter;
-    if (dontUpdate) {
-        dontUpdate = false;
-    } else {
-        window.history.pushState("", book, "/" + shortPath);
+    if(!tg.parent().hasClass("no2")){        
+        setUrl(book, chapter);
+        // set currents
+        currentBook = book;
+        currentBookNr = bookNr;
+        currentChapter = chapter;
     }
-    designBook = shortenBook(book, ". ");
-    designPath = designBook + " " + chapter;
-    document.title = designPath + ' - Китоби Муқаддас';
-
-    // set currents
-    currentBookNr = bookNr;
-    currentChapter = chapter;
-    $('#reference').val(designPath);
-    $('div.text').html(text);
+    tg.html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
 
@@ -345,25 +466,21 @@ function renderSearch(input, tg) {
         // Show verse text
         text += "<span result='" + i + "' class='verse'>" + verseText + " </span>";
     });
-    if (dontUpdate){
-        dontUpdate = false;
-    } else {
-        window.history.pushState("", searchQuest, "/" + searchQuest);
-    }
-    document.title = searchQuest + ' - Китоби Муқаддас';
 
     // Add result count
     text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
-    $('#reference').val(searchQuest);
-    $('div.text').html(text);
+    tg.html(text);
     if (searchQuest.split(" ").length == 1) {
-        var words = $('.container').html().split('"mark"').length;
-        counterText = $('div.count i').html();
+        var words = tg.html().split('"mark"').length; // todo fix counter
+        counterText = tg.find('.count i').html();
         counterText = words + " маротиба, " + counterText;
-        $('div.count i').html(counterText);
+        tg.find('.count i').html(counterText);
     }
-    currentBookNr = "0";
-    currentChapter = "0";
+    currentBook = searchQuest;
+    currentBookNr = "";
+    currentChapter = "";
+
+    setUrl(searchQuest);
 }
 
 function forceSearch() {
@@ -380,13 +497,13 @@ function forceSearch() {
 
 /* Get book data for verse chooser */
 function getChapters() {
-    if (chaptersAvailable[currentTl]) {
-        renderBookChooser(chaptersAvailable[currentTl]);
+    if (chaptersAvailable[curTl.name]) {
+        renderBookChooser(chaptersAvailable[curTl.name]);
     } else {
         $.ajax({
             method: "POST", // invisible in URL
             url: "/php/getChapters.php",
-            data: "translation=" + currentTl
+            data: "translation=" + curTl.name
         }).done(function (data) {
             try {
                 answer = $.parseJSON(data);
@@ -395,8 +512,8 @@ function getChapters() {
                 successfulReceived = false;
             }
             if (successfulReceived) {
-                chaptersAvailable[currentTl] = answer;
-                renderBookChooser(chaptersAvailable[currentTl]);
+                chaptersAvailable[curTl.name] = answer;
+                renderBookChooser(chaptersAvailable[curTl.name]);
             }
         });
     }
@@ -406,14 +523,29 @@ function getChapters() {
 function renderBookChooser(chapterArray) {
     i = 0,
         bookButtons = "";
-    if (booksRendered[currentTl]) {
-        bookButtons = booksRendered[currentTl];
+    if (booksRendered[curTl.name]) {
+        bookButtons = booksRendered[curTl.name];
     } else {
         $.each(chapterArray, function (key, value) {
             i++;
             bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
             // color attribute
             switch (value['color']) {
+                case "#ccccff":
+                    bookLine += 'book-mos'; // moses
+                    break;
+                case "#ffcc99":
+                    bookLine += 'book-hiat'; // history at
+                    break;
+                case "#66ff99":
+                    bookLine += 'book-pt';   // poetic
+                    break;
+                case "#ff9fb4":
+                    bookLine += 'book-pr';   // prophetic
+                    break;
+                case "#ffff99":
+                    bookLine += 'book-lt';  // little prophets
+                    break;
                 case "#ff6600":
                     bookLine += 'book-gp'; // gospel
                     break;
@@ -444,7 +576,7 @@ function renderBookChooser(chapterArray) {
 
             bookButtons += bookLine;
         });
-        booksRendered[currentTl] = bookButtons;
+        booksRendered[curTl.name] = bookButtons;
     }
     $('#collapseMenu .book-list').html(bookButtons);
     $('#collapseMenu .chapter-list').html("");
@@ -482,6 +614,24 @@ function handleNePr(e) {
     }
 }
 
+function handleTranslation(e) {
+    var tg = $(e.target);
+    var tgWindow = tg.attr("tr");
+    var newTlNr = parseInt(tg.val());
+    if (ftts) {
+        $('.menu').addClass("fullHeight");
+        ffts = false;
+    }
+    if (tgWindow == 1) {
+        curTl = avTls[newTlNr];
+    } else if (tgWindow == 2) {
+        secTl = avTls[newTlNr];
+    }
+    dontUpdate = false;
+    reloadText("numbers", tgWindow);
+    getChapters();
+}
+
 function handleBook(bookName, bookShort, bookNr, count, current = false) {
     if (count == 1) {
         handleChapter(bookNr, count);
@@ -503,7 +653,7 @@ function handleBook(bookName, bookShort, bookNr, count, current = false) {
         chapterLine += '>' + i + '</a>';
         chapterButtons += chapterLine;
     }
-    for (let i = 16 - count; i > 0; i--) {
+    for (let i = 17 - count; i > 0; i--) {
         chapterButtons += '<a class="col-12"></a>';
     }
     $('#collapseMenu .book-list').html("");
@@ -529,6 +679,48 @@ function toBookSelection() {
     $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
 }
 
+
+function renderTranslations(target = false) {
+    var menu1 = "";
+    var menu2 = "";
+    if (sc == true) {
+        avTls[Object.keys(avTls).length + 1] = {
+            name: "ЕЛБ",
+            alias: "елб",
+            content: true,
+            target: 2
+        };
+    }
+    // Menu 1
+    $.each(avTls, function (index, value) {
+        var trOption1 = "<option value='";
+        var trOption2;
+        var m1sel = "",
+            m2sel = "";
+
+        var m1but = "",
+            m2but = "";
+        trOption1 += index + "'";
+        if (value.name == curTl.name) {
+            m1sel += " selected";
+        }
+        if (value.name == secTl.name) {
+            m2sel += " selected";
+        }
+        trOption2 = ">" + value.name + "</option>";
+        if (value.target == 1 || value.target == 3) {
+            m1but = trOption1 + m1sel + trOption2;
+        }
+        if (value.target == 2 || value.target == 3) {
+            m2but = trOption1 + m2sel + trOption2;
+        }
+        menu1 += m1but;
+        menu2 += m2but;
+    });
+    $('#trans-select1').html(menu1);
+    $('#trans-select2').html(menu2);
+}
+
 function changeChapter(forward = true) {
     chapterRq = {
         book: currentBookNr,
@@ -540,7 +732,7 @@ function changeChapter(forward = true) {
     }
     if (forward) {
         currentMaxChapter = "", nextBook = "";
-        cpAv = chaptersAvailable[currentTl];
+        cpAv = chaptersAvailable[curTl.name];
         for (i in cpAv) {
             if (cpAv[i].bookNumber == currentBookNr) {
                 currentMaxChapter = cpAv[i].chapterCount;
@@ -553,6 +745,10 @@ function changeChapter(forward = true) {
             chapterRq.chapter = parseInt(currentChapter) + 1;
         } else if (nextBook != "") {
             chapterRq.book = nextBook;
+        } else {
+            sc++;
+            if (sc == true) renderTranslations();
+            return;
         }
     } else {
         if (parseInt(currentChapter) > 1) {
@@ -560,7 +756,7 @@ function changeChapter(forward = true) {
         } else {
             var prevBook = "",
                 prevBookChapters;
-            books = chaptersAvailable[currentTl];
+            books = chaptersAvailable[curTl.name];
             for (i in books) {
                 if (books[i].bookNumber == currentBookNr) {
                     break;
@@ -581,6 +777,7 @@ function changeChapter(forward = true) {
 
 /* FIRST RUN */
 reloadText();
+renderTranslations();
 
 
 /* Helpers */
@@ -596,6 +793,13 @@ function shortenBook(book, separator) {
             break;
         case 'Сеюми':
             var bookCount = '3';
+            break;
+        case 'Чоруми':
+            var bookCount = '4';
+            break;
+        case 'Такрори':
+            var bookCount = '';
+            separator = '';
             break;
         case 'Инчили':
             var bookCount = '';
@@ -643,19 +847,24 @@ function handleFirstTab(e) {
 window.addEventListener('keydown', handleFirstTab);
 
 $(window).on("load", function () {
-    var watchObj = document.getElementsByClassName("text")[0];
     delete Hammer.defaults.cssProps.userSelect;
-    hammerText = new Hammer(watchObj, {
-        inputClass: Hammer.TouchInput
-    });
-    hammerText.get('swipe').set({
-        threshold: 120
-    });
-    hammerText.on('swipe', function (e) {
-        if (e.direction == 2) {
-            changeChapter();
-        } else if (e.direction == 4) {
-            changeChapter(false);
-        }
-    });
+    var watchObjs = document.getElementsByClassName("text");
+    var i = 0;
+    var hammerText =[];
+    for (watchObj of watchObjs) {
+        i++;
+        hammerText[i] = new Hammer(watchObj, {
+            inputClass: Hammer.TouchInput
+        });
+        hammerText[i].get('swipe').set({
+            threshold: 100
+        });
+        hammerText[i].on('swipe', function (e) {
+            if (e.direction == 2) {
+                changeChapter();
+            } else if (e.direction == 4) {
+                changeChapter(false);
+            }
+        });
+    };   
 });

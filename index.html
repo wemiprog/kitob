@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
         integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css?19-05-14v1">
-    <link rel="shortcut icon" type="image/x-icon" href="img/book.png">
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css?19-05-19v1">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/book.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -22,13 +22,12 @@
 
 <body>
     <nav class="navbar navbar-expand-sm navbar-light sticky-top" style="background-color: #e5f2e6">
-        <img src="img/book.png" width="30px" height="30px">
-        <img id="logo" height="35px" src="img/logo.png" alt="logo" style="
+        <img src="/img/book.png" width="30px" height="30px">
+        <img id="logo" height="35px" src="/img/logo.png" alt="logo" style="
             padding-left: 10px;
             margin-top: 2px;
         ">
-        <form class="form-inline my-2 my-lg-0"
-            autocomplete="off">
+        <form class="form-inline my-2 my-lg-0" autocomplete="off">
             <input id="reference" class="form-control rounded-sm mr-sm-2 ml-2 ml-sm-3" type="search"
                 placeholder="Интихоб" autocomplete="off">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit" hidden>
@@ -42,22 +41,37 @@
     </nav>
 
     <div class="info book-load">
-        <img src="img/loading-ball.gif" alt='Мо Китоби интихобшударо меорем ...'>
+        <img src="/img/loading-ball.gif" alt='Мо Китоби интихобшударо меорем ...'>
     </div>
 
     <main id="main">
-        <div class="container">
-            <div class="collapse-menu menu-container" id="collapseMenu">
-                <!--book selector-->
-                <div class="menu">
-                    <div class="container">
-                        <div class="row book-list">
+        <div class="collapse-menu menu-container" id="collapseMenu">
+            <!--book selector-->
+            <div class="menu">
+                <div class="container">
+                    <div class="row trans-select">
+                        <div class="input-group mb-3">
+                            <select tr="1" class="custom-select" id="trans-select1">
+                                <option selected>КМН</option>
+                            </select>
+                            <select tr="2" class="custom-select" id="trans-select2">
+                                <option selected>Ҳеҷ</option>
+                            </select>
                         </div>
-                        <div class="row chapter-list"></div>
                     </div>
+                    <div class="row book-list">
+                    </div>
+                    <div class="row chapter-list"></div>
                 </div>
             </div>
-            <div class="text pt-3 pt-sm-3 pb-5"></div>
+        </div>
+        <div class="windowContainer">
+            <div class="window no1 container">
+                <div class="text pt-1 pb-2"></div>
+            </div>
+            <div class="window no2 container">
+                <div class="text pt-1 pb-5"></div>
+            </div>
         </div>
     </main>
 
@@ -69,14 +83,14 @@
 
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
-    <script src="/js/main.js?19-05-14v1"></script>
+    <script src="/js/main.js?19-05-19v1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-    </script>
+        </script>
     <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-    </script>
+        </script>
 </body>
 
 </html>
