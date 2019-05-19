@@ -367,8 +367,7 @@ function renderText(receivedText, markObj, translation) {
         }
         return;
     }
-    // DEV-Info
-    console.log(receivedText);
+    // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
         alert("Book doesn't exist, choose another");
@@ -532,6 +531,21 @@ function renderBookChooser(chapterArray) {
             bookLine = '<a class="col-3 col-sm-3 btn btn-book ';
             // color attribute
             switch (value['color']) {
+                case "#ccccff":
+                    bookLine += 'book-mos'; // moses
+                    break;
+                case "#ffcc99":
+                    bookLine += 'book-hiat'; // history at
+                    break;
+                case "#66ff99":
+                    bookLine += 'book-pt';   // poetic
+                    break;
+                case "#ff9fb4":
+                    bookLine += 'book-pr';   // prophetic
+                    break;
+                case "#ffff99":
+                    bookLine += 'book-lt';  // little prophets
+                    break;
                 case "#ff6600":
                     bookLine += 'book-gp'; // gospel
                     break;
@@ -843,7 +857,7 @@ $(window).on("load", function () {
             inputClass: Hammer.TouchInput
         });
         hammerText[i].get('swipe').set({
-            threshold: 120
+            threshold: 100
         });
         hammerText[i].on('swipe', function (e) {
             if (e.direction == 2) {
