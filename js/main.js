@@ -335,7 +335,10 @@ function getText(rq, translation) {
             rq.translation = secTl.name;
             $('.no1').removeClass("fullHeight");
         } else {
-            $('.no1').addClass("fullHeight");
+            if(! $('.no1').hasClass("fullHeight")){
+                setUrl();
+                $('.no1').addClass("fullHeight");
+            }
             return;
         }
     }
@@ -422,12 +425,12 @@ function renderVerses(input, mk, tg) { // mk markobject
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
     if(!tg.parent().hasClass("no2")){        
-        setUrl(book, chapter);
         // set currents
         currentBook = book;
         currentBookNr = bookNr;
         currentChapter = chapter;
     }
+    setUrl(currentBook, currentChapter);
     tg.html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
@@ -625,6 +628,7 @@ function handleTranslation(e) {
     if (tgWindow == 1) {
         curTl = avTls[newTlNr];
     } else if (tgWindow == 2) {
+        dontErase = true;
         secTl = avTls[newTlNr];
     }
     dontUpdate = false;
