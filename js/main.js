@@ -424,13 +424,14 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    if(!tg.parent().hasClass("no2")){        
+    if(!tg.parent().hasClass("no2") || translationChange){        
         // set currents
         currentBook = book;
         currentBookNr = bookNr;
         currentChapter = chapter;
+        translationChange = false;
+        setUrl(currentBook, currentChapter);
     }
-    setUrl(currentBook, currentChapter);
     tg.html(text);
     $('.change-chapter:not(.show)').addClass("show");
 }
@@ -629,6 +630,7 @@ function handleTranslation(e) {
         curTl = avTls[newTlNr];
     } else if (tgWindow == 2) {
         dontErase = true;
+        translationChange = true;
         secTl = avTls[newTlNr];
     }
     dontUpdate = false;
