@@ -736,6 +736,7 @@ function changeChapter(forward = true) {
         mark: false,
         search: ""
     }
+    backupSearch = "";
     if (forward) {
         currentMaxChapter = "", nextBook = "";
         cpAv = chaptersAvailable[curTl.name];
