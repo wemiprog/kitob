@@ -335,7 +335,7 @@ function getText(rq, translation) {
             rq.translation = secTl.name;
             $('.no1').removeClass("fullHeight");
         } else {
-            if(! $('.no1').hasClass("fullHeight")){
+            if (!$('.no1').hasClass("fullHeight")) {
                 setUrl();
                 $('.no1').addClass("fullHeight");
             }
@@ -377,15 +377,19 @@ function renderText(receivedText, markObj, translation) {
     }
     if ("bookNr" in jsonText[0]) {
         renderVerses(jsonText, markObj, target);
-        setTimeout(scrollToVerse, 10);
+        setTimeout(function () {
+            scrollToVerse(translation);
+        }, 10);
     } else {
         renderSearch(jsonText, target);
-        setTimeout(scrollToTop, 10);
+        setTimeout(function () {
+            scrollToVerse(translation);
+        }, 10);
     }
     if (translation == 1) {
         dontErase = true;
         //dontUpdate = true;
-        reloadText("numbers",2);
+        reloadText("numbers", 2);
     }
 
 }
@@ -424,7 +428,7 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    if(!tg.parent().hasClass("no2") || translationChange){        
+    if (!tg.parent().hasClass("no2") || translationChange) {
         // set currents
         currentBook = book;
         currentBookNr = bookNr;
@@ -542,13 +546,13 @@ function renderBookChooser(chapterArray) {
                     bookLine += 'book-hiat'; // history at
                     break;
                 case "#66ff99":
-                    bookLine += 'book-pt';   // poetic
+                    bookLine += 'book-pt'; // poetic
                     break;
                 case "#ff9fb4":
-                    bookLine += 'book-pr';   // prophetic
+                    bookLine += 'book-pr'; // prophetic
                     break;
                 case "#ffff99":
-                    bookLine += 'book-lt';  // little prophets
+                    bookLine += 'book-lt'; // little prophets
                     break;
                 case "#ff6600":
                     bookLine += 'book-gp'; // gospel
@@ -822,14 +826,23 @@ function shortenBook(book, separator) {
     return shortVersion;
 }
 
-function scrollToVerse() {
-    try {
-        var position = $(".mark").offset().top - $("nav").outerHeight() - 8;
-        $('body, html').animate({
-            scrollTop: position
-        }, 800);
-    } catch (e) {
-        //
+function scrollToVerse(tg) {
+    if (tg == 1) {
+        try {
+            $('.no1').animate({
+                scrollTop: $('.no1 .mark').position().top - 3
+            });
+        } catch (e) {
+            // continue
+        }
+    } else if (tg == 2) {
+        try {
+            $('.no2').animate({
+                scrollTop: $('.no2 .mark').position().top - 3
+            });
+        } catch (e) {
+            //
+        }
     }
 }
 
@@ -857,7 +870,7 @@ $(window).on("load", function () {
     delete Hammer.defaults.cssProps.userSelect;
     var watchObjs = document.getElementsByClassName("text");
     var i = 0;
-    var hammerText =[];
+    var hammerText = [];
     for (watchObj of watchObjs) {
         i++;
         hammerText[i] = new Hammer(watchObj, {
@@ -873,5 +886,5 @@ $(window).on("load", function () {
                 changeChapter(false);
             }
         });
-    };   
+    };
 });
