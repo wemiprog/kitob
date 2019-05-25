@@ -846,17 +846,6 @@ function scrollToVerse(tg) {
     }
 }
 
-function scrollToTop() {
-    try {
-        var position = 0;
-        $('body, html').animate({
-            scrollTop: position
-        }, 800);
-    } catch (e) {
-        //
-    }
-}
-
 // show the keyboard users currently selected key
 function handleFirstTab(e) {
     if (e.keyCode === 9) { // the "I am a keyboard user" key
