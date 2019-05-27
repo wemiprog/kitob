@@ -382,9 +382,6 @@ function renderText(receivedText, markObj, translation) {
         }, 10);
     } else {
         renderSearch(jsonText, target);
-        setTimeout(function () {
-            scrollToVerse(translation);
-        }, 10);
     }
     if (translation == 1) {
         dontErase = true;
