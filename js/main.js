@@ -31,6 +31,7 @@ var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
 var dontErase = false;
+var trans2search = false;
 var sc = -2;
 var ftts = true;
 
@@ -309,6 +310,10 @@ function interpretReq(reqPath, numberIfPos = false) {
         if (currentChapter != "0" && currentChapter) {
             reqChapter = currentChapter;
         }
+        if(trans2search){
+            trans2search = false;
+            reqBook = "фҷва";
+        }
 
     }
 
@@ -490,6 +495,9 @@ function renderSearch(input, tg) {
 }
 
 function forceSearch() {
+    if(secTl.content) {
+        trans2search = true;
+    }
     reloadText({
         book: 'фҷва',
         chapter: 0,
