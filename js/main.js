@@ -30,8 +30,10 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
+var dontUpdateBook = false;
 var dontErase = false;
 var trans2search = false;
+var translationChange = false;
 var sc = -2;
 var ftts = true;
 
@@ -310,7 +312,7 @@ function interpretReq(reqPath, numberIfPos = false) {
         if (currentChapter != "0" && currentChapter) {
             reqChapter = currentChapter;
         }
-        if(trans2search){
+        if (trans2search) {
             trans2search = false;
             reqBook = "фҷва";
         }
@@ -431,11 +433,14 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    if (!tg.parent().hasClass("no2") || translationChange) {
+    //if (!tg.parent().hasClass("no2") || translationChange) {
+    if (!tg.parent().hasClass("no2")) {
         // set currents
         currentBook = book;
         currentBookNr = bookNr;
         currentChapter = chapter;
+        setUrl(currentBook, currentChapter);
+    } else if (translationChange) {
         translationChange = false;
         setUrl(currentBook, currentChapter);
     }
@@ -495,7 +500,7 @@ function renderSearch(input, tg) {
 }
 
 function forceSearch() {
-    if(secTl.content) {
+    if (secTl.content) {
         trans2search = true;
     }
     reloadText({
@@ -642,6 +647,7 @@ function handleTranslation(e) {
         dontErase = true;
         translationChange = true;
         secTl = avTls[newTlNr];
+        dontUpdateBook = true;
     }
     dontUpdate = false;
     reloadText("numbers", tgWindow);

@@ -29,6 +29,7 @@ RewriteRule android-chrome-192x192.png - [L]
 RewriteRule android-chrome-512x512.png - [L]
 RewriteRule favicon-32x32.png - [L]
 RewriteRule favicon-16x16.png - [L]
+RewriteRule favicon.ico - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.html?var=$1
