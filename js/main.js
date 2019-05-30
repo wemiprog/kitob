@@ -30,7 +30,10 @@ var currentChapter = "0";
 var searchQuest = "";
 var maybeSearch = false;
 var dontUpdate = false;
+var dontUpdateBook = false;
 var dontErase = false;
+var trans2search = false;
+var translationChange = false;
 var sc = -2;
 var ftts = true;
 
@@ -53,6 +56,7 @@ $(document).on({
     ajaxSend: function (event, request, settings) {
         if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
+            console.log("erase");
             $('div.text').html("");
         }
         dontErase = false;
@@ -308,6 +312,10 @@ function interpretReq(reqPath, numberIfPos = false) {
         if (currentChapter != "0" && currentChapter) {
             reqChapter = currentChapter;
         }
+        if (trans2search) {
+            trans2search = false;
+            reqBook = "фҷва";
+        }
 
     }
 
@@ -332,6 +340,7 @@ function getText(rq, translation) {
         rq.translation = curTl.name;
     } else if (translation == 2) {
         if (secTl.content) {
+            dontErase = true;
             rq.translation = secTl.name;
             $('.no1').removeClass("fullHeight");
         } else {
@@ -382,12 +391,8 @@ function renderText(receivedText, markObj, translation) {
         }, 10);
     } else {
         renderSearch(jsonText, target);
-        setTimeout(function () {
-            scrollToVerse(translation);
-        }, 10);
     }
     if (translation == 1) {
-        dontErase = true;
         //dontUpdate = true;
         reloadText("numbers", 2);
     }
@@ -428,11 +433,14 @@ function renderVerses(input, mk, tg) { // mk markobject
     });
     // If there is a last verse there will be more than one verse
     lastVerse ? verseNumbers = firstVerse + "-" + lastVerse : verseNumbers = firstVerse;
-    if (!tg.parent().hasClass("no2") || translationChange) {
+    //if (!tg.parent().hasClass("no2") || translationChange) {
+    if (!tg.parent().hasClass("no2")) {
         // set currents
         currentBook = book;
         currentBookNr = bookNr;
         currentChapter = chapter;
+        setUrl(currentBook, currentChapter);
+    } else if (translationChange) {
         translationChange = false;
         setUrl(currentBook, currentChapter);
     }
@@ -492,6 +500,9 @@ function renderSearch(input, tg) {
 }
 
 function forceSearch() {
+    if (secTl.content) {
+        trans2search = true;
+    }
     reloadText({
         book: 'фҷва',
         chapter: 0,
@@ -636,6 +647,7 @@ function handleTranslation(e) {
         dontErase = true;
         translationChange = true;
         secTl = avTls[newTlNr];
+        dontUpdateBook = true;
     }
     dontUpdate = false;
     reloadText("numbers", tgWindow);
