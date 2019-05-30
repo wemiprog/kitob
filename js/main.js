@@ -53,6 +53,7 @@ $(document).on({
     ajaxSend: function (event, request, settings) {
         if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
+            console.log("erase");
             $('div.text').html("");
         }
         dontErase = false;
@@ -332,6 +333,7 @@ function getText(rq, translation) {
         rq.translation = curTl.name;
     } else if (translation == 2) {
         if (secTl.content) {
+            dontErase = true;
             rq.translation = secTl.name;
             $('.no1').removeClass("fullHeight");
         } else {
@@ -384,7 +386,6 @@ function renderText(receivedText, markObj, translation) {
         renderSearch(jsonText, target);
     }
     if (translation == 1) {
-        dontErase = true;
         //dontUpdate = true;
         reloadText("numbers", 2);
     }
