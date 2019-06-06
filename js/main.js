@@ -112,6 +112,11 @@ $('div.text').on({
         textLinks(e);
     }
 });
+$(".window").on({
+    scroll: function (e) {
+        handleScroll(e);
+    },
+});
 
 function showMenu(show = true) {
     if (show) {
@@ -633,6 +638,16 @@ function handleNePr(e) {
     }
 }
 
+function handleScroll(e) {
+    var tg = $(e.target);
+    if(tg.hasClass("no1")){
+        console.log("win1");
+    } else if (tg.hasClass("no2")){
+        console.log("win2");
+    }
+}
+
+
 function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
@@ -700,7 +715,6 @@ function toBookSelection() {
     $('#collapseMenu .btn-book').removeClass('current');
     $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
 }
-
 
 function renderTranslations(target = false) {
     var menu1 = "";
