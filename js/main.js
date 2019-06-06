@@ -34,8 +34,14 @@ var dontUpdateBook = false;
 var dontErase = false;
 var trans2search = false;
 var translationChange = false;
+var blockScroll1 = false;
+var blockScroll2 = false;
+var timer1, timer2;
 var sc = -2;
 var ftts = true;
+
+var v1Top = 0;
+var v2Top = 0;
 
 var backupSearch = "";
 
@@ -56,7 +62,6 @@ $(document).on({
     ajaxSend: function (event, request, settings) {
         if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
-            console.log("erase");
             $('div.text').html("");
         }
         dontErase = false;
@@ -401,6 +406,12 @@ function renderText(receivedText, markObj, translation) {
         //dontUpdate = true;
         reloadText("numbers", 2);
     }
+    try {
+        v1Top = $(".no1 div div")[0].scrollHeight + $(".no1 div div")[0].offsetTop;
+        v2Top = $(".no2 div div")[0].scrollHeight + $(".no2 div div")[0].offsetTop;
+    } catch (error) {
+        v2Top = 0;
+    }
 
 }
 
@@ -424,11 +435,12 @@ function renderVerses(input, mk, tg) { // mk markobject
         book = value['book'];
         bookNr = value['bookNr'];
         chapter = value['chapter'];
+        if(verse == value['verse']) return true;
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
         if (header) {
-            text = text + "<span forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></span>";
+            text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>";
         }
         if (verse >= mk.firstVerse && verse <= mk.lastVerse && mk.mark) {
             text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
@@ -643,44 +655,19 @@ function handleScroll(e) {
         return;
     }
     var tg = $(e.target);
-    if (tg.hasClass("no1")) {
-        var els = $(".no1").find("span");
-        var tgNum = 1;
-    } else if (tg.hasClass("no2")) {
-        var els = $(".no2").find("span");
-        var tgNum = 2;
+    if (tg.hasClass("no1") && !blockScroll2) {
+        blockScroll1 = true;
+        clearTimeout(timer1);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight() + 48) / $('.no1').find(".text").outerHeight());
+        setTimeout(function(){blockScroll1 = false;},300);
+    } else if (tg.hasClass("no2") && !blockScroll1) {
+        blockScroll2 = true;
+        clearTimeout(timer2)
+        $('.no1').scrollTop($('.no2').scrollTop() * $('.no1 .text').outerHeight() / ($('.no2').find(".text").outerHeight() + 48));
+        timer2 = setTimeout(function(){blockScroll2 = false;},500);
     }
-
-    // Find element closest to top
-    var el, top, min = Number.MAX_VALUE - 200,
-        prevEl, nextEl;
-    for (var i = 0; i < els.length; i++) {
-        top = $(els[i]).position().top;
-        if (top > 0) {
-            el = els[i];
-            nextEl = els[i+1];
-            break;
-        }
-        prevEl = els[i];
-    }
-    try {
-        var prevElTop = $(prevEl).position().top;
-        var percentsPrevVerse = - prevElTop / ($(el).position().top - prevElTop);
-    } catch (e) {
-        var percentsPrevVerse = $(el).position().top / $(nextEl).position().top;
-    }
-    console.log("Element:");
-    console.log($(el).position().top);
-    console.log("Vorheriges:");
-    console.log(prevEl);
-    
-    console.log(prevElTop);
-    console.log(percentsPrevVerse);
-
-
 
 }
-
 
 function handleTranslation(e) {
     var tg = $(e.target);
@@ -758,7 +745,7 @@ function renderTranslations(target = false) {
             name: "ЕЛБ",
             alias: "елб",
             content: true,
-            target: 2
+            target: 3
         };
     }
     // Menu 1
