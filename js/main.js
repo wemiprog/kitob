@@ -428,7 +428,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
         if (header) {
-            text = text + "<div forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></div>";
+            text = text + "<span forVerse='" + verse + "' class='subtitle'><h3>" + header + "</h3></span>";
         }
         if (verse >= mk.firstVerse && verse <= mk.lastVerse && mk.mark) {
             text = text + "<span verse='" + verse + "' class='verse mark'>" + "<b>" + verse + " </b>" + value['text'] + " </span>";
@@ -639,12 +639,46 @@ function handleNePr(e) {
 }
 
 function handleScroll(e) {
-    var tg = $(e.target);
-    if(tg.hasClass("no1")){
-        console.log("win1");
-    } else if (tg.hasClass("no2")){
-        console.log("win2");
+    if (!secTl.content) {
+        return;
     }
+    var tg = $(e.target);
+    if (tg.hasClass("no1")) {
+        var els = $(".no1").find("span");
+        var tgNum = 1;
+    } else if (tg.hasClass("no2")) {
+        var els = $(".no2").find("span");
+        var tgNum = 2;
+    }
+
+    // Find element closest to top
+    var el, top, min = Number.MAX_VALUE - 200,
+        prevEl, nextEl;
+    for (var i = 0; i < els.length; i++) {
+        top = $(els[i]).position().top;
+        if (top > 0) {
+            el = els[i];
+            nextEl = els[i+1];
+            break;
+        }
+        prevEl = els[i];
+    }
+    try {
+        var prevElTop = $(prevEl).position().top;
+        var percentsPrevVerse = - prevElTop / ($(el).position().top - prevElTop);
+    } catch (e) {
+        var percentsPrevVerse = $(el).position().top / $(nextEl).position().top;
+    }
+    console.log("Element:");
+    console.log($(el).position().top);
+    console.log("Vorheriges:");
+    console.log(prevEl);
+    
+    console.log(prevElTop);
+    console.log(percentsPrevVerse);
+
+
+
 }
 
 
