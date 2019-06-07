@@ -658,13 +658,13 @@ function handleScroll(e) {
     if (tg.hasClass("no1") && !blockScroll2) {
         blockScroll1 = true;
         clearTimeout(timer1);
-        $('.no2').scrollTop($('.no1').scrollTop() * $('.no2 .text').outerHeight() / $('.no1 .text').outerHeight() + 14);
-        timer1 = setTimeout(function(){blockScroll1 = false;},300);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight()+20) / $('.no1 .text').outerHeight() - 0);
+        timer1 = setTimeout(function(){blockScroll1 = false;},100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
         clearTimeout(timer2)
-        $('.no1').scrollTop(($('.no2').scrollTop() - 14) * $('.no1 .text').outerHeight() / $('.no2 .text').outerHeight());
-        timer2 = setTimeout(function(){blockScroll2 = false;},500);
+        $('.no1').scrollTop(($('.no2').scrollTop()) * $('.no1 .text').outerHeight() / ($('.no2 .text').outerHeight() + 20));
+        timer2 = setTimeout(function(){blockScroll2 = false;},100);
     }
 
 }
