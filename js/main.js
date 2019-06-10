@@ -34,8 +34,14 @@ var dontUpdateBook = false;
 var dontErase = false;
 var trans2search = false;
 var translationChange = false;
+var blockScroll1 = false;
+var blockScroll2 = false;
+var timer1, timer2;
 var sc = -2;
 var ftts = true;
+
+var v1Top = 0;
+var v2Top = 0;
 
 var backupSearch = "";
 
@@ -56,7 +62,6 @@ $(document).on({
     ajaxSend: function (event, request, settings) {
         if (settings.url == "/php/getText.php" && !dontErase) {
             $('.book-load').show();
-            console.log("erase");
             $('div.text').html("");
         }
         dontErase = false;
@@ -111,6 +116,11 @@ $('div.text').on({
     touch: function (e) {
         textLinks(e);
     }
+});
+$(".window").on({
+    scroll: function (e) {
+        handleScroll(e);
+    },
 });
 
 function showMenu(show = true) {
@@ -396,6 +406,12 @@ function renderText(receivedText, markObj, translation) {
         //dontUpdate = true;
         reloadText("numbers", 2);
     }
+    try {
+        v1Top = $(".no1 div div")[0].scrollHeight + $(".no1 div div")[0].offsetTop;
+        v2Top = $(".no2 div div")[0].scrollHeight + $(".no2 div div")[0].offsetTop;
+    } catch (error) {
+        v2Top = 0;
+    }
 
 }
 
@@ -419,6 +435,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         book = value['book'];
         bookNr = value['bookNr'];
         chapter = value['chapter'];
+        if(verse == value['verse']) return true;
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
@@ -633,6 +650,25 @@ function handleNePr(e) {
     }
 }
 
+function handleScroll(e) {
+    if (!secTl.content) {
+        return;
+    }
+    var tg = $(e.target);
+    if (tg.hasClass("no1") && !blockScroll2) {
+        blockScroll1 = true;
+        clearTimeout(timer1);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight()+20) / $('.no1 .text').outerHeight() - 0);
+        timer1 = setTimeout(function(){blockScroll1 = false;},100);
+    } else if (tg.hasClass("no2") && !blockScroll1) {
+        blockScroll2 = true;
+        clearTimeout(timer2)
+        $('.no1').scrollTop(($('.no2').scrollTop()) * $('.no1 .text').outerHeight() / ($('.no2 .text').outerHeight() + 20));
+        timer2 = setTimeout(function(){blockScroll2 = false;},100);
+    }
+
+}
+
 function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
@@ -701,7 +737,6 @@ function toBookSelection() {
     $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
 }
 
-
 function renderTranslations(target = false) {
     var menu1 = "";
     var menu2 = "";
@@ -710,7 +745,7 @@ function renderTranslations(target = false) {
             name: "ЕЛБ",
             alias: "елб",
             content: true,
-            target: 2
+            target: 3
         };
     }
     // Menu 1
