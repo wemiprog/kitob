@@ -530,10 +530,38 @@ function checkAudio() {
         url: "/php/getAudio.php",
         data: "data=" + requestString
     }).done(function (data) {
+        //console.log(data);
+        var jsonAnswer = $.parseJSON(data);
+        if(jsonAnswer.available) {
+            console.log("you can play");
+        } else {
+            console.log("you can't play");
+            
+        }
+    });
+}
+
+function getAudio() {
+    var request = {
+        translation: curTl.name.toLowerCase(),
+        bookNr: currentBookNr,
+        chapter: currentChapter,
+        file: true
+    }
+    var requestString = JSON.stringify(request);
+
+    $.ajax({
+        method: "POST",
+        url: "/php/getAudio.php",
+        data: "data=" + requestString
+    }).done(function (data) {
         console.log(data);
         var jsonAnswer = $.parseJSON(data);
-        
-        console.log(jsonAnswer);
+        if(jsonAnswer.available) {
+            console.log("you can play");
+        } else {
+            console.log("FORBIDDEN");
+        }
     });
 }
 

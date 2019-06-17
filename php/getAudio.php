@@ -24,7 +24,7 @@ function giveRequest()
     $re->translation = checkTranslation($tr);
     $re->book = checkIfNumber($input->bookNr);
     $re->chapter = checkIfNumber($input->chapter);
-    $re->file = checkIfBool($input->file);
+    $GLOBALS['file'] = checkIfBool($input->file);
 
     return $re;
 }
@@ -79,14 +79,56 @@ function checkAudio($file)
     }
 }
 
+function giveFile($filename) {
+    if($filename && $GLOBALS['file']){
+        $user = posix_getpwuid(posix_getuid());
+        //echo $filename;
+        //$target = $user['dir'] . "/kitob/audio/asdf.mp3";
+        $target = "../audio/asdf.mp3";
+        //echo $target;
+        delete_older_than("../audio/", 3600);
+        symlink($filename, $target);
+        exit();
+    } else {
+        return "";
+    }
+}
+
+function delete_older_than($dir, $max_age) {
+    $list = array();
+    $limit = time() - $max_age;
+    $dir = realpath($dir);
+    
+    if (!is_dir($dir)) {
+      return;
+    }
+    $dh = opendir($dir);
+    if ($dh === false) {
+      return;
+    }
+    while (($file = readdir($dh)) !== false) {
+      $file = $dir . '/' . $file;
+      if (!is_file($file)) {
+        continue;
+      }
+      if (filemtime($file) < $limit) {
+        $list[] = $file;
+        unlink($file);
+      }
+    }
+    closedir($dh);
+    return $list;
+  }
+
 // EXECUTION
 startUp();
 $req = giveRequest();
-$available = checkAudio($req);
+$filename = checkAudio($req);
 
 $answer = new stdClass();
 $answer->translation = $req->translation;
-$answer->available = $available;
+$answer->available = $filename;
 $answer->book = $req->book;
-$answer->chapter = $req->chapter; 
+$answer->chapter = $req->chapter;
+$answer->file = giveFile($filename);
 echo json_encode($answer);
