@@ -403,7 +403,6 @@ function renderText(receivedText, markObj, translation) {
         renderSearch(jsonText, target);
     }
     if (translation == 1) {
-        //dontUpdate = true;
         reloadText("numbers", 2);
     }
     try {
@@ -457,6 +456,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         currentBookNr = bookNr;
         currentChapter = chapter;
         setUrl(currentBook, currentChapter);
+        checkAudio();
     } else if (translationChange) {
         translationChange = false;
         setUrl(currentBook, currentChapter);
@@ -514,6 +514,27 @@ function renderSearch(input, tg) {
     currentChapter = "";
 
     setUrl(searchQuest);
+}
+
+function checkAudio() {
+    var request = {
+        translation: curTl.name.toLowerCase(),
+        bookNr: currentBookNr,
+        chapter: currentChapter,
+        file: false
+    }
+    var requestString = JSON.stringify(request);
+
+    $.ajax({
+        method: "POST",
+        url: "/php/getAudio.php",
+        data: "data=" + requestString
+    }).done(function (data) {
+        console.log(data);
+        var jsonAnswer = $.parseJSON(data);
+        
+        console.log(jsonAnswer);
+    });
 }
 
 function forceSearch() {

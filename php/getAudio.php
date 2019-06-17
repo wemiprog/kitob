@@ -11,7 +11,6 @@ function startUp()
     $GLOBALS['defaulttranslation'] = 'kmn';
 }
 
-
 function giveRequest()
 {
     $re = new stdClass();
@@ -23,13 +22,16 @@ function giveRequest()
         $tr = $GLOBALS['defaulttranslation'];
     }
     $re->translation = checkTranslation($tr);
+    $re->book = checkIfNumber($input->bookNr);
+    $re->chapter = checkIfNumber($input->chapter);
     $re->file = checkIfBool($input->file);
 
     return $re;
 }
 
-function checkTranslation($input) {
-    switch($input){
+function checkTranslation($input)
+{
+    switch ($input) {
         case "км92":
             $re = "km92";
             break;
@@ -40,7 +42,8 @@ function checkTranslation($input) {
     return $re;
 }
 
-function checkIfBool ($input) {
+function checkIfBool($input)
+{
     if (is_bool($input)) {
         $re = $input;
     } else {
@@ -49,7 +52,41 @@ function checkIfBool ($input) {
     return $re;
 }
 
+function checkIfNumber($input)
+{
+    if (is_numeric($input)) {
+        $num = $input;
+        $str = (string) $num;
+        if ($num < 100) {
+            $re = str_pad($str, 2, "0", STR_PAD_LEFT);
+        } else {
+            $re = $str;
+        }
+    } else {
+        $re = false;
+    }
+
+    return $re;
+}
+
+function checkAudio($file)
+{
+    $filename = $GLOBALS['datadir'] . $file->translation . "/" . $file->book . "/" . $file->chapter . ".mp3";
+    if (is_file($filename)) {
+        return $filename;
+    } else {
+        return FALSE;
+    }
+}
+
 // EXECUTION
 startUp();
 $req = giveRequest();
-echo json_encode($req);
+$available = checkAudio($req);
+
+$answer = new stdClass();
+$answer->translation = $req->translation;
+$answer->available = $available;
+$answer->book = $req->book;
+$answer->chapter = $req->chapter; 
+echo json_encode($answer);
