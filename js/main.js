@@ -219,12 +219,12 @@ function interpretReq(reqPath, numberIfPos = false) {
         trans1 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
         searchQuest = searchQuest.replace(ex, '');
-    } catch (e) {}
+    } catch (e) { }
     try {
         trans2 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
         searchQuest = searchQuest.replace(ex, '');
-    } catch (e) {}
+    } catch (e) { }
     $.each(avTls, function (key, value) {
         if (value.name.toLowerCase() == trans1) {
             curTl = value;
@@ -435,7 +435,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         book = value['book'];
         bookNr = value['bookNr'];
         chapter = value['chapter'];
-        if(verse == value['verse']) return true;
+        if (verse == value['verse']) return true;
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
@@ -658,13 +658,13 @@ function handleScroll(e) {
     if (tg.hasClass("no1") && !blockScroll2) {
         blockScroll1 = true;
         clearTimeout(timer1);
-        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight()+20) / $('.no1 .text').outerHeight() - 0);
-        timer1 = setTimeout(function(){blockScroll1 = false;},100);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight() + 20) / $('.no1 .text').outerHeight() - 0);
+        timer1 = setTimeout(function () { blockScroll1 = false; }, 100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
         clearTimeout(timer2)
         $('.no1').scrollTop(($('.no2').scrollTop()) * $('.no1 .text').outerHeight() / ($('.no2 .text').outerHeight() + 20));
-        timer2 = setTimeout(function(){blockScroll2 = false;},100);
+        timer2 = setTimeout(function () { blockScroll2 = false; }, 100);
     }
 
 }
