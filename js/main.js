@@ -528,9 +528,13 @@ function getAudioLink() {
         method: "POST",
         url: "/php/getAudio.php",
         data: "data=" + requestString
-    }).done(function (data) {
+    }).done(function (mp3Link) {
         //console.log(data);
-        console.log(data);
+        if(mp3Link) {
+            updateAudioPlayer(mp3Link);
+        } else {
+            $(".audioButton").hide();
+        }
     });
 }
 
@@ -848,6 +852,11 @@ function changeChapter(forward = true) {
         }
     }
     reloadText(chapterRq);
+}
+
+function updateAudioPlayer(link) {
+    $(".audioButton").show();
+    console.log(link);
 }
 
 

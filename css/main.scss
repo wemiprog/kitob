@@ -321,6 +321,25 @@ main {
     }
 }
 
+.audioButton {
+    position: fixed;
+    bottom: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    color: #007b08;
+    right: 10px;
+    display: none;
+    
+    .fa-stack {
+        width: 2em;
+    }
+    bottom: 50px;
+
+    @media (min-width: 577px) {
+        bottom: calc(47% + 45px);
+    }
+}
+
 /* Removes blue thing around inputs except for keyboard users*/
 body:not(.user-is-tabbing) button:focus,
 body:not(.user-is-tabbing) select:focus,
