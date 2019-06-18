@@ -113,6 +113,53 @@ main {
         }
     }
 
+    .audio-container {
+        z-index: 11;
+        position: fixed;
+        width: 100%;
+        left: 0;
+        height: calc(100% - 70px);
+        display: flex;
+        align-items: flex-end;
+        background-color: rgba(0,0,0, 0.3);
+        background-color: #00000066;
+
+        &:not(.show) {
+            display: none;
+        }
+    }
+    
+    .audio {
+        border: #e5f2e6 solid 2px;
+        border-top: none;
+        border-bottom-width: 7px;
+        background: white;
+        padding: 10px;
+        max-width: 650px;
+        margin: 0 auto;
+        min-height: 50%;
+        max-height: 50%;
+        overflow-y: scroll;
+
+        @media (min-width: 992px) {
+            min-height: 500px;
+            min-width: 650px;
+            border-top: #e5f2e6 solid 4px;
+            border-bottom-width: 4px;
+
+            &.fullHeight {
+                min-height: 100%;
+            }
+        }
+        @media (max-width: 991px) {
+            width: 100%;
+        }
+
+        .container {
+            max-width: none;
+        }
+    }
+
     .menu {
         border: #e5f2e6 solid 2px;
         border-top: none;
@@ -247,9 +294,13 @@ main {
 
             &.fullHeight {
                 height: calc(100% - 4px);
+                border: none;
                 .text {
                     padding-bottom: 3rem!important;
                 }
+            }
+            &.fullHeight + .no2 {
+                border: none;
             }
 
             &.no2 {
@@ -327,17 +378,18 @@ main {
     font-size: 15px;
     cursor: pointer;
     color: #007b08;
-    right: 10px;
+    right: calc(50% - 15px);
     display: none;
-    
+
     .fa-stack {
         width: 2em;
     }
-    bottom: 50px;
+    bottom: 10px;
+    /*bottom: 50px;
 
     @media (min-width: 577px) {
         bottom: calc(47% + 45px);
-    }
+    }*/
 }
 
 /* Removes blue thing around inputs except for keyboard users*/

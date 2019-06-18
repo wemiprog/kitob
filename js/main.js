@@ -78,6 +78,14 @@ $('#menuToggler').on({
         showMenu();
     }
 });
+$(".audioButton").on({
+    click: function() {
+        showAudio();
+    },
+    touch: function() {
+        showAudio();
+    }
+});
 $('form').on('submit', function (e) {
     handleInput(e);
 });
@@ -109,6 +117,14 @@ $('.menu-container').on({
         handleMenu(e);
     }
 });
+$(".audio-container").on({
+    click: function(e) {
+        handleAudio(e);
+    },
+    touch: function (e) {
+        handleAudio(e);
+    }
+});
 $('div.text').on({
     click: function (e) {
         textLinks(e);
@@ -132,6 +148,14 @@ function showMenu(show = true) {
         $('#collapseMenu').toggleClass("show");
     } else {
         $('#collapseMenu').removeClass("show");
+    }
+}
+
+function showAudio(show = true) {
+    if (show) {
+        $('.audio-container').toggleClass("show");
+    } else {
+        $('.audio-container').removeClass("show");
     }
 }
 
@@ -655,6 +679,13 @@ function handleMenu(e) {
         handleChapter(tg.attr("bookNr"), tg.attr("chapter"));
     } else if (pr.hasClass("btn-chapter")) {
         handleChapter(pr.attr("bookNr"), tg.attr("chapter"));
+    }
+}
+
+function handleAudio(e) {
+    var tg = $(e.target);
+    if(tg.hasClass("audio-container")) {
+        showAudio(false);
     }
 }
 
