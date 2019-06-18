@@ -1,0 +1,5 @@
+# exlcude all content from audio folder
+audio/*
+
+# include .gitkeep to keep folder
+audio/.gitkeep

@@ -7,7 +7,6 @@ function startUp()
     $user = posix_getpwuid(posix_getuid());
     $homedir = $user['dir'];
     $GLOBALS['datadir'] = $homedir . '/data/';
-
     $GLOBALS['defaulttranslation'] = 'kmn';
 }
 
@@ -24,7 +23,6 @@ function giveRequest()
     $re->translation = checkTranslation($tr);
     $re->book = checkIfNumber($input->bookNr);
     $re->chapter = checkIfNumber($input->chapter);
-    $GLOBALS['file'] = checkIfBool($input->file);
 
     return $re;
 }
@@ -80,55 +78,50 @@ function checkAudio($file)
 }
 
 function giveFile($filename) {
-    if($filename && $GLOBALS['file']){
+    if($filename){
         $user = posix_getpwuid(posix_getuid());
-        //echo $filename;
-        //$target = $user['dir'] . "/kitob/audio/asdf.mp3";
-        $target = "../audio/asdf.mp3";
-        //echo $target;
-        delete_older_than("../audio/", 3600);
+
+        $target = "../audio/" . random_str(20) . ".mp3";
+        
+        // Recycling
+        $files = glob("../audio/*");
+        $now = time();
+        foreach ($files as $file) {
+            if(is_file($file) && !($file == ".gitkeep")) {
+                if($now - lstat($file)['mtime'] >= 60*10) {
+                    unlink($file);
+                }
+            }
+        }
+
         symlink($filename, $target);
-        exit();
+        // echo $target;
+        // exit();
+        return substr($target,2);
     } else {
-        return "";
+        return FALSE;
     }
 }
 
-function delete_older_than($dir, $max_age) {
-    $list = array();
-    $limit = time() - $max_age;
-    $dir = realpath($dir);
-    
-    if (!is_dir($dir)) {
-      return;
+function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyz')
+{
+    $pieces = [];
+    $max = mb_strlen($keyspace, '8bit') - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        $pieces []= $keyspace[random_int(0, $max)];
     }
-    $dh = opendir($dir);
-    if ($dh === false) {
-      return;
-    }
-    while (($file = readdir($dh)) !== false) {
-      $file = $dir . '/' . $file;
-      if (!is_file($file)) {
-        continue;
-      }
-      if (filemtime($file) < $limit) {
-        $list[] = $file;
-        unlink($file);
-      }
-    }
-    closedir($dh);
-    return $list;
-  }
+    return implode('', $pieces);
+}
 
 // EXECUTION
 startUp();
 $req = giveRequest();
 $filename = checkAudio($req);
 
-$answer = new stdClass();
+/*$answer = new stdClass();
 $answer->translation = $req->translation;
 $answer->available = $filename;
 $answer->book = $req->book;
-$answer->chapter = $req->chapter;
-$answer->file = giveFile($filename);
-echo json_encode($answer);
+$answer->chapter = $req->chapter;*/
+$answer = giveFile($filename);
+echo $answer;

@@ -456,7 +456,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         currentBookNr = bookNr;
         currentChapter = chapter;
         setUrl(currentBook, currentChapter);
-        checkAudio();
+        getAudioLink();
     } else if (translationChange) {
         translationChange = false;
         setUrl(currentBook, currentChapter);
@@ -516,13 +516,12 @@ function renderSearch(input, tg) {
     setUrl(searchQuest);
 }
 
-function checkAudio() {
+function getAudioLink() {
     var request = {
         translation: curTl.name.toLowerCase(),
         bookNr: currentBookNr,
-        chapter: currentChapter,
-        file: false
-    }
+        chapter: currentChapter
+    };
     var requestString = JSON.stringify(request);
 
     $.ajax({
@@ -531,37 +530,7 @@ function checkAudio() {
         data: "data=" + requestString
     }).done(function (data) {
         //console.log(data);
-        var jsonAnswer = $.parseJSON(data);
-        if(jsonAnswer.available) {
-            console.log("you can play");
-        } else {
-            console.log("you can't play");
-            
-        }
-    });
-}
-
-function getAudio() {
-    var request = {
-        translation: curTl.name.toLowerCase(),
-        bookNr: currentBookNr,
-        chapter: currentChapter,
-        file: true
-    }
-    var requestString = JSON.stringify(request);
-
-    $.ajax({
-        method: "POST",
-        url: "/php/getAudio.php",
-        data: "data=" + requestString
-    }).done(function (data) {
         console.log(data);
-        var jsonAnswer = $.parseJSON(data);
-        if(jsonAnswer.available) {
-            console.log("you can play");
-        } else {
-            console.log("FORBIDDEN");
-        }
     });
 }
 
