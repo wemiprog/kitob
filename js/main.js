@@ -48,6 +48,8 @@ var backupSearch = "";
 var chaptersAvailable = [];
 var booksRendered = [];
 
+var wasPlaying = false;
+
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
 
@@ -139,6 +141,13 @@ $(".window").on({
     },
 });
 
+$("#chapterAudio").on({
+    ended: function (e) {
+        wasPlaying = true;
+        changeChapter();
+    },
+});
+
 function showMenu(show = true) {
     if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
@@ -154,6 +163,9 @@ function showMenu(show = true) {
 function showAudio(show = true) {
     if (show) {
         $('.audio-container').toggleClass("show");
+        if($('.audio-container').hasClass("show") && $('#chapterAudio')[0].paused){
+            $("#chapterAudio")[0].load();
+        }
     } else {
         $('.audio-container').removeClass("show");
     }
@@ -424,6 +436,7 @@ function renderText(receivedText, markObj, translation) {
             scrollToVerse(translation);
         }, 10);
     } else {
+        wasPlaying = false;
         renderSearch(jsonText, target);
     }
     if (translation == 1) {
@@ -556,6 +569,11 @@ function getAudioLink() {
         //console.log(data);
         if(mp3Link) {
             updateAudioPlayer(mp3Link);
+            if (wasPlaying) {
+                wasPlaying = false;
+                $("#chapterAudio")[0].load();
+                $("#chapterAudio")[0].play();
+            }
         } else {
             $(".audioButton").hide();
         }
@@ -882,11 +900,15 @@ function changeChapter(forward = true) {
             }
         }
     }
+    if(!$("#chapterAudio")[0].paused) {
+        wasPlaying = true;
+    }
     reloadText(chapterRq);
 }
 
 function updateAudioPlayer(link) {
     $(".audioButton").show();
+    $("#chapterAudio").attr("src", link);
     console.log(link);
 }
 
