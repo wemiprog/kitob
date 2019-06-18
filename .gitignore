@@ -2,4 +2,4 @@
 audio/*
 
 # include .gitkeep to keep folder
-audio/.gitkeep
+!audio/.gitkeep
