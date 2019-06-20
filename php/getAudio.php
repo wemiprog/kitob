@@ -88,7 +88,7 @@ function giveFile($filename) {
         $now = time();
         foreach ($files as $file) {
             if(is_file($file) && !($file == ".gitkeep")) {
-                if($now - lstat($file)['mtime'] >= 60*10) {
+                if($now - lstat($file)['mtime'] >= 60*60 * 24) {
                     unlink($file);
                 }
             }

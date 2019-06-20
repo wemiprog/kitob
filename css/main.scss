@@ -158,6 +158,18 @@ main {
         .container {
             max-width: none;
         }
+
+        i {
+            color: #007b08;
+            font-size: 40px;
+            cursor: pointer;
+
+            &:active {
+                transform: scale(.9);
+                transition: scale .5s;
+            }
+            
+        }
     }
 
     .menu {

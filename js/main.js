@@ -48,6 +48,7 @@ var backupSearch = "";
 var chaptersAvailable = [];
 var booksRendered = [];
 
+var audio = $('#chapterAudio');
 var wasPlaying = false;
 
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
@@ -81,10 +82,10 @@ $('#menuToggler').on({
     }
 });
 $(".audioButton").on({
-    click: function() {
+    click: function () {
         showAudio();
     },
-    touch: function() {
+    touch: function () {
         showAudio();
     }
 });
@@ -120,7 +121,7 @@ $('.menu-container').on({
     }
 });
 $(".audio-container").on({
-    click: function(e) {
+    click: function (e) {
         handleAudio(e);
     },
     touch: function (e) {
@@ -141,12 +142,18 @@ $(".window").on({
     },
 });
 
-$("#chapterAudio").on({
+audio.on({
     ended: function (e) {
         wasPlaying = true;
         changeChapter();
     },
 });
+
+$(".play-pause").on({
+    click: function () {
+        playAudio("playpause");
+    }
+})
 
 function showMenu(show = true) {
     if (show) {
@@ -163,8 +170,8 @@ function showMenu(show = true) {
 function showAudio(show = true) {
     if (show) {
         $('.audio-container').toggleClass("show");
-        if($('.audio-container').hasClass("show") && $('#chapterAudio')[0].paused){
-            $("#chapterAudio")[0].load();
+        if ($('.audio-container').hasClass("show") && audio[0].paused) {
+            audio[0].load();
         }
     } else {
         $('.audio-container').removeClass("show");
@@ -567,17 +574,77 @@ function getAudioLink() {
         data: "data=" + requestString
     }).done(function (mp3Link) {
         //console.log(data);
-        if(mp3Link) {
+        if (mp3Link) {
             updateAudioPlayer(mp3Link);
             if (wasPlaying) {
                 wasPlaying = false;
-                $("#chapterAudio")[0].load();
-                $("#chapterAudio")[0].play();
+                audio[0].load();
+                playAudio("play");
             }
         } else {
             $(".audioButton").hide();
+            playAudio("pause");
         }
     });
+}
+
+function mediaSession() {
+    if ('mediaSession' in navigator) {
+        audioTitle = shortBook + " " + currentChapter;
+        alert("hi");
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: audioTitle,
+            artist: 'Китоби Муққадас',
+            album: 'Имон Бо Шунидан аст',
+            artwork: [
+                { src: '/img/book-96.png', sizes: '96x96', type: 'image/png' },
+                { src: '/img/book-128.png', sizes: '128x128', type: 'image/png' },
+                { src: '/img/book-192.png', sizes: '192x192', type: 'image/png' },
+                { src: '/img/book-256.png', sizes: '256x256', type: 'image/png' },
+                { src: '/img/book-384.png', sizes: '384x384', type: 'image/png' },
+                { src: '/img/book-512.png', sizes: '512x512', type: 'image/png' },
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', function () { playAudio("play"); });
+        navigator.mediaSession.setActionHandler('pause', function () { playAudio("pause"); });
+        navigator.mediaSession.setActionHandler('previoustrack', function () { changeChapter(false); wasPlaying = true; });
+        navigator.mediaSession.setActionHandler('nexttrack', function () { changeChapter(); wasPlaying = true; });
+    }
+}
+
+function playAudio(action, value = 0) {
+    var currentState = !audio[0].paused;
+    console.log(currentState);
+    if (action == "playpause") {
+        if (currentState) {
+            action = "pause";
+        } else {
+            action = "play";
+        }
+    }
+
+    if (action == "play") {
+        audio[0].play()
+        .then(_ => {
+            mediaSession();
+        });
+        $(".play-pause").addClass("fa-pause");
+        $(".play-pause").removeClass("fa-play");
+        if('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "playing";
+        }
+    }
+    if( action == "pause") {
+        audio[0].pause();
+        $(".play-pause").addClass("fa-play");
+        $(".play-pause").removeClass("fa-pause");
+        wasPlaying = false;
+        if('mediaSession' in navigator){
+            navigator.mediaSession.playbackState = "paused";
+        }
+    }
 }
 
 function forceSearch() {
@@ -702,7 +769,7 @@ function handleMenu(e) {
 
 function handleAudio(e) {
     var tg = $(e.target);
-    if(tg.hasClass("audio-container")) {
+    if (tg.hasClass("audio-container")) {
         showAudio(false);
     }
 }
@@ -900,7 +967,7 @@ function changeChapter(forward = true) {
             }
         }
     }
-    if(!$("#chapterAudio")[0].paused) {
+    if (!audio[0].paused) {
         wasPlaying = true;
     }
     reloadText(chapterRq);
@@ -908,7 +975,7 @@ function changeChapter(forward = true) {
 
 function updateAudioPlayer(link) {
     $(".audioButton").show();
-    $("#chapterAudio").attr("src", link);
+    audio.attr("src", link);
     console.log(link);
 }
 
