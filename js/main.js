@@ -169,12 +169,17 @@ function showMenu(show = true) {
 
 function showAudio(show = true) {
     if (show) {
-        $('.audio-container').toggleClass("show");
-        if ($('.audio-container').hasClass("show") && audio[0].paused) {
+        if ($('.audio').hasClass("show") && audio[0].paused) {
             audio[0].load();
         }
+        
+        $('.audio').toggleClass("show");
+        $('.window').toggleClass("audioHeight");
+        $('.amb').toggleClass("audioMove");
     } else {
-        $('.audio-container').removeClass("show");
+        $('.audio').removeClass("show");
+        $('.window').removeClass("audioHeight");
+        $('.amb').removeClass("audioMove");
     }
 }
 
@@ -197,6 +202,9 @@ function textLinks(e) {
 
 /* MAIN FUNCTIONS */
 function reloadText(source = "url", target = 1) {
+    if(target == 1){
+        playAudio("pause");
+    }
 
     if (source == "noUrlUpdate") {
         source = "url";
@@ -435,7 +443,7 @@ function renderText(receivedText, markObj, translation) {
     // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
-        alert("Book doesn't exist, choose another");
+        console.log("Book doesn't exist, choose another");
     }
     if ("bookNr" in jsonText[0]) {
         renderVerses(jsonText, markObj, target);
@@ -591,7 +599,6 @@ function getAudioLink() {
 function mediaSession() {
     if ('mediaSession' in navigator) {
         audioTitle = shortBook + " " + currentChapter;
-        alert("hi");
 
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioTitle,
@@ -607,8 +614,8 @@ function mediaSession() {
             ]
         });
 
-        navigator.mediaSession.setActionHandler('play', function () { playAudio("play"); });
-        navigator.mediaSession.setActionHandler('pause', function () { playAudio("pause"); });
+        navigator.mediaSession.setActionHandler('play', playAudio);
+        navigator.mediaSession.setActionHandler('pause', playAudio);
         navigator.mediaSession.setActionHandler('previoustrack', function () { changeChapter(false); wasPlaying = true; });
         navigator.mediaSession.setActionHandler('nexttrack', function () { changeChapter(); wasPlaying = true; });
     }
@@ -616,8 +623,8 @@ function mediaSession() {
 
 function playAudio(action, value = 0) {
     var currentState = !audio[0].paused;
-    console.log(currentState);
-    if (action == "playpause") {
+
+    if (action == "playpause" || !action) {
         if (currentState) {
             action = "pause";
         } else {
@@ -629,6 +636,8 @@ function playAudio(action, value = 0) {
         audio[0].play()
         .then(_ => {
             mediaSession();
+        }).catch(error => {
+            console.log(error);
         });
         $(".play-pause").addClass("fa-pause");
         $(".play-pause").removeClass("fa-play");
@@ -640,7 +649,6 @@ function playAudio(action, value = 0) {
         audio[0].pause();
         $(".play-pause").addClass("fa-play");
         $(".play-pause").removeClass("fa-pause");
-        wasPlaying = false;
         if('mediaSession' in navigator){
             navigator.mediaSession.playbackState = "paused";
         }
@@ -976,7 +984,6 @@ function changeChapter(forward = true) {
 function updateAudioPlayer(link) {
     $(".audioButton").show();
     audio.attr("src", link);
-    console.log(link);
 }
 
 

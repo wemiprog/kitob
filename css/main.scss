@@ -113,7 +113,7 @@ main {
         }
     }
 
-    .audio-container {
+    /*.audio-container {
         z-index: 11;
         position: fixed;
         width: 100%;
@@ -127,9 +127,9 @@ main {
         &:not(.show) {
             display: none;
         }
-    }
+    }*/
     
-    .audio {
+    /*.audio {
         border: #e5f2e6 solid 2px;
         border-top: none;
         border-bottom-width: 7px;
@@ -170,7 +170,7 @@ main {
             }
             
         }
-    }
+    }*/
 
     .menu {
         border: #e5f2e6 solid 2px;
@@ -310,13 +310,61 @@ main {
                 .text {
                     padding-bottom: 3rem!important;
                 }
+                
+                &.audioHeight {
+                    height: calc(100% - 4px - 200px);
+                }
             }
             &.fullHeight + .no2 {
                 border: none;
+                height: 0%;
             }
+
 
             &.no2 {
                 border-top: 2px solid #e5f2e6;
+            }
+        }
+
+        .audio {
+            height: 200px;
+            display: none;
+            border-top: #e5f2e6 solid 2px;
+            background: white;
+            padding: 10px;
+
+            &.show {
+                display: block;
+            }
+    
+            @media (min-width: 992px) {
+                min-height: 500px;
+                min-width: 650px;
+                border-top: #e5f2e6 solid 4px;
+                border-bottom-width: 4px;
+    
+                &.fullHeight {
+                    min-height: 100%;
+                }
+            }
+            @media (max-width: 991px) {
+                width: 100%;
+            }
+    
+            .container {
+                max-width: none;
+            }
+    
+            i {
+                color: #007b08;
+                font-size: 40px;
+                cursor: pointer;
+    
+                &:active {
+                    transform: scale(.9);
+                    transition: scale .5s;
+                }
+                
             }
         }
     }
@@ -356,15 +404,16 @@ main {
 .change-chapter {
     position: fixed;
     //right: 10px;
-    bottom: 5px;
-    font-size: 30px;
+    bottom: 10px;
+    height: 2em;
     cursor: pointer;
     color: #007b08;
     display: none;
-
+    
     i {
         background-color: white;
         border-radius: 15px;
+        font-size: 2em;
     }
 
     &.show {
@@ -382,12 +431,17 @@ main {
     @media (min-width: 577px) {
         bottom: 47%;
     }
+    @media (max-width: 576px) {
+        &.audioMove {
+            bottom: 210px;
+        }
+    }
 }
 
 .audioButton {
     position: fixed;
-    bottom: 5px;
-    font-size: 15px;
+    bottom: 10px;
+    font-size: 1em;
     cursor: pointer;
     color: #007b08;
     right: calc(50% - 15px);
@@ -395,14 +449,31 @@ main {
 
     .fa-stack {
         width: 2em;
+        &.audioMove {
+            display: none;
+        }
     }
-    bottom: 10px;
+
+    &>i {
+        width: 1em;
+        font-size: 2em;
+        &:not(.audioMove) {
+            display: none;
+        }
+        background: white;
+        border-radius: 15px;
+    }
+
+    &.audioMove {
+        bottom: 185px;
+    }
     /*bottom: 50px;
 
     @media (min-width: 577px) {
         bottom: calc(47% + 45px);
     }*/
 }
+
 
 /* Removes blue thing around inputs except for keyboard users*/
 body:not(.user-is-tabbing) button:focus,
