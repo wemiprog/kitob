@@ -591,6 +591,7 @@ function getAudioLink() {
             }
         } else {
             $(".audioButton").hide();
+            showAudio(false);
             playAudio("pause");
         }
     });
