@@ -711,6 +711,20 @@ function playAudio(action, value = 0) {
         var progress = curTime * 100 / wholeTime;
         $(".curTime").text(text);
         $(".currentProgress").css("width", progress + "%");
+
+        var visHeight = $(".no1").height();
+        var fullHeight = $(".no1 .text").outerHeight();
+        var startHeight = (visHeight * 100) / (2 * fullHeight);
+        var stopHeight = fullHeight - startHeight;
+        if(startHeight < progress && progress < stopHeight) {
+            var newScroll = (((fullHeight - visHeight*0) * progress) / 100) - (visHeight / 2);
+            //var newScroll = (fullHeight * progress) / 100;
+            $(".no1").scrollTop(newScroll);
+        } else if (startHeight > progress) {
+            $(".no1").scrollTop(0);
+        } else {
+            $(".no1").scrollTop(fullHeight-visHeight);
+        }
     }
 }
 
