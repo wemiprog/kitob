@@ -51,6 +51,7 @@ var booksRendered = [];
 var audio = $('#chapterAudio');
 var wasPlaying = false;
 var avSpeeds = [0.5, 1, 1.5, 2];
+var seekInProgress;
 
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
@@ -59,6 +60,9 @@ var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 $(window).on({
     popstate: function () {
         reloadText("noUrlUpdate");
+    },
+    mouseup: function (e) {
+        stopSeek(e);
     }
 });
 $(document).on({
@@ -73,6 +77,9 @@ $(document).on({
     ajaxStop: function () {
         $('.book-load').hide();
     },
+    touchend: function (e) {
+        stopSeek(e);
+    }
 });
 $('#menuToggler').on({
     click: function () {
@@ -162,6 +169,20 @@ $(".play-pause").on({
 $(".speed-change").on({
     click: function () {
         playAudio("speedchange");
+    }
+});
+$(".wholeProgress").on({
+    mousemove: function(e) {
+        moveProgress(e);
+    },
+    mousedown: function(e) {
+        moveProgress(e);
+    },
+    touchstart: function(e) {
+        moveProgress(e);
+    },
+    touchmove: function(e) {
+        moveProgress(e);
     }
 });
 
@@ -689,6 +710,40 @@ function playAudio(action, value = 0) {
         $(".curTime").text(text);
         $(".currentProgress").css("width", progress + "%");
     }
+}
+
+function moveProgress(e) {
+    if(e.type == "mousedown" || e.type == "touchstart") {
+        seekInProgress = true;
+        $("body").addClass("noselect");
+    } else if (!seekInProgress) {
+        return;
+    }
+    e.preventDefault();
+
+    var audioProgressContainer = $(".wholeProgress")[0];
+    var wholeTime = audio[0].duration;
+    const boundingRect = audioProgressContainer.getBoundingClientRect();
+    const isTouch = e.type.slice(0,5) == "touch";
+    const pageX = isTouch ? e.targetTouches.item(0).pageX : e.pageX;
+    const position = pageX - boundingRect.left - document.body.scrollLeft;
+    const containerWidth = boundingRect.width;
+    const progressPercentage = Math.max(0, Math.min(1, position / containerWidth));
+
+    var newPosition = progressPercentage * wholeTime;
+    if(isNaN(newPosition)) {
+        return;
+    }
+    audio[0].currentTime = newPosition;
+}
+
+function stopSeek(e) {
+    $("body").removeClass("noselect");
+    if(!seekInProgress) {
+        return;
+    }
+    e.preventDefault();
+    seekInProgress = false;
 }
 
 function forceSearch() {
