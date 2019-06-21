@@ -202,6 +202,7 @@ function showAudio(show = true) {
     if (show) {
         $('.audio').toggleClass("show");
         $('.window').toggleClass("audioHeight");
+        $('.info.book-load').toggleClass("audioHeight");
         $('.amb').toggleClass("audioMove");
         
         if ($('.audio').hasClass("show") && audio[0].paused) {
@@ -210,6 +211,7 @@ function showAudio(show = true) {
     } else {
         $('.audio').removeClass("show");
         $('.window').removeClass("audioHeight");
+        $('.info.book-load').removeClass("audioHeight");
         $('.amb').removeClass("audioMove");
     }
 }
