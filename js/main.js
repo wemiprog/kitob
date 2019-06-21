@@ -50,6 +50,7 @@ var booksRendered = [];
 
 var audio = $('#chapterAudio');
 var wasPlaying = false;
+var avSpeeds = [0.5, 1, 1.5, 2];
 
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
@@ -141,19 +142,28 @@ $(".window").on({
         handleScroll(e);
     },
 });
-
 audio.on({
-    ended: function (e) {
+    ended: function () {
         wasPlaying = true;
         changeChapter();
     },
+    loadedmetadata: function () {
+        playAudio("metadata");
+    },
+    timeupdate: function () {
+        playAudio("updatePos");
+    }
 });
-
 $(".play-pause").on({
     click: function () {
         playAudio("playpause");
     }
-})
+});
+$(".speed-change").on({
+    click: function () {
+        playAudio("speedchange");
+    }
+});
 
 function showMenu(show = true) {
     if (show) {
@@ -169,13 +179,13 @@ function showMenu(show = true) {
 
 function showAudio(show = true) {
     if (show) {
-        if ($('.audio').hasClass("show") && audio[0].paused) {
-            audio[0].load();
-        }
-        
         $('.audio').toggleClass("show");
         $('.window').toggleClass("audioHeight");
         $('.amb').toggleClass("audioMove");
+        
+        if ($('.audio').hasClass("show") && audio[0].paused) {
+            audio[0].load();
+        }
     } else {
         $('.audio').removeClass("show");
         $('.window').removeClass("audioHeight");
@@ -202,7 +212,7 @@ function textLinks(e) {
 
 /* MAIN FUNCTIONS */
 function reloadText(source = "url", target = 1) {
-    if(target == 1){
+    if (target == 1) {
         playAudio("pause");
     }
 
@@ -635,24 +645,49 @@ function playAudio(action, value = 0) {
 
     if (action == "play") {
         audio[0].play()
-        .then(_ => {
-            mediaSession();
-        }).catch(error => {
-            console.log(error);
-        });
+            .then(_ => {
+                mediaSession();
+            }).catch(error => {
+                console.log(error);
+            });
         $(".play-pause").addClass("fa-pause");
         $(".play-pause").removeClass("fa-play");
-        if('mediaSession' in navigator) {
+        if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = "playing";
         }
     }
-    if( action == "pause") {
+    if (action == "pause") {
         audio[0].pause();
         $(".play-pause").addClass("fa-play");
         $(".play-pause").removeClass("fa-pause");
-        if('mediaSession' in navigator){
+        if ('mediaSession' in navigator) {
             navigator.mediaSession.playbackState = "paused";
         }
+    }
+    if (action == "speedchange") {
+        var text = $(".speed-change")[0].innerText;
+        var num = parseFloat(text.split("x")[0]);
+        var nextIndex = avSpeeds.indexOf(num) + 1;
+        var nextSpeed = avSpeeds[(nextIndex + avSpeeds.length) % avSpeeds.length];
+        audio[0].playbackRate = nextSpeed;
+        $(".speed-change")[0].innerText = nextSpeed + "x";
+    }
+    if (action == "metadata") {
+        var durationS = audio[0].duration;
+        var seconds = durationS % 60;
+        var minutes = (durationS - seconds) / 60;
+        var text = minutes + ":" + twoNum(seconds);
+        $(".endTime").text(text);
+    }
+    if (action == "updatePos") {
+        var curTime = audio[0].currentTime;
+        var seconds = curTime % 60;
+        var minutes = (curTime - seconds) / 60;
+        var text = minutes + ":" + twoNum(seconds);
+        var wholeTime = audio[0].duration;
+        var progress = curTime * 100 / wholeTime;
+        $(".curTime").text(text);
+        $(".currentProgress").css("width", progress + "%");
     }
 }
 
@@ -805,14 +840,13 @@ function handleScroll(e) {
     if (tg.hasClass("no1") && !blockScroll2) {
         blockScroll1 = true;
         clearTimeout(timer1);
-        var no1h = $('.no1').height();
-        $('.no2').scrollTop(($('.no1').scrollTop() + no1h) * $('.no2 .text').outerHeight() / $('.no1 .text').outerHeight() - no1h);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight() - $('.no2').height()) / ($('.no1 .text').outerHeight() - $('.no1').height()));
         timer1 = setTimeout(function () { blockScroll1 = false; }, 100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
         clearTimeout(timer2)
         var no2h = $('.no2').height();
-        $('.no1').scrollTop(($('.no2').scrollTop() + no2h) * $('.no1 .text').outerHeight() / $('.no2 .text').outerHeight() - no2h);
+        $('.no1').scrollTop($('.no2').scrollTop() * ($('.no1 .text').outerHeight() - $('.no1').height()) / ($('.no2 .text').outerHeight() - no2h));
         timer2 = setTimeout(function () { blockScroll2 = false; }, 100);
     }
 
@@ -985,8 +1019,14 @@ function changeChapter(forward = true) {
 }
 
 function updateAudioPlayer(link) {
+    $(".curTime").text("0:00");
+    $(".endTime").text("-:--");
+    $(".currentProgress").css("width", "0%");
     $(".audioButton").show();
     audio.attr("src", link);
+    if($('.audio').hasClass("show")){
+        audio[0].load();
+    }
 }
 
 
@@ -1081,3 +1121,8 @@ $(window).on("load", function () {
         });
     };
 });
+
+function twoNum(number) {
+    var num = "00" + parseInt(number);
+    return num.substr(num.length - 2);
+}

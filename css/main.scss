@@ -254,8 +254,9 @@ main {
             overflow-y: scroll;
             height: 50%;
             &.audioHeight:not(.audio){
-                height: calc(50% - 62.5px);
+                height: calc(50% - 58.5px);
             }
+            transition: height .5s;
 
 
             &.no1.fullHeight {
@@ -267,7 +268,7 @@ main {
                 }
 
                 &.audioHeight {
-                    height: calc(100% - 125px);
+                    height: calc(100% - 117px);
                 }
             }
         }
@@ -296,18 +297,27 @@ main {
                 margin-top: 12px;
             }
 
-            .speed-select {
-                width: 100px;
-                height: 40px;
-                margin-left: 10px;
+            .speed-change {
+                //width: 100px;
+                //height: 40px;
+                margin-left: 20px;
+                background-color: #007b08;
+                width: 60px;
+                color: white;
+                height: 37px;
+
+                &:active {
+                    transform: scale(.9);
+                    transition: scale .5s;
+                }
             }
     
             i {
                 color: #007b08;
                 font-size: 40px;
                 cursor: pointer;
-                margin-right: 10px;
-                width: 100px; padding-right: 10px;
+                margin-right: 20px;
+                width: 60px;
     
                 &:active {
                     transform: scale(.9);
@@ -381,6 +391,7 @@ main {
     cursor: pointer;
     color: #007b08;
     display: none;
+    transition: bottom .5s;
     
     i {
         background-color: white;
@@ -400,7 +411,7 @@ main {
         left: 10px;
     }
     &.audioMove {
-        bottom: 135px;
+        bottom: 127px;
     }
 
     @media (min-width: 576px) {
@@ -423,6 +434,7 @@ main {
     right: calc(50% - 15px);
     height: 32px;
     display: none;
+    transition: bottom .5s;
 
     .fa-stack {
         width: 2em;
@@ -442,11 +454,11 @@ main {
     }
 
     &.audioMove {
-        bottom:  110px;
+        bottom:  102px;
         color: #4aa251;
 
         @media (min-width: 576px) {
-            bottom: 110px;
+            bottom: 102px;
         }
     }
     /*bottom: 50px;

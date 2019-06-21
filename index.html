@@ -79,20 +79,15 @@
             <div class="audio container">
                 <div class="btns mb-2">
                     <i class="fas fa-play play-pause"></i>
-                    <select class="speed-select custom-select">
-                        <option value="0.5">0.5x</option>
-                        <option value="1" selected>1x</option>
-                        <option value="1.5">1.5x</option>
-                        <option value="2">2x</option>
-                    </select>
+                    <button class="speed-change btn">1x</button>
                 </div>
 
                 <div class="progressWrapper">
                     <div class="time curTime">0:00</div>
-                    <div class="wholeProgress rounded mt-4">
+                    <div class="wholeProgress rounded mt-3">
                         <div class="currentProgress rounded"></div>
                     </div>
-                    <div class="time endTime">5:45</div>
+                    <div class="time endTime">-:--</div>
                 </div>
 
                 <audio id="chapterAudio" preload="none" src=""></audio>
