@@ -716,21 +716,24 @@ function playAudio(action, value = 0) {
             var visHeight = $(".no1").height();
             var fullHeight = $(".no1 .text").outerHeight();
             var startHeight = (visHeight * 100) / (2 * fullHeight);
-            var stopHeight = fullHeight - startHeight;
+            var stopHeight = 100 - startHeight;
             if (startHeight < progress && progress < stopHeight) {
+                console.log("start: " + startHeight + "\nprogress: " + progress + "\nstop: " + stopHeight + "\n\n");
+                
                 var newScroll = (((fullHeight - visHeight * 0) * progress) / 100) - (visHeight / 2);
 
                 $(".no1").stop(true, true).animate({
                     scrollTop: newScroll
                 }, 400);
                 $(".no1").scrollTop(newScroll);
-                //$(".window").addClass("darkScroll");
+                $(".window").addClass("darkScroll");
             } else if (startHeight > progress) {
                 $(".no1").scrollTop(0);
-                //$(".window").removeClass("darkScroll");
+                $(".window").removeClass("darkScroll");
             } else {
+                console.log("test")
                 $(".no1").scrollTop(fullHeight - visHeight);
-                //$(".window").removeClass("darkScroll");
+                $(".window").removeClass("darkScroll");
             }
 
         }
