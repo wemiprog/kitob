@@ -718,8 +718,6 @@ function playAudio(action, value = 0) {
             var startHeight = (visHeight * 100) / (2 * fullHeight);
             var stopHeight = 100 - startHeight;
             if (startHeight < progress && progress < stopHeight) {
-                console.log("start: " + startHeight + "\nprogress: " + progress + "\nstop: " + stopHeight + "\n\n");
-                
                 var newScroll = (((fullHeight - visHeight * 0) * progress) / 100) - (visHeight / 2);
 
                 $(".no1").stop(true, true).animate({
@@ -916,6 +914,8 @@ function handleNePr(e) {
 }
 
 function handleScroll(e) {
+    if(audio[0].paused)
+        $(".no1").removeClass("darkScroll");
     if (!secTl.content) {
         return;
     }
