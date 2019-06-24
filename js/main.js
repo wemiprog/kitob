@@ -172,16 +172,16 @@ $(".speed-change").on({
     }
 });
 $(".wholeProgress").on({
-    mousemove: function(e) {
+    mousemove: function (e) {
         moveProgress(e);
     },
-    mousedown: function(e) {
+    mousedown: function (e) {
         moveProgress(e);
     },
-    touchstart: function(e) {
+    touchstart: function (e) {
         moveProgress(e);
     },
-    touchmove: function(e) {
+    touchmove: function (e) {
         moveProgress(e);
     }
 });
@@ -204,7 +204,7 @@ function showAudio(show = true) {
         $('.window').toggleClass("audioHeight");
         $('.info.book-load').toggleClass("audioHeight");
         $('.amb').toggleClass("audioMove");
-        
+
         if ($('.audio').hasClass("show") && audio[0].paused) {
             audio[0].load();
         }
@@ -712,24 +712,33 @@ function playAudio(action, value = 0) {
         $(".curTime").text(text);
         $(".currentProgress").css("width", progress + "%");
 
-        var visHeight = $(".no1").height();
-        var fullHeight = $(".no1 .text").outerHeight();
-        var startHeight = (visHeight * 100) / (2 * fullHeight);
-        var stopHeight = fullHeight - startHeight;
-        if(startHeight < progress && progress < stopHeight) {
-            var newScroll = (((fullHeight - visHeight*0) * progress) / 100) - (visHeight / 2);
-            //var newScroll = (fullHeight * progress) / 100;
-            $(".no1").scrollTop(newScroll);
-        } else if (startHeight > progress) {
-            $(".no1").scrollTop(0);
-        } else {
-            $(".no1").scrollTop(fullHeight-visHeight);
+        if (!audio[0].paused) {
+            var visHeight = $(".no1").height();
+            var fullHeight = $(".no1 .text").outerHeight();
+            var startHeight = (visHeight * 100) / (2 * fullHeight);
+            var stopHeight = fullHeight - startHeight;
+            if (startHeight < progress && progress < stopHeight) {
+                var newScroll = (((fullHeight - visHeight * 0) * progress) / 100) - (visHeight / 2);
+
+                $(".no1").stop(true, true).animate({
+                    scrollTop: newScroll
+                }, 400);
+                $(".no1").scrollTop(newScroll);
+                //$(".window").addClass("darkScroll");
+            } else if (startHeight > progress) {
+                $(".no1").scrollTop(0);
+                //$(".window").removeClass("darkScroll");
+            } else {
+                $(".no1").scrollTop(fullHeight - visHeight);
+                //$(".window").removeClass("darkScroll");
+            }
+
         }
     }
 }
 
 function moveProgress(e) {
-    if(e.type == "mousedown" || e.type == "touchstart") {
+    if (e.type == "mousedown" || e.type == "touchstart") {
         seekInProgress = true;
         $("body").addClass("noselect");
     } else if (!seekInProgress) {
@@ -740,14 +749,14 @@ function moveProgress(e) {
     var audioProgressContainer = $(".wholeProgress")[0];
     var wholeTime = audio[0].duration;
     const boundingRect = audioProgressContainer.getBoundingClientRect();
-    const isTouch = e.type.slice(0,5) == "touch";
+    const isTouch = e.type.slice(0, 5) == "touch";
     const pageX = isTouch ? e.targetTouches.item(0).pageX : e.pageX;
     const position = pageX - boundingRect.left - document.body.scrollLeft;
     const containerWidth = boundingRect.width;
     const progressPercentage = Math.max(0, Math.min(1, position / containerWidth));
 
     var newPosition = progressPercentage * wholeTime;
-    if(isNaN(newPosition)) {
+    if (isNaN(newPosition)) {
         return;
     }
     audio[0].currentTime = newPosition;
@@ -755,7 +764,7 @@ function moveProgress(e) {
 
 function stopSeek(e) {
     $("body").removeClass("noselect");
-    if(!seekInProgress) {
+    if (!seekInProgress) {
         return;
     }
     e.preventDefault();
@@ -1095,7 +1104,7 @@ function updateAudioPlayer(link) {
     $(".currentProgress").css("width", "0%");
     $(".audioButton").show();
     audio.attr("src", link);
-    if($('.audio').hasClass("show")){
+    if ($('.audio').hasClass("show")) {
         audio[0].load();
     }
 }

@@ -269,6 +269,11 @@ main {
                 height: calc(50% - 58.5px);
             }
             transition: height .5s;
+            
+
+            &.darkScroll {
+                background-image: linear-gradient(to bottom, #ddd7, #fff, #fff, #fff, #ddd7);
+            }
 
 
             &.no1.fullHeight {
