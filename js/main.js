@@ -48,6 +48,11 @@ var backupSearch = "";
 var chaptersAvailable = [];
 var booksRendered = [];
 
+var audio = $('#chapterAudio');
+var wasPlaying = false;
+var avSpeeds = [0.5, 1, 1.5, 2];
+var seekInProgress;
+
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
 
@@ -55,6 +60,9 @@ var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 $(window).on({
     popstate: function () {
         reloadText("noUrlUpdate");
+    },
+    mouseup: function (e) {
+        stopSeek(e);
     }
 });
 $(document).on({
@@ -69,6 +77,12 @@ $(document).on({
     ajaxStop: function () {
         $('.book-load').hide();
     },
+    touchend: function (e) {
+        stopSeek(e);
+    },
+    keydown: function (e) {
+        handleKeys(e);
+    }
 });
 $('#menuToggler').on({
     click: function () {
@@ -76,6 +90,14 @@ $('#menuToggler').on({
     },
     touch: function () {
         showMenu();
+    }
+});
+$(".audioButton").on({
+    click: function () {
+        showAudio();
+    },
+    touch: function () {
+        showAudio();
     }
 });
 $('form').on('submit', function (e) {
@@ -109,6 +131,14 @@ $('.menu-container').on({
         handleMenu(e);
     }
 });
+$(".audio-container").on({
+    click: function (e) {
+        handleAudio(e);
+    },
+    touch: function (e) {
+        handleAudio(e);
+    }
+});
 $('div.text').on({
     click: function (e) {
         textLinks(e);
@@ -122,6 +152,42 @@ $(".window").on({
         handleScroll(e);
     },
 });
+audio.on({
+    ended: function () {
+        wasPlaying = true;
+        changeChapter();
+    },
+    loadedmetadata: function () {
+        playAudio("metadata");
+    },
+    timeupdate: function () {
+        playAudio("updatePos");
+    }
+});
+$(".play-pause").on({
+    click: function () {
+        playAudio("playpause");
+    }
+});
+$(".speed-change").on({
+    click: function () {
+        playAudio("speedchange");
+    }
+});
+$(".wholeProgress").on({
+    mousemove: function (e) {
+        moveProgress(e);
+    },
+    mousedown: function (e) {
+        moveProgress(e);
+    },
+    touchstart: function (e) {
+        moveProgress(e);
+    },
+    touchmove: function (e) {
+        moveProgress(e);
+    }
+});
 
 function showMenu(show = true) {
     if (show) {
@@ -132,6 +198,24 @@ function showMenu(show = true) {
         $('#collapseMenu').toggleClass("show");
     } else {
         $('#collapseMenu').removeClass("show");
+    }
+}
+
+function showAudio(show = true) {
+    if (show) {
+        $('.audio').toggleClass("show");
+        $('.window').toggleClass("audioHeight");
+        $('.info.book-load').toggleClass("audioHeight");
+        $('.amb').toggleClass("audioMove");
+
+        if ($('.audio').hasClass("show") && audio[0].paused && audio[0].readyState == 0) {
+            audio[0].load();
+        }
+    } else {
+        $('.audio').removeClass("show");
+        $('.window').removeClass("audioHeight");
+        $('.info.book-load').removeClass("audioHeight");
+        $('.amb').removeClass("audioMove");
     }
 }
 
@@ -154,6 +238,9 @@ function textLinks(e) {
 
 /* MAIN FUNCTIONS */
 function reloadText(source = "url", target = 1) {
+    if (target == 1) {
+        playAudio("pause");
+    }
 
     if (source == "noUrlUpdate") {
         source = "url";
@@ -219,12 +306,12 @@ function interpretReq(reqPath, numberIfPos = false) {
         trans1 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
         searchQuest = searchQuest.replace(ex, '');
-    } catch (e) {}
+    } catch (e) { }
     try {
         trans2 = ex.exec(reqPath)[0].slice(0, -1);
         reqPath = reqPath.replace(ex, '');
         searchQuest = searchQuest.replace(ex, '');
-    } catch (e) {}
+    } catch (e) { }
     $.each(avTls, function (key, value) {
         if (value.name.toLowerCase() == trans1) {
             curTl = value;
@@ -392,7 +479,7 @@ function renderText(receivedText, markObj, translation) {
     // DEV-Info console.log(receivedText);
     var jsonText = $.parseJSON(receivedText);
     if (jsonText == "problem") {
-        alert("Book doesn't exist, choose another");
+        console.log("Book doesn't exist, choose another");
     }
     if ("bookNr" in jsonText[0]) {
         renderVerses(jsonText, markObj, target);
@@ -400,10 +487,10 @@ function renderText(receivedText, markObj, translation) {
             scrollToVerse(translation);
         }, 10);
     } else {
+        wasPlaying = false;
         renderSearch(jsonText, target);
     }
     if (translation == 1) {
-        //dontUpdate = true;
         reloadText("numbers", 2);
     }
     try {
@@ -435,7 +522,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         book = value['book'];
         bookNr = value['bookNr'];
         chapter = value['chapter'];
-        if(verse == value['verse']) return true;
+        if (verse == value['verse']) return true;
         verse = value['verse'];
         header = value['header'];
         firstVerse ? lastVerse = verse : firstVerse = verse;
@@ -457,6 +544,7 @@ function renderVerses(input, mk, tg) { // mk markobject
         currentBookNr = bookNr;
         currentChapter = chapter;
         setUrl(currentBook, currentChapter);
+        getAudioLink();
     } else if (translationChange) {
         translationChange = false;
         setUrl(currentBook, currentChapter);
@@ -514,6 +602,179 @@ function renderSearch(input, tg) {
     currentChapter = "";
 
     setUrl(searchQuest);
+}
+
+function getAudioLink() {
+    var request = {
+        translation: curTl.name.toLowerCase(),
+        bookNr: currentBookNr,
+        chapter: currentChapter
+    };
+    var requestString = JSON.stringify(request);
+
+    $.ajax({
+        method: "POST",
+        url: "/php/getAudio.php",
+        data: "data=" + requestString
+    }).done(function (mp3Link) {
+        //console.log(data);
+        if (mp3Link) {
+            updateAudioPlayer(mp3Link);
+            if (wasPlaying) {
+                wasPlaying = false;
+                audio[0].load();
+                playAudio("play");
+            }
+        } else {
+            $(".audioButton").hide();
+            showAudio(false);
+            playAudio("pause");
+        }
+    });
+}
+
+function mediaSession() {
+    if ('mediaSession' in navigator) {
+        audioTitle = shortBook + " " + currentChapter;
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: audioTitle,
+            artist: 'Китоби Муққадас',
+            album: 'Имон Бо Шунидан аст',
+            artwork: [
+                { src: '/img/book-96.png', sizes: '96x96', type: 'image/png' },
+                { src: '/img/book-128.png', sizes: '128x128', type: 'image/png' },
+                { src: '/img/book-192.png', sizes: '192x192', type: 'image/png' },
+                { src: '/img/book-256.png', sizes: '256x256', type: 'image/png' },
+                { src: '/img/book-384.png', sizes: '384x384', type: 'image/png' },
+                { src: '/img/book-512.png', sizes: '512x512', type: 'image/png' },
+            ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', playAudio);
+        navigator.mediaSession.setActionHandler('pause', playAudio);
+        navigator.mediaSession.setActionHandler('previoustrack', function () { changeChapter(false); wasPlaying = true; });
+        navigator.mediaSession.setActionHandler('nexttrack', function () { changeChapter(); wasPlaying = true; });
+    }
+}
+
+function playAudio(action, value = 0) {
+    var currentState = !audio[0].paused;
+
+    if (action == "playpause" || !action) {
+        if (currentState) {
+            action = "pause";
+        } else {
+            action = "play";
+        }
+    }
+
+    if (action == "play") {
+        audio[0].play()
+            .then(_ => {
+                mediaSession();
+            }).catch(error => {
+                console.log(error);
+            });
+        $(".fa-volume-up").addClass("volume");
+        $(".play-pause").addClass("fa-pause");
+        $(".play-pause").removeClass("fa-play");
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "playing";
+        }
+    }
+    if (action == "pause") {
+        audio[0].pause();
+        $(".fa-volume-up").removeClass("volume");
+        $(".play-pause").addClass("fa-play");
+        $(".play-pause").removeClass("fa-pause");
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "paused";
+        }
+    }
+    if (action == "speedchange") {
+        var text = $(".speed-change")[0].innerText;
+        var num = parseFloat(text.split("x")[0]);
+        var nextIndex = avSpeeds.indexOf(num) + 1;
+        var nextSpeed = avSpeeds[(nextIndex + avSpeeds.length) % avSpeeds.length];
+        audio[0].playbackRate = nextSpeed;
+        $(".speed-change")[0].innerText = nextSpeed + "x";
+    }
+    if (action == "metadata") {
+        var durationS = audio[0].duration;
+        var seconds = durationS % 60;
+        var minutes = (durationS - seconds) / 60;
+        var text = minutes + ":" + twoNum(seconds);
+        $(".endTime").text(text);
+    }
+    if (action == "updatePos") {
+        var curTime = audio[0].currentTime;
+        var seconds = curTime % 60;
+        var minutes = (curTime - seconds) / 60;
+        var text = minutes + ":" + twoNum(seconds);
+        var wholeTime = audio[0].duration;
+        var progress = curTime * 100 / wholeTime;
+        $(".curTime").text(text);
+        $(".currentProgress").css("width", progress + "%");
+
+        if (!audio[0].paused) {
+            var visHeight = $(".no1").height();
+            var fullHeight = $(".no1 .text").outerHeight();
+            var startHeight = (visHeight * 100) / (2 * fullHeight);
+            var stopHeight = 100 - startHeight;
+            if (startHeight < progress && progress < stopHeight) {
+                var newScroll = (((fullHeight - visHeight * 0) * progress) / 100) - (visHeight / 2);
+
+                $(".no1").stop(true, true).animate({
+                    scrollTop: newScroll
+                }, 400);
+                $(".no1").scrollTop(newScroll);
+                $(".window").addClass("darkScroll");
+            } else if (startHeight > progress) {
+                $(".no1").scrollTop(0);
+                $(".window").removeClass("darkScroll");
+            } else {
+                console.log("test")
+                $(".no1").scrollTop(fullHeight - visHeight);
+                $(".window").removeClass("darkScroll");
+            }
+
+        }
+    }
+}
+
+function moveProgress(e) {
+    if (e.type == "mousedown" || e.type == "touchstart") {
+        seekInProgress = true;
+        $("body").addClass("noselect");
+    } else if (!seekInProgress) {
+        return;
+    }
+    e.preventDefault();
+
+    var audioProgressContainer = $(".wholeProgress")[0];
+    var wholeTime = audio[0].duration;
+    const boundingRect = audioProgressContainer.getBoundingClientRect();
+    const isTouch = e.type.slice(0, 5) == "touch";
+    const pageX = isTouch ? e.targetTouches.item(0).pageX : e.pageX;
+    const position = pageX - boundingRect.left - document.body.scrollLeft;
+    const containerWidth = boundingRect.width;
+    const progressPercentage = Math.max(0, Math.min(1, position / containerWidth));
+
+    var newPosition = progressPercentage * wholeTime;
+    if (isNaN(newPosition)) {
+        return;
+    }
+    audio[0].currentTime = newPosition;
+}
+
+function stopSeek(e) {
+    $("body").removeClass("noselect");
+    if (!seekInProgress) {
+        return;
+    }
+    e.preventDefault();
+    seekInProgress = false;
 }
 
 function forceSearch() {
@@ -636,6 +897,13 @@ function handleMenu(e) {
     }
 }
 
+function handleAudio(e) {
+    var tg = $(e.target);
+    if (tg.hasClass("audio-container")) {
+        showAudio(false);
+    }
+}
+
 function handleNePr(e) {
     var tg = $(e.target);
     var pr = tg.parent();
@@ -650,7 +918,30 @@ function handleNePr(e) {
     }
 }
 
+function handleKeys(e) {
+    var key = e.keyCode;
+
+    switch (key) {
+        case 13:
+            playAudio("playpause");
+            break;
+        case 32:
+            playAudio("playpause");
+            break;
+        case 37:
+            changeChapter(false);
+            break;
+        case 39:
+            changeChapter();
+            break;
+        default:
+            break;
+    }
+}
+
 function handleScroll(e) {
+    if (audio[0].paused)
+        $(".no1").removeClass("darkScroll");
     if (!secTl.content) {
         return;
     }
@@ -658,13 +949,14 @@ function handleScroll(e) {
     if (tg.hasClass("no1") && !blockScroll2) {
         blockScroll1 = true;
         clearTimeout(timer1);
-        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight()+20) / $('.no1 .text').outerHeight() - 0);
-        timer1 = setTimeout(function(){blockScroll1 = false;},100);
+        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight() - $('.no2').height()) / ($('.no1 .text').outerHeight() - $('.no1').height()));
+        timer1 = setTimeout(function () { blockScroll1 = false; }, 100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
-        clearTimeout(timer2)
-        $('.no1').scrollTop(($('.no2').scrollTop()) * $('.no1 .text').outerHeight() / ($('.no2 .text').outerHeight() + 20));
-        timer2 = setTimeout(function(){blockScroll2 = false;},100);
+        clearTimeout(timer2);
+        var no2h = $('.no2').height();
+        $('.no1').scrollTop($('.no2').scrollTop() * ($('.no1 .text').outerHeight() - $('.no1').height()) / ($('.no2 .text').outerHeight() - no2h));
+        timer2 = setTimeout(function () { blockScroll2 = false; }, 100);
     }
 
 }
@@ -829,7 +1121,21 @@ function changeChapter(forward = true) {
             }
         }
     }
+    if (!audio[0].paused) {
+        wasPlaying = true;
+    }
     reloadText(chapterRq);
+}
+
+function updateAudioPlayer(link) {
+    $(".curTime").text("0:00");
+    $(".endTime").text("-:--");
+    $(".currentProgress").css("width", "0%");
+    $(".audioButton").show();
+    audio.attr("src", link);
+    if ($('.audio').hasClass("show") && audio[0].readyState == 0) {
+        audio[0].load();
+    }
 }
 
 
@@ -924,3 +1230,8 @@ $(window).on("load", function () {
         });
     };
 });
+
+function twoNum(number) {
+    var num = "00" + parseInt(number);
+    return num.substr(num.length - 2);
+}
