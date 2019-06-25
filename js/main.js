@@ -208,7 +208,7 @@ function showAudio(show = true) {
         $('.info.book-load').toggleClass("audioHeight");
         $('.amb').toggleClass("audioMove");
 
-        if ($('.audio').hasClass("show") && audio[0].paused) {
+        if ($('.audio').hasClass("show") && audio[0].paused && audio[0].readyState == 0) {
             audio[0].load();
         }
     } else {
@@ -1133,7 +1133,7 @@ function updateAudioPlayer(link) {
     $(".currentProgress").css("width", "0%");
     $(".audioButton").show();
     audio.attr("src", link);
-    if ($('.audio').hasClass("show")) {
+    if ($('.audio').hasClass("show") && audio[0].readyState == 0) {
         audio[0].load();
     }
 }
