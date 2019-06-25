@@ -79,6 +79,9 @@ $(document).on({
     },
     touchend: function (e) {
         stopSeek(e);
+    },
+    keydown: function (e) {
+        handleKeys(e);
     }
 });
 $('#menuToggler').on({
@@ -915,8 +918,29 @@ function handleNePr(e) {
     }
 }
 
+function handleKeys(e) {
+    var key = e.keyCode;
+
+    switch (key) {
+        case 13:
+            playAudio("playpause");
+            break;
+        case 32:
+            playAudio("playpause");
+            break;
+        case 37:
+            changeChapter(false);
+            break;
+        case 39:
+            changeChapter();
+            break;
+        default:
+            break;
+    }
+}
+
 function handleScroll(e) {
-    if(audio[0].paused)
+    if (audio[0].paused)
         $(".no1").removeClass("darkScroll");
     if (!secTl.content) {
         return;
