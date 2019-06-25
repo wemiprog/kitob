@@ -673,6 +673,7 @@ function playAudio(action, value = 0) {
             }).catch(error => {
                 console.log(error);
             });
+        $(".fa-volume-up").addClass("volume");
         $(".play-pause").addClass("fa-pause");
         $(".play-pause").removeClass("fa-play");
         if ('mediaSession' in navigator) {
@@ -681,6 +682,7 @@ function playAudio(action, value = 0) {
     }
     if (action == "pause") {
         audio[0].pause();
+        $(".fa-volume-up").removeClass("volume");
         $(".play-pause").addClass("fa-play");
         $(".play-pause").removeClass("fa-pause");
         if ('mediaSession' in navigator) {
@@ -927,7 +929,7 @@ function handleScroll(e) {
         timer1 = setTimeout(function () { blockScroll1 = false; }, 100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
-        clearTimeout(timer2)
+        clearTimeout(timer2);
         var no2h = $('.no2').height();
         $('.no1').scrollTop($('.no2').scrollTop() * ($('.no1 .text').outerHeight() - $('.no1').height()) / ($('.no2 .text').outerHeight() - no2h));
         timer2 = setTimeout(function () { blockScroll2 = false; }, 100);
