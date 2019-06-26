@@ -941,7 +941,7 @@ function handleKeys(e) {
 
 function handleScroll(e) {
     if (audio[0].paused)
-        $(".no1").removeClass("darkScroll");
+        $(".window").removeClass("darkScroll");
     if (!secTl.content) {
         return;
     }
