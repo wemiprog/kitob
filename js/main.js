@@ -738,7 +738,24 @@ function playAudio(action, value = 0) {
                 $(".no1").scrollTop(fullHeight - visHeight);
                 $(".window").removeClass("darkScroll");
             }
+            if(secTl.content) {                
+                var visHeight2 = $(".no2").height();
+                var fullHeight2 = $(".no2 .text").outerHeight();
+                var startHeight2 = (visHeight2 * 100) / (2 * fullHeight2);
+                var stopHeight2 = 100 - startHeight2;
+                if( startHeight2 < progress && progress < stopHeight2) {
+                    var newScroll2 = (((fullHeight2 - visHeight2 * 0) * progress) / 100) - (visHeight2 / 2);
 
+                    $(".no2").stop(true, true).animate({
+                        scrollTop: newScroll2
+                    }, 400);
+                    $(".no2").scrollTop(newScroll2);
+                } else if (startHeight2 > progress) {
+                    $(".no2").scrollTop(0);
+                } else {
+                    $(".no2").scrollTop(fullHeight2 - visHeight2);
+                }
+            }
         }
     }
 }
@@ -941,7 +958,9 @@ function handleKeys(e) {
 
 function handleScroll(e) {
     if (audio[0].paused)
-        $(".no1").removeClass("darkScroll");
+        $(".window").removeClass("darkScroll");
+    else
+        return;
     if (!secTl.content) {
         return;
     }
@@ -949,13 +968,15 @@ function handleScroll(e) {
     if (tg.hasClass("no1") && !blockScroll2) {
         blockScroll1 = true;
         clearTimeout(timer1);
-        $('.no2').scrollTop($('.no1').scrollTop() * ($('.no2 .text').outerHeight() - $('.no2').height()) / ($('.no1 .text').outerHeight() - $('.no1').height()));
+        var scrollTg = $('.no1').scrollTop() * ($('.no2 .text').outerHeight() - $('.no2').height()) / ($('.no1 .text').outerHeight() - $('.no1').height())
+        $('.no2').scrollTop(scrollTg);
         timer1 = setTimeout(function () { blockScroll1 = false; }, 100);
     } else if (tg.hasClass("no2") && !blockScroll1) {
         blockScroll2 = true;
         clearTimeout(timer2);
         var no2h = $('.no2').height();
-        $('.no1').scrollTop($('.no2').scrollTop() * ($('.no1 .text').outerHeight() - $('.no1').height()) / ($('.no2 .text').outerHeight() - no2h));
+        var scrollTg = $('.no2').scrollTop() * ($('.no1 .text').outerHeight() - $('.no1').height()) / ($('.no2 .text').outerHeight() - no2h)
+        $('.no1').scrollTop(scrollTg);
         timer2 = setTimeout(function () { blockScroll2 = false; }, 100);
     }
 
