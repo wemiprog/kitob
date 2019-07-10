@@ -36,7 +36,7 @@ RewriteRule favicon.ico - [L]
 # Rewrite all to /
 RewriteRule (.*) index.html?var=$1
 
-# Because of licenses passwd when on development
+# Because of licenses passwd while on development server
 <If "req('Host') = 'kitob.dolorsitamet.ch'">
     Authtype Basic
     AuthName "user and password"

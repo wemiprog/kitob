@@ -95,8 +95,6 @@ function giveFile($filename) {
         }
 
         symlink($filename, $target);
-        // echo $target;
-        // exit();
         return substr($target,2);
     } else {
         return FALSE;
@@ -118,10 +116,5 @@ startUp();
 $req = giveRequest();
 $filename = checkAudio($req);
 
-/*$answer = new stdClass();
-$answer->translation = $req->translation;
-$answer->available = $filename;
-$answer->book = $req->book;
-$answer->chapter = $req->chapter;*/
 $answer = giveFile($filename);
 echo $answer;

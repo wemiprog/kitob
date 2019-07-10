@@ -1,6 +1,12 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
 var avTls = {
+    0: {
+        name: "Ҳеҷ",
+        alias: false,
+        content: false,
+        target: 2
+    },
     1: {
         name: "КМН",
         alias: "кмн",
@@ -12,47 +18,44 @@ var avTls = {
         alias: "км92",
         content: true,
         target: 3
-    },
-    3: {
-        name: "Ҳеҷ",
-        alias: false,
-        content: false,
-        target: 2
     }
 }
 var curTl = avTls[1];
-var secTl = avTls[3];
+var secTl = avTls[0];
 
+// To be used as values not changing on reload
 var currentBook = "";
 var currentBookNr = "0";
 var currentChapter = "0";
 
 var searchQuest = "";
+var backupSearch = "";
 var maybeSearch = false;
 var dontUpdate = false;
 var dontUpdateBook = false;
 var dontErase = false;
-var trans2search = false;
+var trans2search = false; // Forces search in second translation
 var translationChange = false;
-var blockScroll1 = false;
+
+// Blocks Perpetum mobile
+var blockScroll1 = false; 
 var blockScroll2 = false;
 var timer1, timer2;
-var sc = -2;
+
+var sc = -1;
 var ftts = true;
 
-var v1Top = 0;
-var v2Top = 0;
-
-var backupSearch = "";
-
+// Save Menu items on client to prevent reloading each time menu rendering
 var chaptersAvailable = [];
 var booksRendered = [];
 
+// Audio Vars
 var audio = $('#chapterAudio');
 var wasPlaying = false;
 var avSpeeds = [0.5, 1, 1.5, 2];
 var seekInProgress;
 
+// Allow kyrillic chars
 var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
 
 
@@ -189,6 +192,7 @@ $(".wholeProgress").on({
     }
 });
 
+/* EventHandlerFunctions */
 function showMenu(show = true) {
     if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
@@ -248,11 +252,14 @@ function reloadText(source = "url", target = 1) {
     }
     if (source == "url") {
         var reTxt = readUrl();
-    } else if (source == "numbers") {
+    } 
+    else if (source == "numbers") {
         var reObj = interpretReq(backupSearch, true);
-    } else if (typeof source == "string") {
+    } 
+    else if (typeof source == "string") {
         var reTxt = source;
-    } else {
+    }
+    else {
         var reObj = source;
     }
     if (typeof reObj != "object") {
@@ -465,14 +472,20 @@ function getText(rq, translation) {
 function renderText(receivedText, markObj, translation) {
     if (translation == 1) {
         var target = $('.windowContainer .no1 .text');
+        var tlname = curTl.name;
     } else if (translation == 2) {
         var target = $('.windowContainer .no2 .text');
+        var tlname = secTl.name;
     }
 
     if (receivedText == "[]") {
-        target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         if (translation == 1) {
             $('#reference').val(searchQuest);
+        }
+        if(currentChapter == "") {
+            target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        } else {
+            target.html("<div class=\"alert alert-danger rounded-sm\"> Ин оятҳо дар " + tlname + " ёфта нашуданд!</div> ");
         }
         return;
     }
@@ -493,13 +506,6 @@ function renderText(receivedText, markObj, translation) {
     if (translation == 1) {
         reloadText("numbers", 2);
     }
-    try {
-        v1Top = $(".no1 div div")[0].scrollHeight + $(".no1 div div")[0].offsetTop;
-        v2Top = $(".no2 div div")[0].scrollHeight + $(".no2 div div")[0].offsetTop;
-    } catch (error) {
-        v2Top = 0;
-    }
-
 }
 
 function renderVerses(input, mk, tg) { // mk markobject
@@ -513,8 +519,6 @@ function renderVerses(input, mk, tg) { // mk markobject
     if (maybeSearch) {
         text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
         maybeSearch = false;
-    } else {
-
     }
 
     /* Read 'n convert each verse */
@@ -617,7 +621,6 @@ function getAudioLink() {
         url: "/php/getAudio.php",
         data: "data=" + requestString
     }).done(function (mp3Link) {
-        //console.log(data);
         if (mp3Link) {
             updateAudioPlayer(mp3Link);
             if (wasPlaying) {
@@ -658,7 +661,7 @@ function mediaSession() {
     }
 }
 
-function playAudio(action, value = 0) {
+function playAudio(action) {
     var currentState = !audio[0].paused;
 
     if (action == "playpause" || !action) {
@@ -674,7 +677,8 @@ function playAudio(action, value = 0) {
             .then(_ => {
                 mediaSession();
             }).catch(error => {
-                console.log(error);
+                if(!error == "DOMException")
+                    console.log(error);
             });
         $(".fa-volume-up").addClass("volume");
         $(".play-pause").addClass("fa-pause");
@@ -835,8 +839,8 @@ function getChapters() {
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
-    i = 0,
-        bookButtons = "";
+    i = 0;
+    var bookButtons = "";
     if (booksRendered[curTl.name]) {
         bookButtons = booksRendered[curTl.name];
     } else {
@@ -986,9 +990,9 @@ function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
     var newTlNr = parseInt(tg.val());
-    if (ftts) {
+    if (ftts) { // Sets menu to full Height after first opening
         $('.menu').addClass("fullHeight");
-        ffts = false;
+        ftts = false;
     }
     if (tgWindow == 1) {
         curTl = avTls[newTlNr];
@@ -1215,7 +1219,7 @@ function scrollToVerse(tg) {
                 scrollTop: $('.no2 .mark').position().top - 3
             });
         } catch (e) {
-            //
+            // continue
         }
     }
 }

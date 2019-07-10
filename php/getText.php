@@ -127,7 +127,6 @@ function giveBookNr($input, $con, $dontRecurse = 0)
 
             $plainEditBook = str_replace($typos[$i + 1], $typos[$i], $plainBook);
             $modBook = $countBook . $plainEditBook;
-            //if($modBook == "қ") {$modBook = "якуми қ";}
             $bookNr = giveBookNr($modBook, $con, $dontRecurse + 1);
             if ($bookNr != 0) { // If successfully found book don't search longer
                 break;
