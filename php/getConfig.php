@@ -14,6 +14,10 @@ if($script) { # When calling from server add $script = true
 } else { # so the browser receives the js-config instead of php
 ?>
 console.log("js config loaded");
+df = { //defined
+    "test": "testText",
+    "test2": "untestText"
+}
 <?
 }
 if($root) {
