@@ -1,28 +1,43 @@
 <?php
 $script = true;
-require_once("./getConfig.php");
+require_once "./getConfig.php";
 
 function createDBCon($translation)
 {
-    // Translation declarations
-    $cfg_kmn = $GLOBALS['configdir'] . 'database_kitob.php';
-    $cfg_km92 = $GLOBALS['configdir'] . 'db_kitob_km92.php';
-    $cfg_elb = $GLOBALS['configdir'] . 'db_kitob_elb.php';
+    global $vars;
 
     $translation = mb_strtolower($translation, 'UTF-8');
 
     switch ($translation) {
-        case "кмн":
-            $cfg_current = $cfg_kmn;
+        case $vars["t1"]["name"]:
+            $cfg_current = $vars["t1"]["file"];
             break;
-        case "км92":
-            $cfg_current = $cfg_km92;
+        case $vars["t2"]["name"]:
+            $cfg_current = $vars["t2"]["file"];
             break;
-        case "елб":
-            $cfg_current = $cfg_elb;
+        case $vars["t3"]["name"]:
+            $cfg_current = $vars["t3"]["file"];
+            break;
+        case $vars["t4"]["name"]:
+            $cfg_current = $vars["t4"]["file"];
+            break;
+        case $vars["t5"]["name"]:
+            $cfg_current = $vars["t5"]["file"];
+            break;
+        case $vars["t6"]["name"]:
+            $cfg_current = $vars["t6"]["file"];
+            break;
+        case $vars["t7"]["name"]:
+            $cfg_current = $vars["t7"]["file"];
+            break;
+        case $vars["t8"]["name"]:
+            $cfg_current = $vars["t8"]["file"];
             break;
         default:
-            $cfg_current = $cfg_kmn;
+            $cfg_current = $vars["t1"]["file"];
+    }
+    if(!$cfg_current && $cfg_current = "") {
+        $cfg_current = $vars["t1"]["file"];
     }
 
     require $cfg_current;
@@ -36,4 +51,3 @@ function createDBCon($translation)
     // Return the connection
     return $return;
 }
-?>
