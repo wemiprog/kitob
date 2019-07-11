@@ -38,7 +38,7 @@ var trans2search = false; // Forces search in second translation
 var translationChange = false;
 
 // Blocks Perpetum mobile
-var blockScroll1 = false; 
+var blockScroll1 = false;
 var blockScroll2 = false;
 var timer1, timer2;
 
@@ -252,10 +252,10 @@ function reloadText(source = "url", target = 1) {
     }
     if (source == "url") {
         var reTxt = readUrl();
-    } 
+    }
     else if (source == "numbers") {
         var reObj = interpretReq(backupSearch, true);
-    } 
+    }
     else if (typeof source == "string") {
         var reTxt = source;
     }
@@ -482,7 +482,7 @@ function renderText(receivedText, markObj, translation) {
         if (translation == 1) {
             $('#reference').val(searchQuest);
         }
-        if(currentChapter == "") {
+        if (currentChapter == "") {
             target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         } else {
             target.html("<div class=\"alert alert-danger rounded-sm\"> Ин оятҳо дар " + tlname + " ёфта нашуданд!</div> ");
@@ -677,7 +677,7 @@ function playAudio(action) {
             .then(_ => {
                 mediaSession();
             }).catch(error => {
-                if(!error == "DOMException")
+                if (!error == "DOMException")
                     console.log(error);
             });
         $(".fa-volume-up").addClass("volume");
@@ -742,12 +742,12 @@ function playAudio(action) {
                 $(".no1").scrollTop(fullHeight - visHeight);
                 $(".window").removeClass("darkScroll");
             }
-            if(secTl.content) {                
+            if (secTl.content) {
                 var visHeight2 = $(".no2").height();
                 var fullHeight2 = $(".no2 .text").outerHeight();
                 var startHeight2 = (visHeight2 * 100) / (2 * fullHeight2);
                 var stopHeight2 = 100 - startHeight2;
-                if( startHeight2 < progress && progress < stopHeight2) {
+                if (startHeight2 < progress && progress < stopHeight2) {
                     var newScroll2 = (((fullHeight2 - visHeight2 * 0) * progress) / 100) - (visHeight2 / 2);
 
                     $(".no2").stop(true, true).animate({
@@ -1174,17 +1174,24 @@ function shortenBook(book, separator) {
     var bookArray = book.split(' ');
     var bookName = bookArray[1];
     switch (bookArray[0]) {
+        case '1.':
         case 'Якуми':
             var bookCount = '1';
             break;
+        case '2.':
         case 'Дуюми':
             var bookCount = '2';
             break;
+        case '3.':
         case 'Сеюми':
             var bookCount = '3';
             break;
+        case '4.':
         case 'Чоруми':
             var bookCount = '4';
+            break;
+        case '5.':
+            var bookCount = '5';
             break;
         case 'Такрори':
             var bookCount = '';
