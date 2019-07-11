@@ -7,10 +7,7 @@ function startUp()
 {
     global $vars;
     // Get config dir and set global var
-    $user = posix_getpwuid(posix_getuid());
-    $homedir = $user['dir'];
-    $GLOBALS['configdir'] = $homedir . $vars["configDirFromHome"];
-
+    $GLOBALS['configdir'] = $vars["configDir"];
     $GLOBALS['defaulttranslation'] = $vars["defTranslation"];
 }
 

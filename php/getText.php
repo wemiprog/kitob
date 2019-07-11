@@ -16,7 +16,6 @@ function startUp()
     global $vars;
 
     $GLOBALS['configdir'] = $vars["configDir"];
-
     $GLOBALS['defaultbook'] = $vars["defBook"];
 }
 
@@ -25,12 +24,13 @@ require "./universalFunctions.php";
 function giveRequest()
 {
     global $true;
+    global $vars;
     $re = new stdClass();
 
     $input = json_decode($_POST['data'], $true);
 
     // Security check and default value setting
-    $re->translation = checkIt($input->translation, "string", "kmn");
+    $re->translation = checkIt($input->translation, "string", $vars["defTranslation"]);
     $re->book = checkIt($input->book, "string", $GLOBALS["defaultbook"]);
     $con = createDBCon($re->translation);
     $re->bookNr = giveBookNr($re->book, $con); // 0 means "start search"

@@ -1,25 +1,6 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
-var avTls = {
-    0: {
-        name: "Ҳеҷ",
-        alias: false,
-        content: false,
-        target: 2
-    },
-    1: {
-        name: "КМН",
-        alias: "кмн",
-        content: true,
-        target: 3
-    },
-    2: {
-        name: "КМ92",
-        alias: "км92",
-        content: true,
-        target: 3
-    }
-}
+var avTls = df["avTls"];
 var curTl = avTls[1];
 var secTl = avTls[0];
 
@@ -56,7 +37,7 @@ var avSpeeds = [0.5, 1, 1.5, 2];
 var seekInProgress;
 
 // Allow kyrillic chars
-var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
+var allowedChars = df["allowedChars"];
 
 
 /* EVENT HANDLERS */
@@ -295,7 +276,7 @@ function setUrl(book = currentBook, chapter = currentChapter, withInput = true, 
     if (chapter != "") {
         designPath += " " + chapter;
     }
-    document.title = designPath + ' - Китоби Муқаддас';
+    document.title = designPath + ' - ' + df["appName"];
     if (withInput) {
         $('#reference').val(designPath);
     }
@@ -306,7 +287,7 @@ function interpretReq(reqPath, numberIfPos = false) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
     // Extract translation
-    var ex = /^([\u0400-\u05271234567890]{3,4})\//
+    var ex = df["allowedTrans"]
     var trans1 = false;
     var trans2 = false;
     try {
@@ -334,16 +315,16 @@ function interpretReq(reqPath, numberIfPos = false) {
     var bookNumber = ex.exec(reqPath)[0];
     switch (bookNumber) {
         case "1":
-            var bookCount = 'якуми ';
+            var bookCount = df["firstOf"] + " ";
             break;
         case "2":
-            var bookCount = 'дуюми ';
+            var bookCount = df["secondOf"] + " ";
             break;
         case "3":
-            var bookCount = 'сеюми ';
+            var bookCount = df["thirdOf"] + " ";
             break;
         case "4":
-            var bookCount = 'чоруми ';
+            var bookCount = df["fourthOf"] + " ";
             break;
         default:
             var bookCount = '';
@@ -353,13 +334,13 @@ function interpretReq(reqPath, numberIfPos = false) {
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
     //backupSearch = "";
-    var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
+    var ex =  df["allowedBook"]; // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
         maybeSearch = true;
         backupSearch = searchQuest;
     } catch (e) {
-        var bookName = "матто";
+        var bookName = df["defBook"];
         maybeSearch = false;
     }
     // Combine count and name
@@ -418,7 +399,7 @@ function interpretReq(reqPath, numberIfPos = false) {
         }
         if (trans2search) {
             trans2search = false;
-            reqBook = "фҷва";
+            reqBook = df["inexistent"]; // Something inexistent
         }
 
     }
@@ -482,10 +463,10 @@ function renderText(receivedText, markObj, translation) {
         if (translation == 1) {
             $('#reference').val(searchQuest);
         }
-        if (currentChapter == "") {
-            target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
+        if (maybeSearch || currentChapter == "") {
+            target.html("<div class=\"alert alert-danger rounded-sm\">" + df["noSearchResult"] + "</div> ");
         } else {
-            target.html("<div class=\"alert alert-danger rounded-sm\"> Ин оятҳо дар " + tlname + " ёфта нашуданд!</div> ");
+            target.html("<div class=\"alert alert-danger rounded-sm\"> "+ df["verseNotFound1"] + " " + tlname + " " + df["verseNotFound2"] + "</div> ");
         }
         return;
     }
@@ -517,7 +498,7 @@ function renderVerses(input, mk, tg) { // mk markobject
 
     // Make book search possible
     if (maybeSearch) {
-        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
+        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>" + df["forceSearch"] + ": " + backupSearch + "</a></div>";
         maybeSearch = false;
     }
 
@@ -593,12 +574,12 @@ function renderSearch(input, tg) {
     });
 
     // Add result count
-    text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
+    text = "<div class='count alert alert-success'><i><b>" + i + "</b> " + df["verse"] + "</i></div>" + text;
     tg.html(text);
     if (searchQuest.split(" ").length == 1) {
         var words = tg.html().split('"mark"').length; // todo fix counter
         counterText = tg.find('.count i').html();
-        counterText = words + " маротиба, " + counterText;
+        counterText = words + " " + df["times"] + ", " + counterText;
         tg.find('.count i').html(counterText);
     }
     currentBook = searchQuest;
@@ -642,8 +623,8 @@ function mediaSession() {
 
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioTitle,
-            artist: 'Китоби Муққадас',
-            album: 'Имон Бо Шунидан аст',
+            artist: df["appName"],
+            album: df["audioProvider"],
             artwork: [
                 { src: '/img/book-96.png', sizes: '96x96', type: 'image/png' },
                 { src: '/img/book-128.png', sizes: '128x128', type: 'image/png' },
@@ -803,7 +784,7 @@ function forceSearch() {
         trans2search = true;
     }
     reloadText({
-        book: 'фҷва',
+        book: df["inexistent"],
         chapter: 0,
         firstVerse: 1,
         lastVerse: 180,
@@ -1058,12 +1039,7 @@ function renderTranslations(target = false) {
     var menu1 = "";
     var menu2 = "";
     if (sc == true) {
-        avTls[Object.keys(avTls).length + 1] = {
-            name: "ЕЛБ",
-            alias: "елб",
-            content: true,
-            target: 3
-        };
+        avTls[Object.keys(avTls).length + 1] = df["scrTl"];
     }
     // Menu 1
     $.each(avTls, function (index, value) {
@@ -1171,33 +1147,34 @@ renderTranslations();
 
 /* Helpers */
 function shortenBook(book, separator) {
+    var lowBookArray = book.toLowerCase().split(' ');
     var bookArray = book.split(' ');
     var bookName = bookArray[1];
-    switch (bookArray[0]) {
+    switch (lowBookArray[0]) {
         case '1.':
-        case 'Якуми':
+        case df["firstOf"]:
             var bookCount = '1';
             break;
         case '2.':
-        case 'Дуюми':
+        case df["secondOf"]:
             var bookCount = '2';
             break;
         case '3.':
-        case 'Сеюми':
+        case df["thirdOf"]:
             var bookCount = '3';
             break;
         case '4.':
-        case 'Чоруми':
+        case df["fourthOf"]:
             var bookCount = '4';
             break;
         case '5.':
             var bookCount = '5';
             break;
-        case 'Такрори':
+        case df["pbBook1"]:
             var bookCount = '';
             separator = '';
             break;
-        case 'Инчили':
+        case df["gospel"]:
             var bookCount = '';
             separator = '';
             break;
