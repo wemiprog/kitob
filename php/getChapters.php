@@ -1,14 +1,17 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
 
 // EXECUTION FUNCTIONS
 function startUp()
 {
+    global $vars;
     // Get config dir and set global var
     $user = posix_getpwuid(posix_getuid());
     $homedir = $user['dir'];
-    $GLOBALS['configdir'] = $homedir . '/config/';
+    $GLOBALS['configdir'] = $homedir . $vars["configDirFromHome"];
 
-    $GLOBALS['defaulttranslation'] = 'kmn';
+    $GLOBALS['defaulttranslation'] = $vars["defTranslation"];
 }
 
 require "./universalFunctions.php";

@@ -12,6 +12,13 @@ if($script) { # When calling from server add $script = true
         "sample" => "interestingText",
         "secSample" => "notreally"
     ];
+    $vars = [ #php
+        "configDirFromHome" => "/config/",
+        "defBook" => "470",
+        "defTranslation" => "кмн",
+        "allowedChars" => 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890kmn ',
+        "replaceChars" => "ғгёеӣийиқкӯуҳхҷч",
+    ];
 } else { # so the browser receives the js-config instead of php
 ?>
 console.log("js config loaded");

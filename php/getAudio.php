@@ -1,4 +1,6 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
 
 // EXECUTION FUNCTIONS
 function startUp()

@@ -13,12 +13,13 @@ require_once("./getConfig.php");
 
 function startUp()
 {
+    global $vars;
     // Get config dir and set global var
     $user = posix_getpwuid(posix_getuid());
     $homedir = $user['dir'];
-    $GLOBALS['configdir'] = $homedir . '/config/';
+    $GLOBALS['configdir'] = $homedir . $vars["configDirFromHome"];
 
-    $GLOBALS['defaultbook'] = 'мат';
+    $GLOBALS['defaultbook'] = $vars["defBook"];
 }
 
 require "./universalFunctions.php";
@@ -31,11 +32,11 @@ function giveRequest()
     $input = json_decode($_POST['data'], $true);
 
     // Security check and default value setting
-    $re->translation = checkIt($input->translation, "trString");
-    $re->book = checkIt($input->book, "tgString");
+    $re->translation = checkIt($input->translation, "string", "kmn");
+    $re->book = checkIt($input->book, "string", $GLOBALS["defaultbook"]);
     $con = createDBCon($re->translation);
     $re->bookNr = giveBookNr($re->book, $con); // 0 means "start search"
-    $re->search = checkIt($input->search, "richString");
+    $re->search = checkIt($input->search, "string", "FAIL");
     $re->chapter = checkIt($input->chapter, "number");
     $re->firstVerse = checkIt($input->firstVerse, "number");
     $re->lastVerse = checkIt($input->lastVerse, "number", true);
@@ -57,31 +58,16 @@ function giveAnswer($input)
 }
 
 // ADVANCED HELPER FUNCTIONS
-function checkIt($value, $type, $max = false)
+function checkIt($value, $type, $alt = false)
 {
+    global $vars;
     switch ($type) {
-        case "richString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890kmn ';
+        case "string":
+            $allowed = $vars["allowedChars"];
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
-                $return = "FAIL";
-            }
-            break;
-        case "trString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890kmn ';
-            if (str_contains_only($value, $allowed)) {
-                $return = $value;
-            } else {
-                $return = "kmn";
-            }
-            break;
-        case "tgString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ1234567890 ';
-            if (str_contains_only($value, $allowed)) {
-                $return = $value;
-            } else {
-                $return = $GLOBALS['defaultbook'];
+                $return = $alt;
             }
             break;
         case "number":
@@ -89,7 +75,7 @@ function checkIt($value, $type, $max = false)
                 $return = $value;
             } else {
                 $return = 1;
-                if ($max) {
+                if ($alt) {
                     $return = 180;
                 }
             }
@@ -100,6 +86,7 @@ function checkIt($value, $type, $max = false)
 
 function giveBookNr($input, $con, $dontRecurse = 0)
 {
+    global $vars;
     if(is_numeric($input)){
         return $input;
     }
@@ -108,7 +95,7 @@ function giveBookNr($input, $con, $dontRecurse = 0)
                 LIMIT 1";
     $result = $con->query($sql);
     if ($result->num_rows == 0 && $dontRecurse < 8) { // Correct up to 8 typos
-        $typos = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // typo correction array
+        $typos = mb_str_to_array($vars["replaceChars"]); // typo correction array
         $modBook = $input;
         $helper = $modBook;
         for ($i = 0; $i < 16; $i += 2) {

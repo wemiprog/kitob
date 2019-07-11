@@ -1,4 +1,7 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
+
 function createDBCon($translation)
 {
     // Translation declarations
