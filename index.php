@@ -1,5 +1,6 @@
 <?php
 $script = true;
+$root = true;
 require_once("php/getConfig.php");
 ?>
 <!DOCTYPE html>
@@ -107,6 +108,7 @@ require_once("php/getConfig.php");
         </span>
         <i class="fas fa-chevron-circle-down amb"></i>
     </div>
+    <script src="/php/getConfig.php"></script>
 
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>

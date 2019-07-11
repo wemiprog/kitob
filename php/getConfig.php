@@ -1,5 +1,5 @@
 <?php
-if($script){ # When calling from server add $script = true
+if($script) { # When calling from server add $script = true
     $html = [
         "lang" => "tg",
         "title" => "Китоби Муқаддас",
@@ -8,8 +8,17 @@ if($script){ # When calling from server add $script = true
         "choose" => "Интихоб",
         "loading" => "Мо Китоби интихобшударо меорем ...",
     ];
+    $text = [ # php
+
+    ];
 } else { # so the browser receives the js-config instead of php
-    echo($_SERVER["REMOTE_ADDR"]);?>
-    echo "test";
-<?}
+?>
+console.log("js config loaded");
+<?
+}
+if($root) {
+    require "./php/getDefaultConfig.php";
+} else {
+    require "./getDefaultConfig.php";
+}
 ?>
