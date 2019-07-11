@@ -11,6 +11,8 @@ function setVar($array, $var, $value)
 if($script) {
     // Default html and php definitions
     //$html = setVar($html, "lang", "newvalue");
+    $text = setVar($text, "sample", "nothing");
+    $text = setVar($text, "sampl3", "thing");
 } else { ?>
 console.log("defaults loaded");
 function setVar(name, value) {

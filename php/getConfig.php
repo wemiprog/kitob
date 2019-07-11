@@ -9,7 +9,8 @@ if($script) { # When calling from server add $script = true
         "loading" => "Мо Китоби интихобшударо меорем ...",
     ];
     $text = [ # php
-
+        "sample" => "interestingText",
+        "secSample" => "notreally"
     ];
 } else { # so the browser receives the js-config instead of php
 ?>

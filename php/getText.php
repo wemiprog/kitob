@@ -1,4 +1,6 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
 /**
  * File is of 4 parts
  *  - EXECTION FUNCTIONS, mostly visible in main execution
