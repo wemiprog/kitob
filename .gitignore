@@ -1,6 +1,8 @@
 # exlcude all content from audio folder
 audio/*
+config/*
 deploy-log.txt
 
 # include .gitkeep to keep folder
 !audio/.gitkeep
+!config/.gitkeep
