@@ -334,7 +334,7 @@ function interpretReq(reqPath, numberIfPos = false) {
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
     //backupSearch = "";
-    var ex =  df["allowedBook"]; // choose all cyrillic letters
+    var ex = df["allowedBook"]; // choose all cyrillic letters
     try {
         var bookName = ex.exec(reqPath)[0];
         maybeSearch = true;
@@ -466,7 +466,7 @@ function renderText(receivedText, markObj, translation) {
         if (maybeSearch || currentChapter == "") {
             target.html("<div class=\"alert alert-danger rounded-sm\">" + df["noSearchResult"] + "</div> ");
         } else {
-            target.html("<div class=\"alert alert-danger rounded-sm\"> "+ df["verseNotFound1"] + " " + tlname + " " + df["verseNotFound2"] + "</div> ");
+            target.html("<div class=\"alert alert-danger rounded-sm\"> " + df["verseNotFound1"] + " " + tlname + " " + df["verseNotFound2"] + "</div> ");
         }
         return;
     }
@@ -1153,18 +1153,26 @@ function shortenBook(book, separator) {
     switch (lowBookArray[0]) {
         case '1.':
         case df["firstOf"]:
+        case curTl["firstOf"]:
+        case secTl["firstOf"]:
             var bookCount = '1';
             break;
         case '2.':
         case df["secondOf"]:
+        case curTl["secondOf"]:
+        case secTl["secondOf"]:
             var bookCount = '2';
             break;
         case '3.':
         case df["thirdOf"]:
+        case curTl["thirdOf"]:
+        case secTl["thirdOf"]:
             var bookCount = '3';
             break;
         case '4.':
         case df["fourthOf"]:
+        case curTl["fourthOf"]:
+        case secTl["fourthOf"]:
             var bookCount = '4';
             break;
         case '5.':

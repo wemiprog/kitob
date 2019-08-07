@@ -46,17 +46,17 @@ function setVar(name, value) {
 /* Default JS Definitions */
 setVar("avTls", {
     0: {
-            name: "Ҳеҷ",
-            alias: false,
-            content: false,
-            target: 2
-        },
-        1: {
-            name: "ASV",
-            alias: "asv",
-            content: true,
-            target: 3
-        },
+        name: "Ҳеҷ",
+        alias: false,
+        content: false,
+        target: 2
+    },
+    1: {
+        name: "ASV",
+        alias: "asv",
+        content: true,
+        target: 3
+    },
 });
 setVar("allowedChars", 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnm:,.\\-1234567890\/ ');
 setVar("allowedTrans", /^([ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnm1234567890]{3,4})\//);
