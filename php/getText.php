@@ -96,7 +96,7 @@ function giveBookNr($input, $con, $dontRecurse = 0)
         $typos = mb_str_to_array($vars["replaceChars"]); // typo correction array
         $modBook = $input;
         $helper = $modBook;
-        for ($i = 0; $i < 16; $i += 2) {
+        for ($i = 0; $i < sizeof($typos); $i += 2) {
             $modBook = $helper;
             
             if (sizeof(explode(" ", $modBook)) > 1) {  // if a space is in request, split up, to ensure
