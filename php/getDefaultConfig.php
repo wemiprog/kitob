@@ -30,7 +30,7 @@ if(isset($script)) {
     $vars = setVar($vars, "dataDir", $datadir);
     $vars = setVar($vars, "defBook", "470");
     $vars = setVar($vars, "defTranslation", "asv");
-    $vars = setVar($vars, "allowedChars", "ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuioplkjhgfdsayxcvbnm:,.-1234567890");
+    $vars = setVar($vars, "allowedChars", "ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuioplkjhgfdsayxcvbnm:,.-1234567890 ");
     $vars = setVar($vars, "replaceChars", ""); // odd = target letter, even = source letter
     $t1 = ["name" => "asv","file" => "$configdir/db_kitob_asv.php","alias" => "asv"];
     $vars = setVar($vars, "t1", $t1);
