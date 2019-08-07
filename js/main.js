@@ -326,6 +326,8 @@ function interpretReq(reqPath, numberIfPos = false) {
         case "4":
             var bookCount = df["fourthOf"] + " ";
             break;
+        case "5":
+            var bookCount = df["fifthOf"] + " ";
         default:
             var bookCount = '';
             break;
@@ -1176,6 +1178,9 @@ function shortenBook(book, separator) {
             var bookCount = '4';
             break;
         case '5.':
+        case df["fifthOf"]:
+        case curTl["fifthOf"]:
+        case secTl["fifthOf"]:  
             var bookCount = '5';
             break;
         case df["pbBook1"]:
