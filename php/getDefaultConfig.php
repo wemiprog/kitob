@@ -8,20 +8,12 @@ function setVar($array, $var, $value)
     }
     return $array;
 }
-function create($array)
-{
-    if (isset($array)){
-        // all ok
-        return $array;
-    } else {
-        $array = [];
-        return $array;
-    }
-}
 if($script) {
     // Default html and php definitions
     //$html = setVar($html, "lang", "newvalue");
-    $html = create($html);
+    if(!isset($html)) {
+        $html = [];
+    }
     $html = setVar($html, "lang", "en");
     $html = setVar($html, "title", "KITOB | The Bible");
     $html = setVar($html, "trans1", "ASV");
@@ -29,7 +21,9 @@ if($script) {
     $html = setVar($html, "choose", "Choose");
     $html = setVar($html, "loading", "Chosen text is loading ...");
 
-    $vars = create($vars);
+    if(!isset($vars))  {
+        $vars = [];
+    }
     $vars = setVar($vars, "homedir", $homedir);
     $vars = setVar($vars, "configDirFromHome", "/config/");
     $vars = setVar($vars, "configDir", $configdir);
