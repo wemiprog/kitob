@@ -561,7 +561,7 @@ function renderSearch(input, tg) {
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
         <h3><a linkTg=" + href + "'>\
-        " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
+        " + shortenBook(value['book'], ". ") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
 
