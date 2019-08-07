@@ -5,7 +5,7 @@ $homedir = $user['dir'];
 $configdir = "$homedir/config/";
 $datadir = "$homedir/data/";
 
-if($root) {
+if(isset($root)) {
     $path = "./config/userConfig.php";
     if(file_exists($path)){
         include $path;

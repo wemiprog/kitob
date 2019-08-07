@@ -8,7 +8,7 @@ function setVar($array, $var, $value)
     }
     return $array;
 }
-if($script) {
+if(isset($script)) {
     // Default html and php definitions
     //$html = setVar($html, "lang", "newvalue");
     if(!isset($html)) {
