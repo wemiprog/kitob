@@ -6,10 +6,16 @@ $configdir = "$homedir/config/";
 $datadir = "$homedir/data/";
 
 if($root) {
-    include "./config/userConfig.php";
+    $path = "./config/userConfig.php";
+    if(file_exists($path)){
+        include $path;
+    }
     require "./php/getDefaultConfig.php";
 } else {
-    include "../config/userConfig.php";
+    $path = "../config/userConfig.php";
+    if(file_exists($path)){
+        include $path;
+    }
     require "./getDefaultConfig.php";
 }
 ?>
