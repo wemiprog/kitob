@@ -63,10 +63,10 @@ setVar("allowedTrans", /^([ёйқукенгшҳзхъӯғэждлорпавҷф�
 setVar("allowedBook", /([A-Za-z]+)((( ?)([A-Za-z]+))?)/);
 setVar("appName", "KITOB | The Bible");
 setVar("audioProvider","");
-setVar("firstOf", "1 ");
-setVar("secondOf", "2 ");
-setVar("thiredOf", "3 ");
-setVar("fourthOf", "4 ");
+setVar("firstOf", "1");
+setVar("secondOf", "2");
+setVar("thiredOf", "3");
+setVar("fourthOf", "4");
 setVar("gospel", "gospel"); // needed if in bookname, so "matthew" instead of "gospel of ..." is displayed
 setVar("pbBook1", "nothing"); // same
 setVar("defBook", "470");
