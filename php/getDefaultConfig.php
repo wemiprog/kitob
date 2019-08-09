@@ -60,7 +60,7 @@ setVar("avTls", {
 });
 setVar("allowedChars", 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜ:,.\\-1234567890\/ ');
 setVar("allowedTrans", /^([ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜ1234567890]{3,4})\//);
-setVar("allowedBook", /([A-Za-z]+)((( ?)([A-Za-z]+))?)/);
+setVar("allowedBook", /([A-Za-zÄÖÜäöü]+)((( ?)([A-Za-zÄÖÜäöü]+))?)/);
 setVar("appName", "KITOB | The Bible");
 setVar("audioProvider","");
 setVar("firstOf", "1");
