@@ -30,7 +30,7 @@ if(isset($script)) {
     $vars = setVar($vars, "dataDir", $datadir);
     $vars = setVar($vars, "defBook", "470");
     $vars = setVar($vars, "defTranslation", "asv");
-    $vars = setVar($vars, "allowedChars", "ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuioplkjhgfdsayxcvbnmÄÖÜäöü:,.-1234567890 ");
+    $vars = setVar($vars, "allowedChars", "ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuioplkjhgfdsayxcvbnmÄÖÜäöüéàèîÉÀÈÎ:,.-1234567890 ");
     $vars = setVar($vars, "replaceChars", ""); // odd = target letter, even = source letter
     $t1 = ["name" => "asv","file" => "$configdir/db_kitob_asv.php","alias" => "asv"];
     $vars = setVar($vars, "t1", $t1);
@@ -58,8 +58,8 @@ setVar("avTls", {
         target: 3
     },
 });
-setVar("allowedChars", 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜ:,.\\-1234567890\/ ');
-setVar("allowedTrans", /^([ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜ1234567890]{3,4})\//);
+setVar("allowedChars", 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜéàèîÉÀÈÎ:,.\\-1234567890\/ ');
+setVar("allowedTrans", /^([ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯQWERTZUIOPASDFGHJKLYXCVBNMqwertzuiopasdfghjklyxcvbnmäöüÄÖÜéàèîÉÀÈÎ1234567890]{3,4})\//);
 setVar("allowedBook", /([A-Za-zÄÖÜäöü]+)((( ?)([A-Za-zÄÖÜäöü]+))?)/);
 setVar("appName", "KITOB | The Bible");
 setVar("audioProvider","");

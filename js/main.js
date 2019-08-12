@@ -215,9 +215,17 @@ function handleInput(e) {
 
 function textLinks(e) {
     tg = $(e.target);
-    target = tg.attr('linkTg');
-    if (typeof target !== typeof undefined && target !== false) {
-        reloadText(target);
+    book = tg.attr('linkbook');
+    chapter = tg.attr('linkchapter');
+    verse = tg.attr('linkverse');
+    if (typeof book !== typeof undefined && book !== false) {
+        reloadText({
+            book: book,
+            chapter: chapter,
+            firstVerse: verse,
+            lastVerse: verse,
+            mark: true,
+        });
     }
 }
 
@@ -561,14 +569,14 @@ function renderSearch(input, tg) {
     $.each(input, function (key, value) {
         i++;
         // Create link to verse 
-        href = shortenBook(value['book'], "");
+        /*href = shortenBook(value['book'], "");
         href += value['chapter'];
-        href += ":" + value['verse'];
-
+        href += ":" + value['verse'];*/
+        
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a linkTg=" + href + "'>\
-        " + shortenBook(value['book'], ". ") + " " + value['chapter'] + ":" + value['verse'] + "\
+        <h3><a linkBook=" + value["bookNr"] + " linkChapter=" + value["chapter"] + " linkVerse=" + value["verse"] + ' >'
+        + shortenBook(value['book'], ". ") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
 
