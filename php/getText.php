@@ -50,8 +50,8 @@ function giveAnswer($input)
     } else {
         $mysql_answer = getVerses($input);
     }
-
     $array = createArrayFromSQL($mysql_answer);
+    
     return $array;
 }
 
@@ -150,7 +150,7 @@ function getSearchResults($req) {
     global $kitobSqli;
     $array = explode(" ", $req->search);
     $var1 = $array[0];
-    $sql = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
+    $sql = "SELECT b.long_name as 'book', b.book_number as 'bookNr', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
             FROM verses as v
             JOIN books as b on b.book_number = v.book_number
             WHERE v.text LIKE \"%". $var1 ."%\"";

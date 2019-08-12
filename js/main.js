@@ -256,9 +256,15 @@ function readUrl() {
     return requestedPath;
 }
 
-function setUrl(book = currentBook, chapter = currentChapter, withInput = true, onlyTitle = false) {
+function setUrl(book, chapter = currentChapter, withInput = true, onlyTitle = false) {
     // Set browser url
-    shortBook = shortenBook(book, "");
+    if(chapter != ""){
+        shortBook = shortenBook(book, "");
+        designBook = shortenBook(book, ". ");
+    } else{
+        shortBook = book;
+        designBook = book;
+    }
     translation = curTl.alias + "/";
     if (secTl.alias) {
         translation += secTl.alias + "/";
@@ -271,7 +277,6 @@ function setUrl(book = currentBook, chapter = currentChapter, withInput = true, 
             window.history.pushState("", book, "/" + shortPath);
         }
     }
-    designBook = shortenBook(book, ". ");
     designPath = designBook
     if (chapter != "") {
         designPath += " " + chapter;
@@ -432,7 +437,7 @@ function getText(rq, translation) {
             $('.no1').removeClass("fullHeight");
         } else {
             if (!$('.no1').hasClass("fullHeight")) {
-                setUrl();
+                setUrl(currentBook);
                 $('.no1').addClass("fullHeight");
             }
             return;
@@ -477,7 +482,7 @@ function renderText(receivedText, markObj, translation) {
     if (jsonText == "problem") {
         console.log("Book doesn't exist, choose another");
     }
-    if ("bookNr" in jsonText[0]) {
+    if ("header" in jsonText[0]) {
         renderVerses(jsonText, markObj, target);
         setTimeout(function () {
             scrollToVerse(translation);
