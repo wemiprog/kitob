@@ -7,6 +7,7 @@ if($script) { # When calling from server add $script = true
         "nothing" => "Ҳеҷ",
         "choose" => "Интихоб",
         "loading" => "Мо Китоби интихобшударо меорем ...",
+        "ftts" => "",
     ];
     $vars = [ #php
         "homedir" => $homedir,

@@ -20,6 +20,7 @@ if(isset($script)) {
     $html = setVar($html, "nothing", "Empty");
     $html = setVar($html, "choose", "Choose");
     $html = setVar($html, "loading", "Chosen text is loading ...");
+    $html = setVar($html, "ftts", "fullHeight"); // Makes menu constantly fullHeight, to disable ""
 
     if(!isset($vars))  {
         $vars = [];

@@ -51,7 +51,7 @@ require_once("php/getConfig.php");
 
     <main id="main">
         <div class="collapse-menu menu-container" id="collapseMenu">
-            <div class="menu">
+            <div class="menu <?php echo($html['ftts']);?>">
                 <div class="container">
                     <div class="row trans-select">
                         <div class="input-group mb-3">
