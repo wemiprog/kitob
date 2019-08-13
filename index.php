@@ -28,10 +28,10 @@ require_once("php/getConfig.php");
 <body>
     <nav class="navbar navbar-expand-sm navbar-light sticky-top" style="background-color: #e5f2e6">
         <img src="/img/book.png" width="30px" height="30px">
-        <img id="logo" height="35px" src="/<?php echo($html["logo"]); ?>" alt="logo" style="
+        <?php if($html["logo"] != ""){ ?><img id="logo" height="35px" src="/<?php echo($html["logo"]); ?>" alt="logo" style="
             padding-left: 10px;
             margin-top: 2px;
-        ">
+        "><?php }?>
         <form class="form-inline my-2 my-lg-0" autocomplete="off">
             <input id="reference" class="form-control rounded-sm mr-sm-2 ml-2 ml-sm-3" type="search"
                 placeholder="<?php echo($html["choose"]);?>" autocomplete="off">
