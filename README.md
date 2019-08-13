@@ -1,13 +1,18 @@
 # Kitob
-Kitob - a simple onlinebibel
+Kitob - a simple but powerful onlinebibel
 
 ## Current state
-In early developing🛠
- - An alpha version is online✨
+In development 🛠
+ - A beta version is online✨
 
 ## Set up on server
- - Upload the whole repo to your root folder of the hosting
- - Get a translation as .SQL-file and make it a database
+ - Create a webpage at your hosting provider pointing to path/kitob
+ - Go to path and execute
+   git clone https://github.com/wemiprog/kitob
+ - Copy a file under template with userConfig in the name to config/userConfig.php
+   - Make changes, variables available can be found in getDefaultConfig.php (don't edit)
+ - Create a mySQL-DB and upload bibledata (will be explained later)
+ - Copy template/db_kitob_sample.php to ~/config/ and fill in the values
  - Hope it works 😜
  - Better information will come one day (maybe)
 
