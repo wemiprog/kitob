@@ -1,4 +1,6 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
 /**
  * File is of 4 parts
  *  - EXECTION FUNCTIONS, mostly visible in main execution
@@ -11,12 +13,10 @@
 
 function startUp()
 {
-    // Get config dir and set global var
-    $user = posix_getpwuid(posix_getuid());
-    $homedir = $user['dir'];
-    $GLOBALS['configdir'] = $homedir . '/config/';
+    global $vars;
 
-    $GLOBALS['defaultbook'] = 'мат';
+    $GLOBALS['configdir'] = $vars["configDir"];
+    $GLOBALS['defaultbook'] = $vars["defBook"];
 }
 
 require "./universalFunctions.php";
@@ -24,16 +24,17 @@ require "./universalFunctions.php";
 function giveRequest()
 {
     global $true;
+    global $vars;
     $re = new stdClass();
 
     $input = json_decode($_POST['data'], $true);
 
     // Security check and default value setting
-    $re->translation = checkIt($input->translation, "trString");
-    $re->book = checkIt($input->book, "tgString");
+    $re->translation = checkIt($input->translation, "string", $vars["defTranslation"]);
+    $re->book = checkIt($input->book, "string", $GLOBALS["defaultbook"]);
     $con = createDBCon($re->translation);
     $re->bookNr = giveBookNr($re->book, $con); // 0 means "start search"
-    $re->search = checkIt($input->search, "richString");
+    $re->search = checkIt($input->search, "string", "FAIL");
     $re->chapter = checkIt($input->chapter, "number");
     $re->firstVerse = checkIt($input->firstVerse, "number");
     $re->lastVerse = checkIt($input->lastVerse, "number", true);
@@ -49,37 +50,22 @@ function giveAnswer($input)
     } else {
         $mysql_answer = getVerses($input);
     }
-
     $array = createArrayFromSQL($mysql_answer);
+    
     return $array;
 }
 
 // ADVANCED HELPER FUNCTIONS
-function checkIt($value, $type, $max = false)
+function checkIt($value, $type, $alt = false)
 {
+    global $vars;
     switch ($type) {
-        case "richString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890kmn ';
+        case "string":
+            $allowed = $vars["allowedChars"];
             if (str_contains_only($value, $allowed)) {
                 $return = $value;
             } else {
-                $return = "FAIL";
-            }
-            break;
-        case "trString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ:,.-1234567890kmn ';
-            if (str_contains_only($value, $allowed)) {
-                $return = $value;
-            } else {
-                $return = "kmn";
-            }
-            break;
-        case "tgString":
-            $allowed = 'ёйқукенгшҳзхъӯғэждлорпавҷфячсмитӣбюЁҒӮЪХЗҲШГНЕКУҚЙФҶВАПРОЛДЖЭЮБӢТИМСЧЯ1234567890 ';
-            if (str_contains_only($value, $allowed)) {
-                $return = $value;
-            } else {
-                $return = $GLOBALS['defaultbook'];
+                $return = $alt;
             }
             break;
         case "number":
@@ -87,7 +73,7 @@ function checkIt($value, $type, $max = false)
                 $return = $value;
             } else {
                 $return = 1;
-                if ($max) {
+                if ($alt) {
                     $return = 180;
                 }
             }
@@ -98,6 +84,7 @@ function checkIt($value, $type, $max = false)
 
 function giveBookNr($input, $con, $dontRecurse = 0)
 {
+    global $vars;
     if(is_numeric($input)){
         return $input;
     }
@@ -106,10 +93,10 @@ function giveBookNr($input, $con, $dontRecurse = 0)
                 LIMIT 1";
     $result = $con->query($sql);
     if ($result->num_rows == 0 && $dontRecurse < 8) { // Correct up to 8 typos
-        $typos = mb_str_to_array("ғгёеӣийиқкӯуҳхҷч"); // typo correction array
+        $typos = mb_str_to_array($vars["replaceChars"]); // typo correction array
         $modBook = $input;
         $helper = $modBook;
-        for ($i = 0; $i < 16; $i += 2) {
+        for ($i = 0; $i < sizeof($typos); $i += 2) {
             $modBook = $helper;
             
             if (sizeof(explode(" ", $modBook)) > 1) {  // if a space is in request, split up, to ensure
@@ -127,7 +114,6 @@ function giveBookNr($input, $con, $dontRecurse = 0)
 
             $plainEditBook = str_replace($typos[$i + 1], $typos[$i], $plainBook);
             $modBook = $countBook . $plainEditBook;
-            //if($modBook == "қ") {$modBook = "якуми қ";}
             $bookNr = giveBookNr($modBook, $con, $dontRecurse + 1);
             if ($bookNr != 0) { // If successfully found book don't search longer
                 break;
@@ -164,7 +150,7 @@ function getSearchResults($req) {
     global $kitobSqli;
     $array = explode(" ", $req->search);
     $var1 = $array[0];
-    $sql = "SELECT b.long_name as 'book', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
+    $sql = "SELECT b.long_name as 'book', b.book_number as 'bookNr', v.chapter as 'chapter', v.verse as 'verse', v.text as 'text'
             FROM verses as v
             JOIN books as b on b.book_number = v.book_number
             WHERE v.text LIKE \"%". $var1 ."%\"";

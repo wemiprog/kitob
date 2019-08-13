@@ -1,0 +1,44 @@
+<?php
+if(isset($script)) {
+	$html = [
+    /* Vars for the php file (index.php) */
+		"lang" => "de",
+	];
+	$vars = [
+		"defTranslation" => "shortname", /* alias of def trans */
+		"t2" => [
+			"name" => "shortname", /* is allowed to be for example kyrillic */
+			"file" => "$configdir/db_kitob_shortname.php",
+			"alias" => "shortname" /* must be latin chars */
+		],
+		"t3" => [],
+		"t4" => ["name" => "","file"=>""],
+		"t5" => ["name"=>"","file"=>""],
+		"t6" => ["name"=>"","file"=>""],
+		"t7" => ["name"=>"","file"=>""],
+		"t8" => ["name"=>"","file"=>""],
+	];
+}else{
+?>
+
+// Javascript
+df = {
+	"avTls": {
+		0: {
+			name: "Empty", // translate 
+			alias: false,
+			content: false,
+			target: 2
+		},
+		1: {
+			name: "ASV", // in Menu
+			alias: "asv", // in URL
+			content: true, // if placehoder "false, if 
+			target: 3 // 1 --> window 1, 2 --> window 2, 3 --> both
+		},
+	},
+	"appName": "KITOB | Die Bibel", // Normal values to be set like this
+};
+<?php
+}
+?>

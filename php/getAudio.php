@@ -1,13 +1,14 @@
 <?php
+$script = true;
+require_once("./getConfig.php");
 
 // EXECUTION FUNCTIONS
 function startUp()
 {
+    global $vars;
     // Get config dir and set global var
-    $user = posix_getpwuid(posix_getuid());
-    $homedir = $user['dir'];
-    $GLOBALS['datadir'] = $homedir . '/data/';
-    $GLOBALS['defaulttranslation'] = 'kmn';
+    $GLOBALS['datadir'] = $vars["dataDir"];
+    $GLOBALS['defaulttranslation'] = $vars["defTranslation"];
 }
 
 function giveRequest()
@@ -29,13 +30,34 @@ function giveRequest()
 
 function checkTranslation($input)
 {
+    global $vars;
     switch ($input) {
-        case "км92":
-            $re = "km92";
+        case $vars["t1"]["name"]:
+            $re = $vars["t1"]["alias"];
+            break;
+        case $vars["t2"]["name"]:
+            $re = $vars["t2"]["alias"];
+            break;
+        case $vars["t3"]["name"]:
+            $re = $vars["t3"]["alias"];
+            break;
+        case $vars["t4"]["name"]:
+            $re = $vars["t4"]["alias"];
+            break;
+        case $vars["t5"]["name"]:
+            $re = $vars["t5"]["alias"];
+            break;
+        case $vars["t6"]["name"]:
+            $re = $vars["t6"]["alias"];
+            break;
+        case $vars["t7"]["name"]:
+            $re = $vars["t7"]["alias"];
+            break;
+        case $vars["t8"]["name"]:
+            $re = $vars["t8"]["alias"];
             break;
         default:
             $re = false;
-            break;
     }
     return $re;
 }
@@ -95,8 +117,6 @@ function giveFile($filename) {
         }
 
         symlink($filename, $target);
-        // echo $target;
-        // exit();
         return substr($target,2);
     } else {
         return FALSE;
@@ -118,10 +138,5 @@ startUp();
 $req = giveRequest();
 $filename = checkAudio($req);
 
-/*$answer = new stdClass();
-$answer->translation = $req->translation;
-$answer->available = $filename;
-$answer->book = $req->book;
-$answer->chapter = $req->chapter;*/
 $answer = giveFile($filename);
 echo $answer;

@@ -1,59 +1,43 @@
 /* Main file of kitob */
 /* GLOBAL VARS */
-var avTls = {
-    1: {
-        name: "КМН",
-        alias: "кмн",
-        content: true,
-        target: 3
-    },
-    2: {
-        name: "КМ92",
-        alias: "км92",
-        content: true,
-        target: 3
-    },
-    3: {
-        name: "Ҳеҷ",
-        alias: false,
-        content: false,
-        target: 2
-    }
-}
+var avTls = df["avTls"];
 var curTl = avTls[1];
-var secTl = avTls[3];
+var secTl = avTls[0];
 
+// To be used as values not changing on reload
 var currentBook = "";
 var currentBookNr = "0";
 var currentChapter = "0";
 
 var searchQuest = "";
+var backupSearch = "";
 var maybeSearch = false;
 var dontUpdate = false;
 var dontUpdateBook = false;
 var dontErase = false;
-var trans2search = false;
+var trans2search = false; // Forces search in second translation
 var translationChange = false;
+
+// Blocks Perpetum mobile
 var blockScroll1 = false;
 var blockScroll2 = false;
 var timer1, timer2;
-var sc = -2;
+
+var sc = -1;
 var ftts = true;
 
-var v1Top = 0;
-var v2Top = 0;
-
-var backupSearch = "";
-
+// Save Menu items on client to prevent reloading each time menu rendering
 var chaptersAvailable = [];
 var booksRendered = [];
 
+// Audio Vars
 var audio = $('#chapterAudio');
 var wasPlaying = false;
 var avSpeeds = [0.5, 1, 1.5, 2];
 var seekInProgress;
 
-var allowedChars = '\u0400-\u0527:,.\\-1234567890\/ ';
+// Allow kyrillic chars
+var allowedChars = df["allowedChars"];
 
 
 /* EVENT HANDLERS */
@@ -189,6 +173,7 @@ $(".wholeProgress").on({
     }
 });
 
+/* EventHandlerFunctions */
 function showMenu(show = true) {
     if (show) {
         $('#collapseMenu .btn-book').removeClass('current');
@@ -230,9 +215,19 @@ function handleInput(e) {
 
 function textLinks(e) {
     tg = $(e.target);
-    target = tg.attr('linkTg');
-    if (typeof target !== typeof undefined && target !== false) {
-        reloadText(target);
+    book = tg.attr('linkbook');
+    chapter = tg.attr('linkchapter');
+    verse = tg.attr('linkverse');
+    backupSearch = "book" + chapter + "." + verse;
+    if (typeof book !== typeof undefined && book !== false) {
+        maybeSearch = false;
+        reloadText({
+            book: book,
+            chapter: chapter,
+            firstVerse: verse,
+            lastVerse: verse,
+            mark: true,
+        });
     }
 }
 
@@ -248,11 +243,14 @@ function reloadText(source = "url", target = 1) {
     }
     if (source == "url") {
         var reTxt = readUrl();
-    } else if (source == "numbers") {
+    }
+    else if (source == "numbers") {
         var reObj = interpretReq(backupSearch, true);
-    } else if (typeof source == "string") {
+    }
+    else if (typeof source == "string") {
         var reTxt = source;
-    } else {
+    }
+    else {
         var reObj = source;
     }
     if (typeof reObj != "object") {
@@ -268,9 +266,15 @@ function readUrl() {
     return requestedPath;
 }
 
-function setUrl(book = currentBook, chapter = currentChapter, withInput = true, onlyTitle = false) {
+function setUrl(book, chapter = currentChapter, withInput = true, onlyTitle = false) {
     // Set browser url
-    shortBook = shortenBook(book, "");
+    if(chapter != ""){
+        shortBook = shortenBook(book, "");
+        designBook = shortenBook(book, ". ");
+    } else{
+        shortBook = book;
+        designBook = book;
+    }
     translation = curTl.alias + "/";
     if (secTl.alias) {
         translation += secTl.alias + "/";
@@ -281,14 +285,17 @@ function setUrl(book = currentBook, chapter = currentChapter, withInput = true, 
             dontUpdate = false;
         } else {
             window.history.pushState("", book, "/" + shortPath);
+            if(df["ga"] && typeof ga != "undefined") {
+                ga('set','page','/'+shortPath);
+                ga('send','pageview');
+            }
         }
     }
-    designBook = shortenBook(book, ". ");
     designPath = designBook
     if (chapter != "") {
         designPath += " " + chapter;
     }
-    document.title = designPath + ' - Китоби Муқаддас';
+    document.title = designPath + ' - ' + df["appName"];
     if (withInput) {
         $('#reference').val(designPath);
     }
@@ -299,7 +306,7 @@ function interpretReq(reqPath, numberIfPos = false) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
     // Extract translation
-    var ex = /^([\u0400-\u05271234567890]{3,4})\//
+    var ex = df["allowedTrans"];
     var trans1 = false;
     var trans2 = false;
     try {
@@ -327,17 +334,19 @@ function interpretReq(reqPath, numberIfPos = false) {
     var bookNumber = ex.exec(reqPath)[0];
     switch (bookNumber) {
         case "1":
-            var bookCount = 'якуми ';
+            var bookCount = df["firstOf"] + " ";
             break;
         case "2":
-            var bookCount = 'дуюми ';
+            var bookCount = df["secondOf"] + " ";
             break;
         case "3":
-            var bookCount = 'сеюми ';
+            var bookCount = df["thirdOf"] + " ";
             break;
         case "4":
-            var bookCount = 'чоруми ';
+            var bookCount = df["fourthOf"] + " ";
             break;
+        case "5":
+            var bookCount = df["fifthOf"] + " ";
         default:
             var bookCount = '';
             break;
@@ -346,13 +355,13 @@ function interpretReq(reqPath, numberIfPos = false) {
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
     //backupSearch = "";
-    var ex = /([\u0400-\u0527]+)((( ?)([\u0400-\u0527]+))?)/ // choose all cyrillic letters
+    var ex = df["allowedBook"]; // choose all letters
     try {
         var bookName = ex.exec(reqPath)[0];
         maybeSearch = true;
         backupSearch = searchQuest;
     } catch (e) {
-        var bookName = "матто";
+        var bookName = df["defBook"];
         maybeSearch = false;
     }
     // Combine count and name
@@ -411,7 +420,7 @@ function interpretReq(reqPath, numberIfPos = false) {
         }
         if (trans2search) {
             trans2search = false;
-            reqBook = "фҷва";
+            reqBook = df["inexistent"]; // Something inexistent
         }
 
     }
@@ -442,7 +451,7 @@ function getText(rq, translation) {
             $('.no1').removeClass("fullHeight");
         } else {
             if (!$('.no1').hasClass("fullHeight")) {
-                setUrl();
+                setUrl(currentBook);
                 $('.no1').addClass("fullHeight");
             }
             return;
@@ -465,14 +474,20 @@ function getText(rq, translation) {
 function renderText(receivedText, markObj, translation) {
     if (translation == 1) {
         var target = $('.windowContainer .no1 .text');
+        var tlname = curTl.name;
     } else if (translation == 2) {
         var target = $('.windowContainer .no2 .text');
+        var tlname = secTl.name;
     }
 
     if (receivedText == "[]") {
-        target.html("<div class=\"alert alert-danger rounded-sm\"> Ин калима вуҷуд надорад!</div> ");
         if (translation == 1) {
             $('#reference').val(searchQuest);
+        }
+        if (maybeSearch || currentChapter == "") {
+            target.html("<div class=\"alert alert-danger rounded-sm\">" + df["noSearchResult"] + "</div> ");
+        } else {
+            target.html("<div class=\"alert alert-danger rounded-sm\"> " + df["verseNotFound1"] + " " + tlname + " " + df["verseNotFound2"] + "</div> ");
         }
         return;
     }
@@ -481,7 +496,7 @@ function renderText(receivedText, markObj, translation) {
     if (jsonText == "problem") {
         console.log("Book doesn't exist, choose another");
     }
-    if ("bookNr" in jsonText[0]) {
+    if ("header" in jsonText[0]) {
         renderVerses(jsonText, markObj, target);
         setTimeout(function () {
             scrollToVerse(translation);
@@ -493,13 +508,6 @@ function renderText(receivedText, markObj, translation) {
     if (translation == 1) {
         reloadText("numbers", 2);
     }
-    try {
-        v1Top = $(".no1 div div")[0].scrollHeight + $(".no1 div div")[0].offsetTop;
-        v2Top = $(".no2 div div")[0].scrollHeight + $(".no2 div div")[0].offsetTop;
-    } catch (error) {
-        v2Top = 0;
-    }
-
 }
 
 function renderVerses(input, mk, tg) { // mk markobject
@@ -511,10 +519,8 @@ function renderVerses(input, mk, tg) { // mk markobject
 
     // Make book search possible
     if (maybeSearch) {
-        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>Ҷустуҷӯи: " + backupSearch + "</a></div>";
+        text += "<div class='alert alert-info'><a href=\"javascript:forceSearch()\" style='color: inherit; text-decoration: underline;'>" + df["forceSearch"] + ": " + backupSearch + "</a></div>";
         maybeSearch = false;
-    } else {
-
     }
 
     /* Read 'n convert each verse */
@@ -569,14 +575,14 @@ function renderSearch(input, tg) {
     $.each(input, function (key, value) {
         i++;
         // Create link to verse 
-        href = shortenBook(value['book'], "");
+        /*href = shortenBook(value['book'], "");
         href += value['chapter'];
-        href += ":" + value['verse'];
-
+        href += ":" + value['verse'];*/
+        
         // Search result location
         text += "<div forResult='" + i + "' class='subtitle'>\
-        <h3><a linkTg=" + href + "'>\
-        " + shortenBook(value['book'], "") + " " + value['chapter'] + ":" + value['verse'] + "\
+        <h3><a linkBook=" + value["bookNr"] + " linkChapter=" + value["chapter"] + " linkVerse=" + value["verse"] + ' >'
+        + shortenBook(value['book'], ". ") + " " + value['chapter'] + ":" + value['verse'] + "\
         </a></h3>\
         </div>";
 
@@ -589,12 +595,12 @@ function renderSearch(input, tg) {
     });
 
     // Add result count
-    text = "<div class='count alert alert-success'><i><b>" + i + "</b> оят</i></div>" + text;
+    text = "<div class='count alert alert-success'><i><b>" + i + "</b> " + df["verse"] + "</i></div>" + text;
     tg.html(text);
     if (searchQuest.split(" ").length == 1) {
         var words = tg.html().split('"mark"').length; // todo fix counter
         counterText = tg.find('.count i').html();
-        counterText = words + " маротиба, " + counterText;
+        counterText = words + " " + df["times"] + ", " + counterText;
         tg.find('.count i').html(counterText);
     }
     currentBook = searchQuest;
@@ -617,7 +623,6 @@ function getAudioLink() {
         url: "/php/getAudio.php",
         data: "data=" + requestString
     }).done(function (mp3Link) {
-        //console.log(data);
         if (mp3Link) {
             updateAudioPlayer(mp3Link);
             if (wasPlaying) {
@@ -639,8 +644,8 @@ function mediaSession() {
 
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioTitle,
-            artist: 'Китоби Муққадас',
-            album: 'Имон Бо Шунидан аст',
+            artist: df["appName"],
+            album: df["audioProvider"],
             artwork: [
                 { src: '/img/book-96.png', sizes: '96x96', type: 'image/png' },
                 { src: '/img/book-128.png', sizes: '128x128', type: 'image/png' },
@@ -658,7 +663,7 @@ function mediaSession() {
     }
 }
 
-function playAudio(action, value = 0) {
+function playAudio(action) {
     var currentState = !audio[0].paused;
 
     if (action == "playpause" || !action) {
@@ -674,7 +679,8 @@ function playAudio(action, value = 0) {
             .then(_ => {
                 mediaSession();
             }).catch(error => {
-                console.log(error);
+                if (!error == "DOMException")
+                    console.log(error);
             });
         $(".fa-volume-up").addClass("volume");
         $(".play-pause").addClass("fa-pause");
@@ -734,16 +740,15 @@ function playAudio(action, value = 0) {
                 $(".no1").scrollTop(0);
                 $(".window").removeClass("darkScroll");
             } else {
-                console.log("test")
                 $(".no1").scrollTop(fullHeight - visHeight);
                 $(".window").removeClass("darkScroll");
             }
-            if(secTl.content) {                
+            if (secTl.content) {
                 var visHeight2 = $(".no2").height();
                 var fullHeight2 = $(".no2 .text").outerHeight();
                 var startHeight2 = (visHeight2 * 100) / (2 * fullHeight2);
                 var stopHeight2 = 100 - startHeight2;
-                if( startHeight2 < progress && progress < stopHeight2) {
+                if (startHeight2 < progress && progress < stopHeight2) {
                     var newScroll2 = (((fullHeight2 - visHeight2 * 0) * progress) / 100) - (visHeight2 / 2);
 
                     $(".no2").stop(true, true).animate({
@@ -799,7 +804,7 @@ function forceSearch() {
         trans2search = true;
     }
     reloadText({
-        book: 'фҷва',
+        book: df["inexistent"],
         chapter: 0,
         firstVerse: 1,
         lastVerse: 180,
@@ -835,8 +840,8 @@ function getChapters() {
 
 /* Fill chapter chooser with content */
 function renderBookChooser(chapterArray) {
-    i = 0,
-        bookButtons = "";
+    i = 0;
+    var bookButtons = "";
     if (booksRendered[curTl.name]) {
         bookButtons = booksRendered[curTl.name];
     } else {
@@ -986,9 +991,9 @@ function handleTranslation(e) {
     var tg = $(e.target);
     var tgWindow = tg.attr("tr");
     var newTlNr = parseInt(tg.val());
-    if (ftts) {
+    if (ftts) { // Sets menu to full Height after first opening
         $('.menu').addClass("fullHeight");
-        ffts = false;
+        ftts = false;
     }
     if (tgWindow == 1) {
         curTl = avTls[newTlNr];
@@ -1054,12 +1059,7 @@ function renderTranslations(target = false) {
     var menu1 = "";
     var menu2 = "";
     if (sc == true) {
-        avTls[Object.keys(avTls).length + 1] = {
-            name: "ЕЛБ",
-            alias: "елб",
-            content: true,
-            target: 3
-        };
+        avTls[Object.keys(avTls).length + 1] = df["scrTl"];
     }
     // Menu 1
     $.each(avTls, function (index, value) {
@@ -1167,26 +1167,45 @@ renderTranslations();
 
 /* Helpers */
 function shortenBook(book, separator) {
+    var lowBookArray = book.toLowerCase().split(' ');
     var bookArray = book.split(' ');
     var bookName = bookArray[1];
-    switch (bookArray[0]) {
-        case 'Якуми':
+    switch (lowBookArray[0]) {
+        case '1.':
+        case df["firstOf"]:
+        case curTl["firstOf"]:
+        case secTl["firstOf"]:
             var bookCount = '1';
             break;
-        case 'Дуюми':
+        case '2.':
+        case df["secondOf"]:
+        case curTl["secondOf"]:
+        case secTl["secondOf"]:
             var bookCount = '2';
             break;
-        case 'Сеюми':
+        case '3.':
+        case df["thirdOf"]:
+        case curTl["thirdOf"]:
+        case secTl["thirdOf"]:
             var bookCount = '3';
             break;
-        case 'Чоруми':
+        case '4.':
+        case df["fourthOf"]:
+        case curTl["fourthOf"]:
+        case secTl["fourthOf"]:
             var bookCount = '4';
             break;
-        case 'Такрори':
+        case '5.':
+        case df["fifthOf"]:
+        case curTl["fifthOf"]:
+        case secTl["fifthOf"]:  
+            var bookCount = '5';
+            break;
+        case df["pbBook1"]:
             var bookCount = '';
             separator = '';
             break;
-        case 'Инчили':
+        case df["gospel"]:
             var bookCount = '';
             separator = '';
             break;
@@ -1215,7 +1234,7 @@ function scrollToVerse(tg) {
                 scrollTop: $('.no2 .mark').position().top - 3
             });
         } catch (e) {
-            //
+            // continue
         }
     }
 }
@@ -1231,7 +1250,8 @@ window.addEventListener('keydown', handleFirstTab);
 
 $(window).on("load", function () {
     delete Hammer.defaults.cssProps.userSelect;
-    var watchObjs = document.getElementsByClassName("text");
+    //var watchObjs = document.getElementsByClassName("text");
+    var watchObjs = document.getElementsByClassName("windowContainer");
     var i = 0;
     var hammerText = [];
     for (watchObj of watchObjs) {
