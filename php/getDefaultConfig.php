@@ -46,7 +46,7 @@ function setVar(name, value) {
 /* Default JS Definitions */
 setVar("avTls", {
     0: {
-        name: "Ҳеҷ",
+        name: "Empty",
         alias: false,
         content: false,
         target: 2
