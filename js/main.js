@@ -285,7 +285,7 @@ function setUrl(book, chapter = currentChapter, withInput = true, onlyTitle = fa
             dontUpdate = false;
         } else {
             window.history.pushState("", book, "/" + shortPath);
-            if(df["ga"]) {
+            if(df["ga"] && typeof ga != "undefined") {
                 ga('set','page','/'+shortPath);
                 ga('send','pageview');
             }
