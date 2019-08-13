@@ -81,6 +81,7 @@ setVar("verseNotFound2", "those verses weren't found");
 setVar("forceSearch", "Search");
 setVar("verse", "vers(es)");
 setVar("times", "times");
+setVar("ga", false); // google analytics
 setVar("scrTl",{}); // if you want an easteregg language :)
 <?php }
 ?>
