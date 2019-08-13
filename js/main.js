@@ -1246,7 +1246,8 @@ window.addEventListener('keydown', handleFirstTab);
 
 $(window).on("load", function () {
     delete Hammer.defaults.cssProps.userSelect;
-    var watchObjs = document.getElementsByClassName("text");
+    //var watchObjs = document.getElementsByClassName("text");
+    var watchObjs = document.getElementsByClassName("windowContainer");
     var i = 0;
     var hammerText = [];
     for (watchObj of watchObjs) {
