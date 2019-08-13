@@ -218,7 +218,9 @@ function textLinks(e) {
     book = tg.attr('linkbook');
     chapter = tg.attr('linkchapter');
     verse = tg.attr('linkverse');
+    backupSearch = "book" + chapter + "." + verse;
     if (typeof book !== typeof undefined && book !== false) {
+        maybeSearch = false;
         reloadText({
             book: book,
             chapter: chapter,
@@ -300,7 +302,7 @@ function interpretReq(reqPath, numberIfPos = false) {
     searchQuest = reqPath.trim();
     reqPath = searchQuest.toLowerCase();
     // Extract translation
-    var ex = df["allowedTrans"]
+    var ex = df["allowedTrans"];
     var trans1 = false;
     var trans2 = false;
     try {
@@ -349,7 +351,7 @@ function interpretReq(reqPath, numberIfPos = false) {
     // Every letter except number and " ", at least one
     // Then if wanted a space with following letters
     //backupSearch = "";
-    var ex = df["allowedBook"]; // choose all cyrillic letters
+    var ex = df["allowedBook"]; // choose all letters
     try {
         var bookName = ex.exec(reqPath)[0];
         maybeSearch = true;
@@ -734,7 +736,6 @@ function playAudio(action) {
                 $(".no1").scrollTop(0);
                 $(".window").removeClass("darkScroll");
             } else {
-                console.log("test")
                 $(".no1").scrollTop(fullHeight - visHeight);
                 $(".window").removeClass("darkScroll");
             }
