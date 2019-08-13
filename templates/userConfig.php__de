@@ -1,0 +1,67 @@
+<?php
+if(isset($script)) {
+	$html = [
+		"lang" => "de",
+		"title" => "KITOB | Die Bibel",
+		"trans1" => "elb",
+		"nothing" => "Keine",
+		"choose" => "Suche - Stelle wählen",
+		"loading" => "Der gewünschte Text wird geladen ..."
+	];
+	$vars = [
+		"defTranslation" => "elb",
+		"t2" => [
+			"name" => "elb",
+			"file" => "$configdir/db_kitob_elb.php",
+			"alias" => "elb"
+		],
+		"t3" => [
+			"name" => "км92",
+			"file" => "$configdir/db_kitob_km92.php",
+			"alias" => "km92",
+		],
+		"t4" => ["name" => "","file"=>""],
+		"t5" => ["name"=>"","file"=>""],
+		"t6" => ["name"=>"","file"=>""],
+		"t7" => ["name"=>"","file"=>""],
+		"t8" => ["name"=>"","file"=>""],
+	];
+}else{
+?>
+df = {
+	"avTls": {
+		0: {
+			name: "Keine",
+			alias: false,
+			content: false,
+			target: 2
+		},
+		2: {
+			name: "ASV",
+			alias: "asv",
+			content: true,
+			target: 3
+		},
+		1: {
+			name: "ELB",
+			alias: "elb",
+			content: true,
+			target: 3,
+		},
+		3: {
+			name: "КМ92",
+			alias: "км92",
+			content: true,
+			target: 2
+		}
+	},
+	"appName": "KITOB | Die Bibel",
+	"noSearchResult": "Leider keine Resultate für diese Suche",
+	"verseNotFound2": "wurden diese Verse nicht gefunden.",
+	"forceSearch": "Suche nach",
+	"verse": "Verse",
+	"times": "mal",
+};
+<?php
+}
+?>
