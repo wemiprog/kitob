@@ -1170,7 +1170,7 @@ function shortenBook(book, separator) {
     var lowBookArray = book.toLowerCase().split(' ');
     var bookArray = book.split(' ');
     var bookName = bookArray[1];
-    console.log(bookName);
+
     switch (lowBookArray[0]) {
         case '1.':
         case df["firstOf"]:
