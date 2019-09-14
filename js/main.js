@@ -216,6 +216,9 @@ function handleInput(e) {
 function textLinks(e) {
     tg = $(e.target);
     book = tg.attr('linkbook');
+    if(typeof book === "undefined"){
+        return; // allows the link "forcesearch to work (which doesnt contain an linkbook attribute)"
+    }
     chapter = tg.attr('linkchapter');
     verse = tg.attr('linkverse');
     backupSearch = "book" + chapter + "." + verse;
@@ -803,6 +806,8 @@ function forceSearch() {
     if (secTl.content) {
         trans2search = true;
     }
+    console.log("search: " + backupSearch);
+    
     reloadText({
         book: df["inexistent"],
         chapter: 0,
