@@ -286,6 +286,7 @@ function setUrl(book, chapter = currentChapter, withInput = true, onlyTitle = fa
     if (!onlyTitle) {
         if (dontUpdate) {
             dontUpdate = false;
+            renderTranslations();
         } else {
             window.history.pushState("", book, "/" + shortPath);
             if(df["ga"] && typeof ga != "undefined") {
