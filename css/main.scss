@@ -2,6 +2,7 @@
 body {
   overflow-y: scroll;
 }
+
 .noselect {
   cursor: default;
   -webkit-touch-callout: none;
@@ -492,6 +493,12 @@ main {
     }*/
 }
 
+.amb {
+  
+  &:hover {
+    color: #0a8e12;
+  }
+}
 
 @keyframes change1 {
     0% {
