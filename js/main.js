@@ -181,8 +181,10 @@ function showMenu(show = true) {
             $('#collapseMenu .btn-book').filter('[bookNr=' + currentBookNr + ']').addClass('current');
         }
         $('#collapseMenu').toggleClass("show");
+        $('.ani-button').toggleClass("open");
     } else {
         $('#collapseMenu').removeClass("show");
+        $('.ani-button').removeClass("open");
     }
 }
 
