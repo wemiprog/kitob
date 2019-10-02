@@ -501,9 +501,9 @@ main {
 }
 
 .amb {
-  &:active {
+  &:active:not(.fa-stack):not(.audioButton) {
     transform: scale(0.95);
-    transition: scale 0.5s;
+    transition: scale 0.25s;
   }
 
   &:hover {
