@@ -274,7 +274,14 @@ main {
       transition: height 0.5s;
 
       &.darkScroll {
-        background-image: linear-gradient(to bottom, #fff, #fff 20%, #e5f2e6 50%, #fff 80%, #fff);
+        background-image: linear-gradient(
+          to bottom,
+          #fff,
+          #fff 20%,
+          #e5f2e6 50%,
+          #fff 80%,
+          #fff
+        );
       }
 
       &.no1.fullHeight {
@@ -494,23 +501,26 @@ main {
 }
 
 .amb {
-  
+  &:active {
+    transform: scale(0.95);
+    transition: scale 0.5s;
+  }
+
   &:hover {
     color: #0a8e12;
   }
 }
 
 @keyframes change1 {
-    0% {
-      //display: block;
-      //opacity: 1;
-      clip-path: inset(0px 17px 0px 0px);
-    }
-    85% {
-        clip-path: inset(0px 3px 0px 0px);
-    }
+  0% {
+    //display: block;
+    //opacity: 1;
+    clip-path: inset(0px 17px 0px 0px);
   }
-
+  85% {
+    clip-path: inset(0px 3px 0px 0px);
+  }
+}
 
 /* Removes blue thing around inputs except for keyboard users*/
 body:not(.user-is-tabbing) button:focus,
