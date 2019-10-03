@@ -2,6 +2,7 @@
 body {
   overflow-y: scroll;
 }
+
 .noselect {
   cursor: default;
   -webkit-touch-callout: none;
@@ -273,7 +274,14 @@ main {
       transition: height 0.5s;
 
       &.darkScroll {
-        background-image: linear-gradient(to bottom, #fff, #fff 20%, #e5f2e6 50%, #fff 80%, #fff);
+        background-image: linear-gradient(
+          to bottom,
+          #fff,
+          #fff 20%,
+          #e5f2e6 50%,
+          #fff 80%,
+          #fff
+        );
       }
 
       &.no1.fullHeight {
@@ -492,18 +500,27 @@ main {
     }*/
 }
 
-
-@keyframes change1 {
-    0% {
-      //display: block;
-      //opacity: 1;
-      clip-path: inset(0px 17px 0px 0px);
-    }
-    85% {
-        clip-path: inset(0px 3px 0px 0px);
-    }
+.amb {
+  &:active:not(.fa-stack):not(.audioButton) {
+    transform: scale(0.95);
+    transition: scale 0.25s;
   }
 
+  &:hover {
+    color: #0a8e12;
+  }
+}
+
+@keyframes change1 {
+  0% {
+    //display: block;
+    //opacity: 1;
+    clip-path: inset(0px 17px 0px 0px);
+  }
+  85% {
+    clip-path: inset(0px 3px 0px 0px);
+  }
+}
 
 /* Removes blue thing around inputs except for keyboard users*/
 body:not(.user-is-tabbing) button:focus,
@@ -538,4 +555,90 @@ body:not(.user-is-tabbing) textarea:focus {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #909090;
+}
+
+/* ani-button */
+.ani-button {
+width: 30px;
+height: 20px;
+position: relative;
+margin: 0px;
+-webkit-transform: rotate(0deg);
+-moz-transform: rotate(0deg);
+-o-transform: rotate(0deg);
+transform: rotate(0deg);
+-webkit-transition: .5s ease-in-out;
+-moz-transition: .5s ease-in-out;
+-o-transition: .5s ease-in-out;
+transition: .5s ease-in-out;
+cursor: pointer;
+}
+
+.ani-button span {
+display: block;
+position: absolute;
+height: 3px;
+width: 100%;
+border-radius: 9px;
+opacity: 1;
+left: 0;
+-webkit-transform: rotate(0deg);
+-moz-transform: rotate(0deg);
+-o-transform: rotate(0deg);
+transform: rotate(0deg);
+-webkit-transition: .25s ease-in-out;
+-moz-transition: .25s ease-in-out;
+-o-transition: .25s ease-in-out;
+transition: .25s ease-in-out;
+}
+
+.ani-button span:nth-child(1) {
+top: 0px;
+-webkit-transform-origin: left center;
+-moz-transform-origin: left center;
+-o-transform-origin: left center;
+transform-origin: left center;
+}
+
+.ani-button span:nth-child(2) {
+top: 10px;
+-webkit-transform-origin: left center;
+-moz-transform-origin: left center;
+-o-transform-origin: left center;
+transform-origin: left center;
+}
+
+.ani-button span:nth-child(3) {
+top: 20px;
+-webkit-transform-origin: left center;
+-moz-transform-origin: left center;
+-o-transform-origin: left center;
+transform-origin: left center;
+}
+
+.ani-button.open span:nth-child(1) {
+-webkit-transform: rotate(45deg);
+-moz-transform: rotate(45deg);
+-o-transform: rotate(45deg);
+transform: rotate(45deg);
+top: 0px;
+left: 8px;
+}
+
+.ani-button.open span:nth-child(2) {
+width: 0%;
+opacity: 0;
+}
+
+.ani-button.open span:nth-child(3) {
+-webkit-transform: rotate(-45deg);
+-moz-transform: rotate(-45deg);
+-o-transform: rotate(-45deg);
+transform: rotate(-45deg);
+top: 21px;
+left: 8px;
+}
+
+.ani-button span {
+  background: #0007;
 }

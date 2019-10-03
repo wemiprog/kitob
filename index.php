@@ -41,7 +41,8 @@ require_once("php/getConfig.php");
         </form>
         <button class="navbar-toggler" type="button" id="menuToggler" aria-controls="navbarCollapsed"
             aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            <!--span class="navbar-toggler-icon"></span-->
+            <div class="ani-button"><span></span><span></span><span></span></div>
         </button>
     </nav>
 
