@@ -212,6 +212,7 @@ function handleInput(e) {
         var request = $(e.target).find('#reference').val();
         $(e.target).find('#reference').blur();
         reloadText(request);
+        showMenu(false);
     }
 }
 
@@ -1013,6 +1014,7 @@ function handleTranslation(e) {
     }
     dontUpdate = false;
     reloadText("numbers", tgWindow);
+    showMenu(false);
     getChapters();
 }
 
@@ -1054,7 +1056,7 @@ function handleChapter(bookNr, chapter) {
         mark: false,
         search: ""
     });
-    $('#collapseMenu').removeClass("show");
+    showMenu(false);
 }
 
 function toBookSelection() {
