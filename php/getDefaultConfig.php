@@ -16,7 +16,7 @@ if(isset($script)) {
     }
     $html = setVar($html, "lang", "en");
     $html = setVar($html, "title", "KITOB | The Bible");
-    $html = setVar($html, "logo", "img/logo.png");
+    $html = setVar($html, "logo", "");
     $html = setVar($html, "trans1", "ASV");
     $html = setVar($html, "nothing", "Empty");
     $html = setVar($html, "choose", "Choose");
