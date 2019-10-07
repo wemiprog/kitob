@@ -1054,7 +1054,7 @@ function handleChapter(bookNr, chapter) {
         mark: false,
         search: ""
     });
-    $('#collapseMenu').removeClass("show");
+    showMenu();
 }
 
 function toBookSelection() {
