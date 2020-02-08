@@ -354,6 +354,7 @@ function interpretReq(reqPath, numberIfPos = false) {
             break;
         case "5":
             var bookCount = df["fifthOf"] + " ";
+            break;
         default:
             var bookCount = '';
             break;
