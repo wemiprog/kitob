@@ -1,5 +1,5 @@
 # Kitob
-Kitob - a simple but powerful onlinebibel
+Kitob - a simple but very fast onlinebibel
 
 ## Current state
 In development 🛠
