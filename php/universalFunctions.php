@@ -1,6 +1,6 @@
 <?php
 $script = true;
-require_once "./getConfig.php";
+require_once $_SERVER['DOCUMENT_ROOT']."/php/getConfig.php";
 
 function createDBCon($translation)
 {

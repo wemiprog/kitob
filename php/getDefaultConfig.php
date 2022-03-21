@@ -37,7 +37,9 @@ if(isset($script)) {
     $vars = setVar($vars, "replaceChars", ""); // odd = target letter, even = source letter
     $t1 = ["name" => "asv","file" => "$configdir/db_kitob_asv.php","alias" => "asv"];
     $vars = setVar($vars, "t1", $t1);
-} else { ?>
+} else {
+header("Content-type: application/javascript");
+ ?>
 console.log("defaults loaded");
 if (typeof df == 'undefined') { df = {};}
 function setVar(name, value) {

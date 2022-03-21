@@ -91,7 +91,8 @@ function checkIfNumber($input)
 
 function checkAudio($file)
 {
-    $filename = $GLOBALS['datadir'] . $file->translation . "/" . $file->book . "/" . $file->chapter . ".mp3";
+    $filename = "/var/www/html/audioLibrary/" . $file->translation . "/" . $file->book . "/" . $file->chapter . ".mp3";
+
     if (is_file($filename)) {
         return $filename;
     } else {

@@ -8,10 +8,6 @@ RedirectMatch 404 /\.git
 # Rewrite start
 RewriteEngine On
 
-# Enable https
-RewriteCond %{HTTPS} !on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
 # Protect following
 RewriteRule ^css/ - [L]
 RewriteRule ^/css/ - [L]
@@ -32,6 +28,7 @@ RewriteRule android-chrome-512x512.png - [L]
 RewriteRule favicon-32x32.png - [L]
 RewriteRule favicon-16x16.png - [L]
 RewriteRule favicon.ico - [L]
+RewriteRule info.php - [L]
 
 # Rewrite all to /
 RewriteRule (.*) index.php?var=$1
